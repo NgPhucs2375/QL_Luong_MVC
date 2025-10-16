@@ -32,6 +32,8 @@ namespace QL_Luong_MVC.Models
             Lap_ListNhanVien();
             Lap_ListPhongBan();
             Lap_ListChucVu();
+            Lap_ListLuongCoBan();
+
 
         }
 
@@ -89,6 +91,115 @@ namespace QL_Luong_MVC.Models
                 dsChucVu.Add(t);
             }
         }
+
+        public void Lap_ListLuongCoBan()
+        {
+            SqlDataAdapter da = new SqlDataAdapter("Select * From LuongCoban", con);
+            DataTable datatable = new DataTable();
+            da.Fill(datatable);
+            foreach (DataRow dr in datatable.Rows)
+            {
+                var t = new LuongCoban();
+
+                t.IDLuongCoBan= int.Parse(dr["MaLCB"].ToString());
+                t.IDChucVu_LuongCB = int.Parse(dr["MaCV"].ToString());
+                t.MucLuong = decimal.Parse(dr["MucLuong"].ToString());
+                dsLuongCoban.Add(t);
+            }
+        }
+
+
+        // Hàm thêm Hợp đồng
+        // =========================
+        // UC5 - Thêm hợp đồng mới
+        // =========================
+        public bool ThemHopDong(HopDong hd)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(strcon))
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand("sp_ThemHopDong", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@MaNV", hd.IDNhanVIen_HopDong);
+                    cmd.Parameters.AddWithValue("@NgayBatDau", hd.DayToStart);
+                    cmd.Parameters.AddWithValue("@NgayKetThuc", hd.DayToEnd);
+                    cmd.Parameters.AddWithValue("@LoaiHopDong", hd.Loai_HopDong);
+                    cmd.Parameters.AddWithValue("@LuongCoBan", hd.LuongCoBan_HopDong);
+                    cmd.Parameters.AddWithValue("@GhiChu", hd.Note_HopDong ?? (object)DBNull.Value);
+
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi thêm hợp đồng: " + ex.Message);
+                return false;
+            }
+        }
+
+
+        // Hàm Thêm phụ cấp 
+        // =========================
+        // UC9 - Thêm phụ cấp mới
+        // =========================
+        public bool ThemPhuCap(PhuCap pc)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(strcon))
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand("sp_ThemPhuCap", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@MaNV", pc.IDNhanVien_PhuCap);
+                    cmd.Parameters.AddWithValue("@LoaiPhuCap", pc.Loai_PhuCap);
+                    cmd.Parameters.AddWithValue("@SoTien", pc.SoTien_PhuCap);
+
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi thêm phụ cấp: " + ex.Message);
+                return false;
+            }
+        }
+
+
+        // Hàm tính tổng phụ cấp của nhân viên
+        // =========================
+        // UC10 - Tính tổng phụ cấp nhân viên
+        // =========================
+        public decimal TongPhuCapNhanVien(int maNV)
+        {
+            decimal tong = 0;
+            try
+            {
+                using (SqlConnection con = new SqlConnection(strcon))
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT dbo.fn_TongPhuCap_NV(@MaNV)", con);
+                    cmd.Parameters.AddWithValue("@MaNV", maNV);
+
+                    object result = cmd.ExecuteScalar();
+                    if (result != DBNull.Value && result != null)
+                        tong = Convert.ToDecimal(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi tính tổng phụ cấp: " + ex.Message);
+            }
+            return tong;
+        }
+
+
 
 
     }

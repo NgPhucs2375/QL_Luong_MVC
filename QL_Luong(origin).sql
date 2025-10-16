@@ -299,27 +299,7 @@ AS
 
 	End
 
--- 3.Thêm phụ cấp cho 1 nhân viên 
--- 
-Create or alter procedure sp_ThemPhuCap @MaNV INT,@LoaiPhuCap NVARCHAR(50),@SoTien DECIMAL(18,2)
-AS
-	Begin
-		Set nocount on;
-		If not exists (
-			select *
-			from NHANVIEN
-			where MANV = @MaNV
-		)
-		begin 
-			raiserror(N'Cannot find a staff',16,1);
-			return ;
-		end
 
-		insert into PhuCap(MaNV,LoaiPhuCap,SoTien)
-		Values(@MaNV,@LoaiPhuCap,@SoTien);
-
-		print N'Đã thêm phụ cấp cho MaNV= ' + Cast(@MaNV AS nvarchar);
-	End
 
 -- 4.Thêm thưởng/phạt và cập nhật BangLuong cùng lúc 
 -- Giải thích : xử lý từng phần 
@@ -376,18 +356,7 @@ AS
 	End
 
 -- 2.Function (Hàm người dùng tự tạo)
--- 1.Tổng phụ cấp của nhân viên (all)
-create or alter function fn_TongPhuCap_NV(@MaNV int)
-returns decimal(18,2)
-AS	
-	begin
-		Declare @Tong decimal(18,2);
-		select @Tong = Sum(SoTien)
-		from PhuCap
-		where MaNV = @MaNV;
 
-		return isnull(@Tong,0)
-	end
 
 -- 2.Tổng phạt (âm) và thưởng (dương) của nhân viên
 CREATE OR ALTER FUNCTION fn_TongThuongPhat_NV(@MaNV INT)
@@ -493,21 +462,7 @@ BEGIN
 END;
 GO
 
--- 3.Khi cập nhật HopDong — nếu NgayKetThuc < GETDATE() thì cập nhật NhanVien.TrangThai = 'Nghỉ việc'
-CREATE OR ALTER TRIGGER trg_HopDong_AfterUpdate
-ON HopDong
-AFTER UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
 
-    UPDATE nv
-    SET TrangThai = N'Ngỉ việc'
-    FROM NhanVien nv
-    JOIN inserted i ON nv.MaNV = i.MaNV
-    WHERE i.NgayKetThuc IS NOT NULL AND i.NgayKetThuc < GETDATE();
-END;
-GO
 
 -- 4.Khi xóa NhanVien — ghi log (tạo bảng log nếu chưa có)
 IF OBJECT_ID('dbo.LichSuXoaNhanVien') IS NULL
@@ -545,3 +500,206 @@ GO
 --    INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
 --    SELECT i.MaNV, MONTH(GETDATE()), YEAR(GETDATE()), 0, 0, 0, 0
 --    FROM inserted
+
+
+
+
+-- PHUC : PHAN C --
+-- Thêm hợp đồng mới --
+create procedure sp_ThemHopDong @MaNV int,@NgayBatDau date ,@NgayKetThuc date = null , @LoaiHD nvarchar(50), @Luongcoban decimal(18,2), @Ghichu nvarchar(200) = null
+AS 
+	Begin 
+		Set nocount on;
+		if exists (select 1 from HopDong 
+					Where MaNV = @MaNV
+					And(NgayKetThuc  is null or NgayKetThuc>Getdate()))
+				Begin
+					Raiserror(N'Nhân viên này đang có hợp đồng còn hiệu lực!',16,1);
+					return ;
+				End
+
+				Insert into HopDong(MaNV,NgayBatDau,NgayKetThuc,LoaiHD,LuongCoBan,GhiChu)
+				Values (@MaNV,@NgayBatDau,@NgayKetThuc,@LoaiHD,@Luongcoban,@Ghichu);
+	end 
+
+
+--=================================================================================
+--=================================================================================
+--=================================================================================
+
+-- Cập nhật trạng thái hợp đồng hết hạn
+-- Khi cập nhật HopDong — nếu NgayKetThuc < GETDATE() thì cập nhật NhanVien.TrangThai = 'Nghỉ việc'
+
+create trigger tr_HopDong_AfterUpdate
+On HopDong
+After Update
+AS
+	Begin
+		Set Nocount on;
+
+		Update NhanVien
+		Set TrangThai = N'Nghỉ việc'
+		Where MaNV in(
+		Select i.MaNV
+		from inserted i
+		where i.NgayKetThuc < Getdate()
+		);
+	End
+
+-- TEST --
+-- TH1: Nhân viên chưa có hợp đồng còn hiệu lực
+EXEC sp_ThemHopDong 
+    @MaNV = 4,
+    @NgayBatDau = '2025-11-01',
+    @NgayKetThuc = '2026-11-01',
+    @LoaiHD = N'Có thời hạn',
+    @LuongCoBan = 7500000,
+    @GhiChu = N'Hợp đồng thử nghiệm 1 năm';
+
+-- Kết quả mong đợi:
+-- => Dòng mới được thêm vào bảng HopDong
+SELECT * FROM HopDong WHERE MaNV = 4;
+-- TH2: Nhân viên đã có hợp đồng còn hiệu lực
+EXEC sp_ThemHopDong 
+    @MaNV = 1,
+    @NgayBatDau = '2025-10-15',
+    @NgayKetThuc = '2026-10-15',
+    @LoaiHD = N'Có thời hạn',
+    @LuongCoBan = 8500000,
+    @GhiChu = N'Thử thêm hợp đồng trùng';
+-- Kết quả mong đợi:
+-- => Lỗi: “Nhân viên này đang có hợp đồng còn hiệu lực!”
+
+-- Kiểm tra trạng thái trước
+SELECT MaNV, TrangThai FROM NhanVien WHERE MaNV = 2;
+
+-- Cập nhật NgayKetThuc của hợp đồng sang quá khứ
+UPDATE HopDong
+SET NgayKetThuc = '2023-01-01'
+WHERE MaNV = 2;
+
+-- Sau khi update, trigger sẽ đổi trạng thái
+SELECT MaNV, TrangThai FROM NhanVien WHERE MaNV = 2;
+-- Kết quả mong đợi:
+-- => TrangThai = 'Nghỉ việc'
+
+--=================================================================================
+--=================================================================================
+--=================================================================================
+
+-- Thêm phụ cấp cho nhân viên
+-- 
+Create or alter procedure sp_ThemPhuCap @MaNV INT,@LoaiPhuCap NVARCHAR(50),@SoTien DECIMAL(18,2)
+AS
+	Begin
+		Set nocount on;
+		If not exists (
+			select *
+			from NHANVIEN
+			where MANV = @MaNV
+		)
+		begin 
+			raiserror(N'Nhân viên không tồn tại!',16,1);
+			return ;
+		end
+
+		insert into PhuCap(MaNV,LoaiPhuCap,SoTien)
+		Values(@MaNV,@LoaiPhuCap,@SoTien);
+
+		print N'Đã thêm phụ cấp cho MaNV= ' + Cast(@MaNV AS nvarchar);
+	End
+
+	-- Thêm phụ cấp mới cho nhân viên 3
+EXEC sp_ThemPhuCap 
+    @MaNV = 3,
+    @LoaiPhuCap = N'Phụ cấp chuyên cần',
+    @SoTien = 600000;
+
+-- Kết quả mong đợi:
+-- => Một dòng mới trong bảng PhuCap
+SELECT * FROM PhuCap WHERE MaNV = 3;
+
+-- TH2: Nhân viên không tồn tại
+EXEC sp_ThemPhuCap 
+    @MaNV = 999,
+    @LoaiPhuCap = N'Làm thêm',
+    @SoTien = 500000;
+-- => Lỗi: “Nhân viên không tồn tại!”
+
+--=================================================================================
+--=================================================================================
+--=================================================================================
+
+-- Tổng phụ cấp của nhân viên (all)
+create or alter function fn_TongPhuCap_NV(@MaNV int)
+returns decimal(18,2)
+AS	
+	begin
+		Declare @Tong decimal(18,2);
+		select @Tong = Sum(SoTien)
+		from PhuCap
+		where MaNV = @MaNV;
+
+		return isnull(@Tong,0)
+	end
+
+-- gọi  vd
+-- Kiểm tra tổng phụ cấp của nhân viên 3
+SELECT dbo.fn_TongPhuCap_NV(3) AS TongPhuCap_NV3;
+
+-- Kết quả mong đợi:
+-- => Tổng = tổng tất cả SoTien trong bảng PhuCap có MaNV = 3
+
+-- Kiểm tra nhân viên chưa có phụ cấp
+SELECT dbo.fn_TongPhuCap_NV(100) AS TongPhuCap_NV100;
+-- => Kết quả mong đợi: 0
+
+
+--=================================================================================
+--=================================================================================
+--=================================================================================
+
+-- Quản lí mức lương cơ bản
+create procedure sp_QuanLyLuongCoBan @HanhDong nvarchar(10),@MaCV int,@MucLuong decimal(18,2) = null
+AS
+	Begin
+		Set nocount on;
+		Begin try
+			begin transaction;
+
+			if @HanhDong = 'Thêm'
+				Insert into LuongCoBan(MaCV,MucLuong)
+				values (@MaCV,@MucLuong);
+			else if @HanhDong = 'Sửa'
+				Update LuongCoBan Set MucLuong = @MucLuong 
+				where MaCV = @MaCV;
+			else if @HanhDong = 'Xóa'
+				Delete From LuongCoBan 
+				where MaCV = @MaCV;
+			else
+				Raiserror(N'Hành động không hợp lệ! Chỉ được dùng Thêm/Sửa/Xóa.',16,1);
+			
+			Commit transaction ;
+		End try
+		Begin Catch
+			Rollback Trasaction;
+			Declare @Loi nvarchar(4000) = ERROR_MESSAGE();
+			Raiserror(@Loi,16,1);
+		End Catch
+	End
+
+	-- Thêm mới
+EXEC sp_QuanLyLuongCoBan @Action = 'ADD', @MaCV = 4, @MucLuong = 10500000;
+SELECT * FROM LuongCoBan;
+
+-- Cập nhật
+EXEC sp_QuanLyLuongCoBan @Action = 'UPDATE', @MaCV = 4, @MucLuong = 11000000;
+SELECT * FROM LuongCoBan WHERE MaCV = 4;
+
+-- Xóa
+EXEC sp_QuanLyLuongCoBan @Action = 'DELETE', @MaCV = 4;
+SELECT * FROM LuongCoBan WHERE MaCV = 4;
+
+-- TH4: Truyền sai tham số
+EXEC sp_QuanLyLuongCoBan @Action = 'REMOVE', @MaCV = 3;
+-- => Lỗi: “Hành động không hợp lệ! Chỉ được dùng ADD/UPDATE/DELETE.”

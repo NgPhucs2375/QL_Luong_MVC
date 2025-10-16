@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model QL_Luong_MVC.Models.PhuCap
+@{
+    ViewBag.Title = "Thêm phụ cấp";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Thêm phụ cấp mới</h2>
+<form method="post">
+    <div class="form-group">
+        <label>Nhân viên</label>
+        <select name="IDNhanVien_PhuCap" class="form-control">
+            @foreach (var nv in ViewBag.DSNhanVien)
+            {
+                <option value="@nv.IDNhanVien">@nv.FullNameNhanVien</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Loại phụ cấp</label>
+        <input type="text" name="Loai_PhuCap" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Số tiền</label>
+        <input type="number" name="SoTien_PhuCap" step="1000" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-success">Lưu</button>
+</form>

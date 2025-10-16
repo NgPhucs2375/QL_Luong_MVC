@@ -1,0 +1,11 @@
+﻿
+@{
+    ViewBag.Title = "TongPhuCap";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Tổng phụ cấp của nhân viên @ViewBag.NhanVien?.FullNameNhanVien</h2>
+<div class="alert alert-info mt-3">
+    Tổng phụ cấp: <strong>@String.Format("{0:N0}", ViewBag.Tong) VNĐ</strong>
+</div>
+<a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>

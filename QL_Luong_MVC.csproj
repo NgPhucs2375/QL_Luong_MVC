@@ -121,6 +121,9 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HopDongController.cs" />
+    <Compile Include="Controllers\LuongCoBanController.cs" />
+    <Compile Include="Controllers\PhuCapController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -2043,6 +2046,14 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\LuongCoBan\Index.cshtml" />
+    <Content Include="Views\LuongCoBan\Create.cshtml" />
+    <Content Include="Views\LuongCoBan\Edit.cshtml" />
+    <Content Include="Views\HopDong\Index.cshtml" />
+    <Content Include="Views\HopDong\Create.cshtml" />
+    <Content Include="Views\PhuCap\Index.cshtml" />
+    <Content Include="Views\PhuCap\Create.cshtml" />
+    <Content Include="Views\PhuCap\TongPhuCap.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
