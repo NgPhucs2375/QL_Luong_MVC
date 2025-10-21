@@ -512,7 +512,7 @@ AS
 		Set nocount on;
 		if exists (select 1 from HopDong 
 					Where MaNV = @MaNV
-					And(NgayKetThuc  is null or NgayKetThuc>Getdate()))
+					And(NgayKetThuc is not null and NgayKetThuc > GETDATE()))
 				Begin
 					Raiserror(N'Nhân viên này đang có hợp đồng còn hiệu lực!',16,1);
 					return ;
@@ -703,3 +703,5 @@ SELECT * FROM LuongCoBan WHERE MaCV = 4;
 -- TH4: Truyền sai tham số
 EXEC sp_QuanLyLuongCoBan @Action = 'REMOVE', @MaCV = 3;
 -- => Lỗi: “Hành động không hợp lệ! Chỉ được dùng ADD/UPDATE/DELETE.”
+
+select * From HopDong

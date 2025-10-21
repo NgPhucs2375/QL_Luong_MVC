@@ -58,12 +58,12 @@ namespace QL_Luong_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                string sql = "UPDATE LuongCoBan SET MaCV=@MaCV, MucLuong=@MucLuong WHERE MaLuongCB=@MaLuongCB";
+                string sql = "UPDATE LuongCoBan SET MaCV=@MaCV, MucLuong=@MucLuong WHERE MaLCB=@MaLCB";
                 using (SqlConnection con = new SqlConnection("Data Source=MSI;Initial Catalog=QL_LuongNV;User ID=sa;Password=123456"))
                 {
                     con.Open();
                     SqlCommand cmd = new SqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("@MaLuongCB", model.IDLuongCoBan);
+                    cmd.Parameters.AddWithValue("@MaLCB", model.IDLuongCoBan);
                     cmd.Parameters.AddWithValue("@MaCV", model.IDChucVu_LuongCB);
                     cmd.Parameters.AddWithValue("@MucLuong", model.MucLuong);
                     cmd.ExecuteNonQuery();
@@ -76,12 +76,13 @@ namespace QL_Luong_MVC.Controllers
         // GET: Xóa
         public ActionResult Delete(int id)
         {
-            string sql = "DELETE FROM LuongCoBan WHERE MaLuongCB=@MaLuongCB";
+            string sql = "DELETE FROM LuongCoban WHERE MaLCB = @MaLCB";
             using (SqlConnection con = new SqlConnection("Data Source=MSI;Initial Catalog=QL_LuongNV;User ID=sa;Password=123456"))
             {
                 con.Open();
                 SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("@MaLuongCB", id);
+                cmd.Parameters.AddWithValue("@MaLCB", id); // hoặc model.IDLuongCoBan
+
                 cmd.ExecuteNonQuery();
             }
             return RedirectToAction("Index");

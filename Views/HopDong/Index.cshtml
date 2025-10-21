@@ -31,7 +31,7 @@
                 <td>@item.IDHopDong</td>
                 <td>@item.IDNhanVIen_HopDong</td>
                 <td>@item.DayToStart.ToShortDateString()</td>
-                <td>@item.DayToEnd.ToShortDateString()</td>
+                <td>@(item.DayToEnd.HasValue ? item.DayToEnd.Value.ToShortDateString() : "Chưa kết thúc")</td>
                 <td>@item.Loai_HopDong</td>
                 <td>@item.LuongCoBan_HopDong.ToString("N0")</td>
                 <td>@item.Note_HopDong</td>

@@ -3,42 +3,48 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - QL Lương Nhân Viên</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     <link href="~/Content/css/sb-admin-2.min.css" rel="stylesheet" />
     <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+
     @RenderSection("styles", required: false)
+
 </head>
 <body id="page-top">
     <div id="wrapper">
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <!-- Logo -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("Index", "Home")">
-                <div class="sidebar-brand-icon rotate-n-15">
+                <div class="sidebar-brand-icon">
                     <i class="fas fa-coins"></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">QL Lương NV</div>
             </a>
-            <hr class="sidebar-divider my-0">
 
+            <hr class="sidebar-divider my-0" />
+
+            <!-- Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index","LuongCoban")">
+                <a class="nav-link" href="@Url.Action("Index","LuongCoban")" data-tooltip="Lương cơ bản">
                     <i class="fas fa-money-bill-wave"></i> <span>Lương cơ bản</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index","PhuCap")">
+                <a class="nav-link" href="@Url.Action("Index","PhuCap")" data-tooltip="Phụ cấp">
                     <i class="fas fa-hand-holding-usd"></i> <span>Phụ cấp</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index","HopDong")">
+                <a class="nav-link" href="@Url.Action("Index","HopDong")" data-tooltip="Hợp đồng">
                     <i class="fas fa-file-contract"></i> <span>Hợp đồng</span>
                 </a>
             </li>
 
-            <hr class="sidebar-divider d-none d-md-block">
+
+            <hr class="sidebar-divider d-none d-md-block" />
         </ul>
 
         <!-- Content Wrapper -->
@@ -46,6 +52,20 @@
             <div id="content">
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow">
                     <span class="navbar-brand">Hệ thống quản lý lương</span>
+
+                    <!-- Search Bar -->
+                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 navbar-search" id="searchForm">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="form-control bg-light border-0 small"
+                                   placeholder="Tìm kiếm nhân viên, hợp đồng, lương..." aria-label="Search"
+                                   aria-describedby="basic-addon2" />
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </nav>
 
                 <div class="container-fluid">
@@ -66,5 +86,4 @@
     <script src="~/Content/vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="~/Scripts/js/sb-admin-2.min.js"></script>
 </body>
-
 </html>

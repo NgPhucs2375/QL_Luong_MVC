@@ -33,8 +33,8 @@ namespace QL_Luong_MVC.Models
             Lap_ListPhongBan();
             Lap_ListChucVu();
             Lap_ListLuongCoBan();
-
-
+            Lap_ListHopDong();
+            Lap_ListPhuCap();
         }
 
         // Hàm 
@@ -108,6 +108,42 @@ namespace QL_Luong_MVC.Models
             }
         }
 
+        public void Lap_ListHopDong()
+        {
+            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM HopDong", con);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            dsHopDong.Clear();
+            foreach (DataRow dr in dt.Rows)
+            {
+                var h = new HopDong();
+                h.IDHopDong = int.Parse(dr["MaHD"].ToString());
+                h.IDNhanVIen_HopDong = int.Parse(dr["MaNV"].ToString());
+                h.DayToStart = DateTime.Parse(dr["NgayBatDau"].ToString());
+                h.DayToEnd = dr["NgayKetThuc"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(dr["NgayKetThuc"].ToString());
+                h.Loai_HopDong = dr["LoaiHD"].ToString();
+                h.LuongCoBan_HopDong = decimal.Parse(dr["LuongCoBan"].ToString());
+                h.Note_HopDong = dr["GhiChu"].ToString();
+                dsHopDong.Add(h);
+            }
+        }
+
+        public void Lap_ListPhuCap()
+        {
+            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM PhuCap", con);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            dsPhuCap.Clear();
+            foreach (DataRow dr in dt.Rows)
+            {
+                var p = new PhuCap();
+                p.IDPhuCap = int.Parse(dr["MaPC"].ToString());
+                p.IDNhanVien_PhuCap = int.Parse(dr["MaNV"].ToString());
+                p.Loai_PhuCap = dr["LoaiPhuCap"].ToString();
+                p.SoTien_PhuCap = decimal.Parse(dr["SoTien"].ToString());
+                dsPhuCap.Add(p);
+            }
+        }
 
         // Hàm thêm Hợp đồng
         // =========================
@@ -125,10 +161,10 @@ namespace QL_Luong_MVC.Models
 
                     cmd.Parameters.AddWithValue("@MaNV", hd.IDNhanVIen_HopDong);
                     cmd.Parameters.AddWithValue("@NgayBatDau", hd.DayToStart);
-                    cmd.Parameters.AddWithValue("@NgayKetThuc", hd.DayToEnd);
-                    cmd.Parameters.AddWithValue("@LoaiHopDong", hd.Loai_HopDong);
-                    cmd.Parameters.AddWithValue("@LuongCoBan", hd.LuongCoBan_HopDong);
-                    cmd.Parameters.AddWithValue("@GhiChu", hd.Note_HopDong ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@NgayKetThuc",(object)hd.DayToEnd ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@LoaiHD", hd.Loai_HopDong);
+                    cmd.Parameters.AddWithValue("@Luongcoban", hd.LuongCoBan_HopDong);
+                    cmd.Parameters.AddWithValue("@Ghichu", hd.Note_HopDong ?? (object)DBNull.Value);
 
                     cmd.ExecuteNonQuery();
                     return true;
@@ -136,8 +172,7 @@ namespace QL_Luong_MVC.Models
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi khi thêm hợp đồng: " + ex.Message);
-                return false;
+                throw new Exception("Lỗi khi thêm hợp đồng: " + ex.Message);
             }
         }
 

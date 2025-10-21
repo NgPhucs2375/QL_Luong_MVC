@@ -1,11 +1,17 @@
-﻿
-@{
-    ViewBag.Title = "TongPhuCap";
+﻿@{
+    ViewBag.Title = "Tổng phụ cấp nhân viên";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Tổng phụ cấp của nhân viên @ViewBag.NhanVien?.FullNameNhanVien</h2>
-<div class="alert alert-info mt-3">
-    Tổng phụ cấp: <strong>@String.Format("{0:N0}", ViewBag.Tong) VNĐ</strong>
-</div>
-<a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+<h2>Tổng phụ cấp nhân viên</h2>
+
+@if (ViewBag.NhanVien != null)
+{
+    <p><b>Tên nhân viên:</b> @ViewBag.NhanVien.FullNameNhanVien</p>
+    <p><b>Mã nhân viên:</b> @ViewBag.NhanVien.IDNhanVien</p>
+    <p><b>Tổng phụ cấp:</b> @string.Format("{0:N0} VNĐ", ViewBag.Tong)</p>
+}
+else
+{
+    <p>Không tìm thấy thông tin nhân viên.</p>
+}
