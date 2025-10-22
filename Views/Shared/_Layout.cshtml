@@ -36,7 +36,24 @@
                     <span>Dashboard</span>
                 </a>
             </li>
-
+            <li class="nav-item active">
+                <a class="nav-link" href="@Url.Action("Login", "Login")">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Login</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="@Url.Action("Register", "Login")">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Register</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link text-danger" href="@Url.Action("Logout", "Login")">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
             <!-- Divider -->
             <hr class="sidebar-divider">
 
@@ -98,7 +115,7 @@
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Login Screens:</h6>
-                        <a class="collapse-item" href="login.html">Login</a>
+                        <a class="collapse-item" href="" @Url.Action("Login", "Login") ">Login</a>
                         <a class="collapse-item" href="register.html">Register</a>
                         <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
                         <div class="collapse-divider"></div>

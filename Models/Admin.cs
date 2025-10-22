@@ -5,11 +5,9 @@ using System.Web;
 
 namespace QL_Luong_MVC.Models
 {
-    public class TaiKhoan
+    public class Admin
     {
-        public string TenDangNhap {  get; set; }
+        public string TenDangNhap { get; set; }
         public string MatKhau { get; set; }
-        public string Quyen { get; set; }
-        public int MaNV { get; set; }
     }
 }

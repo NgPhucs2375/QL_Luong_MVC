@@ -1,0 +1,28 @@
+﻿<form method="post" action="/Login/Register">
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Tên đăng nhập</label>
+        <input type="text" name="TenDangNhap" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Mật khẩu</label>
+        <input type="password" name="MatKhau" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Mã nhân viên</label>
+        <input type="number" name="MaNV" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
+
+    @if (ViewBag.Error != null)
+    {
+        <p class="text-danger mt-3">@ViewBag.Error</p>
+    }
+
+    @if (ViewBag.Success != null)
+    {
+        <p class="text-success mt-3">@ViewBag.Success</p>
+    }
+</form>

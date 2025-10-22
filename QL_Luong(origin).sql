@@ -129,7 +129,11 @@ create table TaiKhoan
 	Quyen nvarchar(20) default N'User',
 	constraint FK_MaNV_TaiKhoan foreign key (MaNV) references NhanVien(MaNV)
 )
-
+CREATE TABLE AdminAccount
+(
+    TenDangNhap NVARCHAR(50) NOT NULL PRIMARY KEY,
+    MatKhau NVARCHAR(100) NOT NULL
+);
 
 -- ========================
 -- DỮ LIỆU MẪU
@@ -160,6 +164,7 @@ Values(N'Nguyễn Văn A', '1995-05-12', N'Nam', N'Hà Nội', '0905123456', 'a.
 (N'Đỗ Văn G', '1991-04-30', N'Nam', N'Ninh Bình', '0941234123', 'g.do@company.vn', 3, 1),
 (N'Tạ Thị H', '1999-12-12', N'Nữ', N'Huế', '0933333111', 'h.ta@company.vn', 5, 4),
 (N'Ngô Văn I', '1988-06-06', N'Nam', N'Quảng Nam', '0909090909', 'i.ngo@company.vn', 6, 2);
+select * from NhanVien
 
 INSERT INTO HopDong(MaNV, NgayBatDau, LoaiHD, LuongCoBan)
 VALUES
@@ -184,6 +189,7 @@ VALUES
 (7, '2025-10-01', 1, 2.5),
 (8, '2025-10-01', 1, 0),
 (9, '2025-10-01', 1, 1);
+select * from BangChamCong
 
 INSERT INTO PhuCap(MaNV, LoaiPhuCap, SoTien)
 VALUES
@@ -196,6 +202,7 @@ VALUES
 (7, N'Chuyên cần', 500000),
 (8, N'Trợ cấp con nhỏ', 900000),
 (9, N'Xăng xe', 700000);
+select * from  PhuCap
 
 INSERT INTO ThuongPhat(MaNV, Loai, SoTien, LyDo)
 VALUES
@@ -208,6 +215,7 @@ VALUES
 (7, N'Thưởng', 800000, N'Hỗ trợ nhóm tốt'),
 (8, N'Phạt', 300000, N'Đi muộn 2 lần'),
 (9, N'Thưởng', 1500000, N'Quản lý xuất sắc');
+select * from ThuongPhat
 
 INSERT INTO LuongCoBan(MaCV, MucLuong)
 VALUES
@@ -216,7 +224,7 @@ VALUES
 (3, 20000000),
 (4, 10000000),
 (5, 13000000);
-
+select * from LuongCoBan
 
 INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
 VALUES
@@ -229,10 +237,13 @@ VALUES
 (7, 10, 2025, 9000000, 500000, 800000, 2.5),
 (8, 10, 2025, 8500000, 900000, -300000, 0),
 (9, 10, 2025, 15000000, 700000, 1500000, 1);
+select * from BangLuong
 
+INSERT INTO AdminAccount (TenDangNhap, MatKhau)
+VALUES
+('admin', '123456');
 
-
-
+select * from AdminAccount
 
 -- ================================================
 --         CHƯƠNG 2: CÀI ĐẶT YÊU CẦU XỬ LÝ
@@ -545,3 +556,5 @@ GO
 --    INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
 --    SELECT i.MaNV, MONTH(GETDATE()), YEAR(GETDATE()), 0, 0, 0, 0
 --    FROM inserted
+SELECT * FROM TaiKhoan
+DELETE FROM TaiKhoan;
