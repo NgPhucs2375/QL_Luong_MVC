@@ -1,0 +1,39 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model IEnumerable<QL_Luong_MVC.Models.LuongCoban>
+
+<h2>Quản lý mức lương cơ bản</h2>
+
+<p>
+    <a href="@Url.Action("Create")" class="btn btn-success">+ Thêm mức lương</a>
+</p>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Mã lương</th>
+            <th>Tên chức vụ</th>
+            <th>Mức lương (VNĐ)</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var cv = new QL_Luong_MVC.Models.DB().dsChucVu.FirstOrDefault(c => c.IDChucVu == item.IDChucVu_LuongCB);
+            <tr>
+                <td>@item.IDLuongCoBan</td>
+                <td>@(cv != null ? cv.NameChucVu : "Không xác định")</td>
+                <td>@string.Format("{0:N0}", item.MucLuong)</td>
+                <td>
+                    <a href="@Url.Action("Edit", new { id = item.IDLuongCoBan })" class="btn btn-primary btn-sm">Sửa</a>
+                    <a href="@Url.Action("Delete", new { id = item.IDLuongCoBan })" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa không?');">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

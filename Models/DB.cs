@@ -27,7 +27,7 @@ namespace QL_Luong_MVC.Models
             Lap_ListNhanVien();
             Lap_ListPhongBan();
             Lap_ListChucVu();
-            Lap_ListTaiKhoan();
+
         }
 
         // ======= TẢI DANH SÁCH NHÂN VIÊN =======
@@ -231,6 +231,7 @@ namespace QL_Luong_MVC.Models
                 return (false, "Lỗi khi đăng ký: " + ex.Message);
             }
         }
+
 
     }
 }

@@ -310,27 +310,7 @@ AS
 
 	End
 
--- 3.Thêm phụ cấp cho 1 nhân viên 
--- 
-Create or alter procedure sp_ThemPhuCap @MaNV INT,@LoaiPhuCap NVARCHAR(50),@SoTien DECIMAL(18,2)
-AS
-	Begin
-		Set nocount on;
-		If not exists (
-			select *
-			from NHANVIEN
-			where MANV = @MaNV
-		)
-		begin 
-			raiserror(N'Cannot find a staff',16,1);
-			return ;
-		end
 
-		insert into PhuCap(MaNV,LoaiPhuCap,SoTien)
-		Values(@MaNV,@LoaiPhuCap,@SoTien);
-
-		print N'Đã thêm phụ cấp cho MaNV= ' + Cast(@MaNV AS nvarchar);
-	End
 
 -- 4.Thêm thưởng/phạt và cập nhật BangLuong cùng lúc 
 -- Giải thích : xử lý từng phần 
@@ -387,18 +367,7 @@ AS
 	End
 
 -- 2.Function (Hàm người dùng tự tạo)
--- 1.Tổng phụ cấp của nhân viên (all)
-create or alter function fn_TongPhuCap_NV(@MaNV int)
-returns decimal(18,2)
-AS	
-	begin
-		Declare @Tong decimal(18,2);
-		select @Tong = Sum(SoTien)
-		from PhuCap
-		where MaNV = @MaNV;
 
-		return isnull(@Tong,0)
-	end
 
 -- 2.Tổng phạt (âm) và thưởng (dương) của nhân viên
 CREATE OR ALTER FUNCTION fn_TongThuongPhat_NV(@MaNV INT)
@@ -504,21 +473,7 @@ BEGIN
 END;
 GO
 
--- 3.Khi cập nhật HopDong — nếu NgayKetThuc < GETDATE() thì cập nhật NhanVien.TrangThai = 'Nghỉ việc'
-CREATE OR ALTER TRIGGER trg_HopDong_AfterUpdate
-ON HopDong
-AFTER UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
 
-    UPDATE nv
-    SET TrangThai = N'Ngỉ việc'
-    FROM NhanVien nv
-    JOIN inserted i ON nv.MaNV = i.MaNV
-    WHERE i.NgayKetThuc IS NOT NULL AND i.NgayKetThuc < GETDATE();
-END;
-GO
 
 -- 4.Khi xóa NhanVien — ghi log (tạo bảng log nếu chưa có)
 IF OBJECT_ID('dbo.LichSuXoaNhanVien') IS NULL
@@ -556,5 +511,3 @@ GO
 --    INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
 --    SELECT i.MaNV, MONTH(GETDATE()), YEAR(GETDATE()), 0, 0, 0, 0
 --    FROM inserted
-SELECT * FROM TaiKhoan
-DELETE FROM TaiKhoan;

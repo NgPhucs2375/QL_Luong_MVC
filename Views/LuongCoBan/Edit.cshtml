@@ -1,0 +1,34 @@
+﻿
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model QL_Luong_MVC.Models.LuongCoban
+@{
+    var dsCV = ViewBag.DSChucVu as List<QL_Luong_MVC.Models.ChucVu>;
+}
+
+<h2>Cập nhật mức lương</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(m => m.IDLuongCoBan)
+
+    <div class="form-group">
+        <label>Chức vụ</label>
+        <select class="form-control" name="IDChucVu_LuongCB">
+            @foreach (var cv in dsCV)
+            {
+                <option value="@cv.IDChucVu" @(cv.IDChucVu == Model.IDChucVu_LuongCB ? "selected" : "")>@cv.NameChucVu</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Mức lương (VNĐ)</label>
+        @Html.TextBoxFor(m => m.MucLuong, new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Cập nhật</button>
+}
