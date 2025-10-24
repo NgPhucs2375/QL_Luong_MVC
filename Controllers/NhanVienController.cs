@@ -23,7 +23,7 @@ namespace QL_Luong_MVC.Controllers
 
             return View(nv);
         }
-        string conStr = "Data Source=.;Initial Catalog=QL_LuongNV;Integrated Security=True";
+        string conStr = "Data Source=DESKTOP-5EMC8PJ;Initial Catalog=QL_LuongNV;Integrated Security=True";
 
         [HttpGet]
         public ActionResult Them()

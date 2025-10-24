@@ -3,28 +3,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Configuration;
 
 namespace QL_Luong_MVC.Models
 {
     public class DB
     {
-        // ======= CHUỖI KẾT NỐI =======
-        private static string strcon =
-            "Data Source=DESKTOP-5EMC8PJ\\MSSQLSERVER02; Initial Catalog=QL_LuongNV; Integrated Security=True; TrustServerCertificate=True;";
-        SqlConnection con = new SqlConnection(strcon);
-        public string conStr = strcon;
-        public void OpenConnection()
-        {
-            if (con.State == System.Data.ConnectionState.Closed)
-                con.Open();
-        }
-
-        // ✅ Hàm hỗ trợ đóng kết nối an toàn
-        public void CloseConnection()
-        {
-            if (con.State == System.Data.ConnectionState.Open)
-                con.Close();
-        }
+        public static string strcon;
+        public readonly string conStr;
 
         // ======= DANH SÁCH DỮ LIỆU =======
         public List<NhanVien> dsNhanVien = new List<NhanVien>();
@@ -35,6 +21,9 @@ namespace QL_Luong_MVC.Models
         // ======= CONSTRUCTOR =======
         public DB()
         {
+            strcon = ConfigurationManager.ConnectionStrings["QL_Luong_MVC"]?.ConnectionString 
+                                      ?? "Data Source=DESKTOP-5EMC8PJ;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;";
+            conStr = strcon;
             Lap_ListNhanVien();
             Lap_ListPhongBan();
             Lap_ListChucVu();
@@ -44,84 +33,96 @@ namespace QL_Luong_MVC.Models
         // ======= TẢI DANH SÁCH NHÂN VIÊN =======
         public void Lap_ListNhanVien()
         {
-            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM NhanVien", con);
-            DataTable dt = new DataTable();
-            da.Fill(dt);
-            dsNhanVien.Clear();
-
-            foreach (DataRow dr in dt.Rows)
+            using (SqlConnection con = new SqlConnection(conStr))
             {
-                dsNhanVien.Add(new NhanVien
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM NhanVien", con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                dsNhanVien.Clear();
+
+                foreach (DataRow dr in dt.Rows)
                 {
-                    IDNhanVien = dr["MaNV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaNV"]),
-                    FullNameNhanVien = dr["HoTen"]?.ToString() ?? "",
-                    DayOfBirth_NhanVien = dr["NgaySinh"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(dr["NgaySinh"]),
-                    Sex_NhanVien = dr["GioiTinh"]?.ToString() ?? "",
-                    Address_NhanVien = dr["DiaChi"]?.ToString() ?? "",
-                    SDT_NhanVien = dr["DienThoai"]?.ToString() ?? "",
-                    Email_NhanVien = dr["Email"]?.ToString() ?? "",
-                    State_NhanVien = dr["TrangThai"]?.ToString() ?? "",
-                    IDCV_NhanVien = dr["MaCV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaCV"]),
-                    IDPB_NhanVien = dr["MaPB"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaPB"])
-                });
+                    dsNhanVien.Add(new NhanVien
+                    {
+                        IDNhanVien = dr["MaNV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaNV"]),
+                        FullNameNhanVien = dr["HoTen"]?.ToString() ?? "",
+                        DayOfBirth_NhanVien = dr["NgaySinh"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(dr["NgaySinh"]),
+                        Sex_NhanVien = dr["GioiTinh"]?.ToString() ?? "",
+                        Address_NhanVien = dr["DiaChi"]?.ToString() ?? "",
+                        SDT_NhanVien = dr["DienThoai"]?.ToString() ?? "",
+                        Email_NhanVien = dr["Email"]?.ToString() ?? "",
+                        State_NhanVien = dr["TrangThai"]?.ToString() ?? "",
+                        IDCV_NhanVien = dr["MaCV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaCV"]),
+                        IDPB_NhanVien = dr["MaPB"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaPB"])
+                    });
+                }
             }
         }
 
         // ======= TẢI DANH SÁCH PHÒNG BAN =======
         public void Lap_ListPhongBan()
         {
-            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM PhongBan", con);
-            DataTable dt = new DataTable();
-            da.Fill(dt);
-            dsPhongBan.Clear();
-
-            foreach (DataRow dr in dt.Rows)
+            using (SqlConnection con = new SqlConnection(conStr))
             {
-                dsPhongBan.Add(new PhongBan
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM PhongBan", con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                dsPhongBan.Clear();
+
+                foreach (DataRow dr in dt.Rows)
                 {
-                    IDPhongBan = dr["MaPB"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaPB"]),
-                    NamePhongBan = dr["TenPB"]?.ToString() ?? "",
-                    DateOf_Establishment = dr["NgayThanhLap"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(dr["NgayThanhLap"])
-                });
+                    dsPhongBan.Add(new PhongBan
+                    {
+                        IDPhongBan = dr["MaPB"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaPB"]),
+                        NamePhongBan = dr["TenPB"]?.ToString() ?? "",
+                        DateOf_Establishment = dr["NgayThanhLap"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(dr["NgayThanhLap"])
+                    });
+                }
             }
         }
 
         // ======= TẢI DANH SÁCH CHỨC VỤ =======
         public void Lap_ListChucVu()
         {
-            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM ChucVu", con);
-            DataTable dt = new DataTable();
-            da.Fill(dt);
-            dsChucVu.Clear();
-
-            foreach (DataRow dr in dt.Rows)
+            using (SqlConnection con = new SqlConnection(conStr))
             {
-                dsChucVu.Add(new ChucVu
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM ChucVu", con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                dsChucVu.Clear();
+
+                foreach (DataRow dr in dt.Rows)
                 {
-                    IDChucVu = dr["MaCV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaCV"]),
-                    NameChucVu = dr["TenCV"]?.ToString() ?? "",
-                    HeSoLuong_ChucVu = dr["HeSoLuong"] == DBNull.Value ? 0 : Convert.ToDecimal(dr["HeSoLuong"])
-                });
+                    dsChucVu.Add(new ChucVu
+                    {
+                        IDChucVu = dr["MaCV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaCV"]),
+                        NameChucVu = dr["TenCV"]?.ToString() ?? "",
+                        HeSoLuong_ChucVu = dr["HeSoLuong"] == DBNull.Value ? 0 : Convert.ToDecimal(dr["HeSoLuong"])
+                    });
+                }
             }
         }
 
         // ======= TẢI DANH SÁCH TÀI KHOẢN =======
         public void Lap_ListTaiKhoan()
         {
-            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM TaiKhoan", con);
-            DataTable dt = new DataTable();
-            da.Fill(dt);
-            dsTaiKhoan.Clear();
-
-            foreach (DataRow dr in dt.Rows)
+            using (SqlConnection con = new SqlConnection(conStr))
             {
-                dsTaiKhoan.Add(new TaiKhoan
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM TaiKhoan", con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                dsTaiKhoan.Clear();
+
+                foreach (DataRow dr in dt.Rows)
                 {
-                    TenDangNhap = dr["TenDangNhap"]?.ToString() ?? "",
-                    MatKhau = dr["MatKhau"]?.ToString() ?? "",
-                    MaNV = dr["MaNV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaNV"]),
-                    Quyen = dr["Quyen"]?.ToString() ?? "User"
-                });
+                    dsTaiKhoan.Add(new TaiKhoan
+                    {
+                        TenDangNhap = dr["TenDangNhap"]?.ToString() ?? "",
+                        MatKhau = dr["MatKhau"]?.ToString() ?? "",
+                        MaNV = dr["MaNV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaNV"]),
+                        Quyen = dr["Quyen"]?.ToString() ?? "User"
+                    });
+                }
             }
         }
 
@@ -137,38 +138,40 @@ namespace QL_Luong_MVC.Models
         // ======= HÀM KIỂM TRA ĐĂNG NHẬP =======
         public LoginResult CheckLogin(string username, string password)
         {
-            try
+            using (SqlConnection con = new SqlConnection(conStr))
             {
-                // ✅ Nếu là admin cố định
-                if (username.ToLower() == "admin" && password == "123456")
-                    return new LoginResult { Success = true, Role = "Admin", MaNV = 0 };
-
-                SqlCommand cmd = new SqlCommand("SELECT * FROM TaiKhoan WHERE TenDangNhap=@user AND MatKhau=@pass", con);
-                cmd.Parameters.AddWithValue("@user", username);
-                cmd.Parameters.AddWithValue("@pass", password);
-
-                con.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
-                if (dr.Read())
+                try
                 {
-                    int manv = dr["MaNV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaNV"]);
-                    string role = dr["Quyen"]?.ToString() ?? "User";
-                    con.Close();
-                    return new LoginResult { Success = true, Role = role, MaNV = manv };
-                }
-                con.Close();
+                    // ✅ Nếu là admin cố định
+                    if (username.ToLower() == "admin" && password == "123456")
+                        return new LoginResult { Success = true, Role = "Admin", MaNV = 0 };
 
-                return new LoginResult { Success = false, Message = "Sai tên đăng nhập hoặc mật khẩu." };
-            }
-            catch (Exception ex)
-            {
-                con.Close();
-                return new LoginResult { Success = false, Message = ex.Message };
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM TaiKhoan WHERE TenDangNhap=@user AND MatKhau=@pass", con);
+                    cmd.Parameters.AddWithValue("@user", username);
+                    cmd.Parameters.AddWithValue("@pass", password);
+
+                    con.Open();
+                    SqlDataReader dr = cmd.ExecuteReader();
+                    if (dr.Read())
+                    {
+                        int manv = dr["MaNV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaNV"]);
+                        string role = dr["Quyen"]?.ToString() ?? "User";
+                        con.Close();
+                        return new LoginResult { Success = true, Role = role, MaNV = manv };
+                    }
+                    con.Close();
+
+                    return new LoginResult { Success = false, Message = "Sai tên đăng nhập hoặc mật khẩu." };
+                }
+                catch (Exception ex)
+                {
+                    con.Close();
+                    return new LoginResult { Success = false, Message = ex.Message };
+                }
             }
         }
 
         // ======= HÀM TẠO TÀI KHOẢN =======
-
         public (bool Success, string Message) RegisterNhanVien(string TenDangNhap, string MatKhau, int MaNV)
         {
             try
@@ -176,56 +179,54 @@ namespace QL_Luong_MVC.Models
                 using (SqlConnection conn = new SqlConnection(conStr))
                 {
                     conn.Open();
+                    System.Diagnostics.Debug.WriteLine("👉 Kết nối tới DB: " + conn.DataSource + " | Catalog: " + conn.Database);
 
-                    // ✅ Log ra connection string để kiểm tra đang trỏ đúng DB chưa
-                    System.Diagnostics.Debug.WriteLine("👉 Kết nối tới DB: " + conn.Database);
-
-                    // ✅ 1. Kiểm tra mã NV tồn tại
-                    SqlCommand checkNV = new SqlCommand("SELECT COUNT(*) FROM NhanVien WHERE MaNV = @MaNV", conn);
-                    checkNV.Parameters.AddWithValue("@MaNV", MaNV);
-                    int existNV = (int)checkNV.ExecuteScalar();
-
-                    if (existNV == 0)
+                    // 1) Kiểm tra MaNV tồn tại
+                    using (var checkNV = new SqlCommand("SELECT COUNT(1) FROM NhanVien WHERE MaNV = @MaNV", conn))
                     {
-                        return (false, "❌ Mã nhân viên không tồn tại trong hệ thống.");
+                        checkNV.Parameters.Add("@MaNV", SqlDbType.Int).Value = MaNV;
+                        int existNV = Convert.ToInt32(checkNV.ExecuteScalar());
+                        System.Diagnostics.Debug.WriteLine("👉 existNV = " + existNV);
+                        if (existNV == 0)
+                            return (false, "❌ Mã nhân viên không tồn tại trong hệ thống.");
                     }
 
-                    // ✅ 2. Kiểm tra trùng tên đăng nhập
-                    SqlCommand checkUser = new SqlCommand("SELECT COUNT(*) FROM TaiKhoan WHERE TenDangNhap = @TenDangNhap", conn);
-                    checkUser.Parameters.AddWithValue("@TenDangNhap", TenDangNhap);
-                    int existUser = (int)checkUser.ExecuteScalar();
-
-                    if (existUser > 0)
+                    // 2) Kiểm tra TenDangNhap trùng
+                    using (var checkUser = new SqlCommand("SELECT COUNT(1) FROM TaiKhoan WHERE TenDangNhap = @TenDangNhap", conn))
                     {
-                        return (false, "⚠️ Tên đăng nhập đã tồn tại.");
+                        checkUser.Parameters.Add("@TenDangNhap", SqlDbType.NVarChar, 256).Value = TenDangNhap;
+                        int existUser = Convert.ToInt32(checkUser.ExecuteScalar());
+                        System.Diagnostics.Debug.WriteLine("👉 existUser = " + existUser);
+                        if (existUser > 0)
+                            return (false, "⚠️ Tên đăng nhập đã tồn tại.");
                     }
 
-                    // ✅ 3. Thêm tài khoản mới
-                    SqlCommand cmd = new SqlCommand(
+                    // 3) Insert với tham số rõ ràng
+                    using (var cmd = new SqlCommand(
                         "INSERT INTO TaiKhoan (TenDangNhap, MatKhau, MaNV, Quyen) VALUES (@TenDangNhap, @MatKhau, @MaNV, N'User')",
-                        conn
-                    );
-                    cmd.Parameters.AddWithValue("@TenDangNhap", TenDangNhap);
-                    cmd.Parameters.AddWithValue("@MatKhau", MatKhau);
-                    cmd.Parameters.AddWithValue("@MaNV", MaNV);
+                        conn))
+                    {
+                        cmd.Parameters.Add("@TenDangNhap", SqlDbType.NVarChar, 256).Value = TenDangNhap;
+                        cmd.Parameters.Add("@MatKhau", SqlDbType.NVarChar, 256).Value = MatKhau;
+                        cmd.Parameters.Add("@MaNV", SqlDbType.Int).Value = MaNV;
 
-                    int rows = cmd.ExecuteNonQuery();
+                        int rows = cmd.ExecuteNonQuery();
+                        System.Diagnostics.Debug.WriteLine("👉 ExecuteNonQuery rows = " + rows);
 
-                    if (rows > 0)
-                        return (true, "🎉 Đăng ký thành công!");
-                    else
-                        return (false, "⚠️ Không thể thêm tài khoản vào cơ sở dữ liệu (rows = 0).");
+                        if (rows > 0)
+                            return (true, "🎉 Đăng ký thành công!");
+                        else
+                            return (false, "⚠️ Không thể thêm tài khoản vào cơ sở dữ liệu (rows = 0).");
+                    }
                 }
             }
             catch (SqlException sqlEx)
             {
-                // ✅ Log lỗi chi tiết của SQL Server
-                System.Diagnostics.Debug.WriteLine("❌ SQL Error: " + sqlEx.Message);
+                System.Diagnostics.Debug.WriteLine("❌ SQL Error: " + sqlEx.Message + " | Number: " + sqlEx.Number);
                 return (false, "Lỗi SQL: " + sqlEx.Message);
             }
             catch (Exception ex)
             {
-                // ✅ Log lỗi chung
                 System.Diagnostics.Debug.WriteLine("⚠️ Lỗi hệ thống: " + ex.Message);
                 return (false, "Lỗi khi đăng ký: " + ex.Message);
             }

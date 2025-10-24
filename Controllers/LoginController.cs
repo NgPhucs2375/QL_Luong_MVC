@@ -40,7 +40,7 @@ namespace QL_Luong_MVC.Controllers
                 }
 
                 // ✅ 2. Kiểm tra tài khoản trong CSDL
-                using (SqlConnection con = new SqlConnection(db.conStr))
+                using (SqlConnection con = new SqlConnection(DB.strcon))
                 {
                     con.Open();
                     string query = "SELECT * FROM TaiKhoan WHERE TenDangNhap=@user AND MatKhau=@pass";
@@ -146,7 +146,7 @@ namespace QL_Luong_MVC.Controllers
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(db.conStr))
+                using (SqlConnection con = new SqlConnection(DB.strcon))
                 {
                     con.Open();
                     string query = "UPDATE TaiKhoan SET Quyen = 'Admin' WHERE TenDangNhap = @TenDangNhap";
