@@ -1,41 +1,126 @@
-﻿
-@{
-    ViewBag.Title = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-@model IEnumerable<QL_Luong_MVC.Models.HopDong>
+﻿@model IEnumerable<QL_Luong_MVC.Models.HopDong>
 @{
     ViewBag.Title = "Danh sách hợp đồng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2 class="mb-4">Danh sách hợp đồng</h2>
-<a href="@Url.Action("Create","HopDong")" class="btn btn-primary mb-3">+ Thêm hợp đồng</a>
+<body  class="purple-theme">
+    <div class="container-fluid py-4" style="min-height:100vh;">
+        <div class="card shadow-lg border-0" style="border-radius: 15px; background-color: #ffffffcc; backdrop-filter: blur(6px);">
+            <div class="card-header d-flex justify-content-between align-items-center"
+                 style="background: linear-gradient(90deg, #6f42c1, #b18aff); color:white; border-radius:15px 15px 0 0;">
+                <h4 class="mb-0"><i class="fas fa-file-contract me-2"></i>Danh sách hợp đồng</h4>
+                <a href="@Url.Action("Create", "HopDong")" class="btn btn-light text-dark fw-bold shadow-sm">
+                    <i class="fas fa-plus-circle me-1"></i> Thêm hợp đồng
+                </a>
+            </div>
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Mã HD</th>
-            <th>Nhân viên</th>
-            <th>Ngày bắt đầu</th>
-            <th>Ngày kết thúc</th>
-            <th>Loại</th>
-            <th>Lương cơ bản</th>
-            <th>Ghi chú</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.IDHopDong</td>
-                <td>@item.IDNhanVIen_HopDong</td>
-                <td>@item.DayToStart.ToShortDateString()</td>
-                <td>@(item.DayToEnd.HasValue ? item.DayToEnd.Value.ToShortDateString() : "Chưa kết thúc")</td>
-                <td>@item.Loai_HopDong</td>
-                <td>@item.LuongCoBan_HopDong.ToString("N0")</td>
-                <td>@item.Note_HopDong</td>
-            </tr>
+            <div class="card-body bg-white p-4" style="border-radius: 0 0 15px 15px;">
+                <table class="table table-hover text-center align-middle mb-0" id="hopdongTable">
+                    <thead style="background: linear-gradient(90deg, #8e63d1, #b78dfc); color:white;">
+                        <tr>
+                            <th>Mã HD</th>
+                            <th>Nhân viên</th>
+                            <th>Ngày bắt đầu</th>
+                            <th>Ngày kết thúc</th>
+                            <th>Loại</th>
+                            <th>Lương cơ bản (VNĐ)</th>
+                            <th>Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><strong>@item.IDHopDong</strong></td>
+                                    <td>@item.IDNhanVIen_HopDong</td>
+                                    <td>@item.DayToStart.ToString("dd/MM/yyyy")</td>
+                                    <td>@(item.DayToEnd.HasValue ? item.DayToEnd.Value.ToString("dd/MM/yyyy") : "—")</td>
+                                    <td>
+                                        @if (item.Loai_HopDong == "Có thời hạn")
+                                        {
+                                            <span class="badge bg-primary">Có thời hạn</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Không thời hạn</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">@item.LuongCoBan_HopDong.ToString("N0")</td>
+                                    <td>@item.Note_HopDong</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-muted py-4">
+                                    <i class="fas fa-info-circle me-2"></i>Không có dữ liệu hợp đồng.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
+            background-attachment: fixed;
+            font-family: "Segoe UI", sans-serif;
+            box-shadow: 0 8px 20px rgba(111, 66, 193, 0.2);
         }
-    </tbody>
-</table>
+
+        .table-hover tbody tr:hover {
+            background-color: #f3e8ff !important;
+            transition: background-color 0.3s ease;
+        }
+        .purple-theme {
+            background: linear-gradient(135deg, #d9c2ff, #c7b6ff, #b8a4ff) !important;
+        }
+
+        .btn-light:hover {
+            background-color: #e1d0ff;
+        }
+
+        .badge.bg-primary {
+            background-color: #8e63d1 !important;
+        }
+
+        .badge.bg-success {
+            background-color: #a678e3 !important;
+        }
+
+        .card {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top left, #f3e5f5 0%, transparent 60%), radial-gradient(circle at bottom right, #ede7f6 0%, transparent 60%);
+            z-index: -1;
+        }
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

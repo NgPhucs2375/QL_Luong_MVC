@@ -120,9 +120,12 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HopDongController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\LuongCoBanController.cs" />
+    <Compile Include="Controllers\NhanVienController.cs" />
     <Compile Include="Controllers\PhuCapController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -132,6 +135,7 @@
     <Compile Include="Models\ChucVu.cs" />
     <Compile Include="Models\DB.cs" />
     <Compile Include="Models\HopDong.cs" />
+    <Compile Include="Models\LoginResult.cs" />
     <Compile Include="Models\LuongCoban.cs" />
     <Compile Include="Models\NhanVien.cs" />
     <Compile Include="Models\PhongBan.cs" />
@@ -2054,6 +2058,20 @@
     <Content Include="Views\PhuCap\Index.cshtml" />
     <Content Include="Views\PhuCap\Create.cshtml" />
     <Content Include="Views\PhuCap\TongPhuCap.cshtml" />
+    <Content Include="Views\Admin\QuanLyTaiKhoan.cshtml" />
+    <Content Include="Views\Login\Login.cshtml" />
+    <Content Include="Views\Login\Register.cshtml" />
+    <Content Include="Views\Login\InfoNV.cshtml" />
+    <Content Include="Views\NhanVien\InfoNV.cshtml" />
+    <Content Include="Views\NhanVien\DanhSachNV.cshtml" />
+    <Content Include="Views\NhanVien\ThemNV.cshtml" />
+    <Content Include="Views\NhanVien\SuaNV.cshtml" />
+    <Content Include="Views\NhanVien\XoaNV.cshtml" />
+    <Content Include="Views\NhanVien\DanhSachPB.cshtml" />
+    <Content Include="Views\NhanVien\ThemPB.cshtml" />
+    <Content Include="Views\NhanVien\SuaPB.cshtml" />
+    <Content Include="Views\NhanVien\XoaPB.cshtml" />
+    <Content Include="Views\NhanVien\ChiTietNV.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

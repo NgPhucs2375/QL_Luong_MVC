@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 
@@ -45,9 +46,13 @@ namespace QL_Luong_MVC.Controllers
             return View(luong);
         }
         // GET: Sửa
-        public ActionResult Edit(int id)
+        public ActionResult Edit(int? id)
         {
+            if (id == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             var luong = db.dsLuongCoban.FirstOrDefault(x => x.IDLuongCoBan == id);
+            if (luong == null)
+                return HttpNotFound();
             ViewBag.DSChucVu = db.dsChucVu;
             return View(luong);
         }
@@ -70,6 +75,8 @@ namespace QL_Luong_MVC.Controllers
                 }
                 return RedirectToAction("Index");
             }
+            ViewBag.DSChucVu = db.dsChucVu;
+
             return View(model);
         }
 

@@ -1,32 +1,75 @@
-﻿
+﻿@model QL_Luong_MVC.Models.LuongCoban
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Thêm mức lương mới";
     Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-@model QL_Luong_MVC.Models.LuongCoban
-@{
     var dsCV = ViewBag.DSChucVu as List<QL_Luong_MVC.Models.ChucVu>;
 }
 
-<h2>Thêm mức lương mới</h2>
+<div class="container py-5" style="max-width:700px;">
+    <div class="card shadow-lg border-0" style="border-radius: 15px; background-color: #ffffffcc; backdrop-filter: blur(6px);">
+        <div class="card-header text-white"
+             style="background: linear-gradient(90deg, #7c4dff, #b388ff); border-radius:15px 15px 0 0;">
+            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Thêm mức lương mới</h4>
+        </div>
 
-@using (Html.BeginForm())
-{
-    <div class="form-group">
-        <label>Chức vụ</label>
-        <select class="form-control" name="IDChucVu_LuongCB">
-            @foreach (var cv in dsCV)
+        <div class="card-body p-4">
+            @using (Html.BeginForm())
             {
-                <option value="@cv.IDChucVu">@cv.NameChucVu</option>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Chức vụ</label>
+                    <select class="form-select" name="IDChucVu_LuongCB" required>
+                        <option value="">-- Chọn chức vụ --</option>
+                        @foreach (var cv in dsCV)
+                        {
+                            <option value="@cv.IDChucVu">@cv.NameChucVu</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Mức lương (VNĐ)</label>
+                    @Html.TextBoxFor(m => m.MucLuong, new { @class = "form-control", @type = "number", @min = "0", @step = "1000", @placeholder = "Nhập mức lương..." })
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-arrow-left me-1"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-gradient px-4 fw-bold">
+                        <i class="fas fa-save me-1"></i> Lưu
+                    </button>
+                </div>
             }
-        </select>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label>Mức lương (VNĐ)</label>
-        @Html.TextBoxFor(m => m.MucLuong, new { @class = "form-control" })
-    </div>
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
+            background-attachment: fixed;
+            font-family: "Segoe UI", sans-serif;
+        }
 
-    <button type="submit" class="btn btn-success">Lưu</button>
+        .btn-gradient {
+            background: linear-gradient(90deg, #7c4dff, #b388ff);
+            color: white;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .btn-gradient:hover {
+            opacity: 0.9;
+        }
+
+        .card {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 }

@@ -1,61 +1,94 @@
-﻿
-@{
-    ViewBag.Title = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-@model QL_Luong_MVC.Models.HopDong
+﻿@model QL_Luong_MVC.Models.HopDong
 @{
     ViewBag.Title = "Thêm hợp đồng mới";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Thêm hợp đồng mới</h2>
+<div class="container-fluid py-4" style="min-height:100vh;">
+    <div class="card shadow-lg border-0" style="border-radius: 15px; background-color: #ffffffdd; backdrop-filter: blur(6px);">
+        <div class="card-header"
+             style="background: linear-gradient(90deg, #7c4dff, #b388ff); color:white; border-radius:15px 15px 0 0;">
+            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Thêm hợp đồng mới</h4>
+        </div>
 
-<form method="post" class="mt-3">
-    <div class="form-group">
-        <label>Nhân viên</label>
-        <select name="IDNhanVIen_HopDong" class="form-control">
-            @foreach (var nv in ViewBag.DSNhanVien)
+        <div class="card-body p-4">
+            <form method="post">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nhân viên</label>
+                        <select name="IDNhanVIen_HopDong" class="form-select shadow-sm">
+                            @foreach (var nv in ViewBag.DSNhanVien)
+                            {
+                                <option value="@nv.IDNhanVien">@nv.FullNameNhanVien</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Ngày bắt đầu</label>
+                        <input type="date" name="DayToStart" class="form-control shadow-sm" required />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Ngày kết thúc</label>
+                        <input type="date" name="DayToEnd" class="form-control shadow-sm" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Loại hợp đồng</label>
+                        <select name="Loai_HopDong" class="form-select shadow-sm">
+                            <option value="Có thời hạn">Có thời hạn</option>
+                            <option value="Không thời hạn">Không thời hạn</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Lương cơ bản (VNĐ)</label>
+                        <input type="number" step="1000" name="LuongCoBan_HopDong" class="form-control shadow-sm" required />
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Ghi chú</label>
+                        <textarea name="Note_HopDong" rows="3" class="form-control shadow-sm"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end">
+                    <a href="@Url.Action("Index")" class="btn btn-secondary me-2 px-4">Hủy</a>
+                    <button type="submit" class="btn btn-primary px-4" style="background: linear-gradient(90deg, #7c4dff, #b388ff); border: none;">
+                        <i class="fas fa-save me-2"></i> Lưu hợp đồng
+                    </button>
+                </div>
+            </form>
+
+            @if (ViewBag.ThongBao != null)
             {
-                <option value="@nv.IDNhanVien">@nv.FullNameNhanVien</option>
+                <div class="alert alert-danger mt-4">@ViewBag.ThongBao</div>
             }
-        </select>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label>Ngày bắt đầu</label>
-        <input type="date" name="DayToStart" class="form-control" required />
-    </div>
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
+            background-attachment: fixed;
+            font-family: "Segoe UI", sans-serif;
+        }
 
-    <div class="form-group">
-        <label>Ngày kết thúc</label>
-        <input type="date" name="DayToEnd" class="form-control" />
-    </div>
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #cbb2ff;
+        }
 
-    <div class="form-group">
-        <label>Loại hợp đồng</label>
-        <select name="Loai_HopDong" class="form-control">
-            <option value="Có thời hạn">Có thời hạn</option>
-            <option value="Không thời hạn">Không thời hạn</option>
-        </select>
-    </div>
+            .form-control:focus, .form-select:focus {
+                box-shadow: 0 0 5px #b388ff;
+                border-color: #b388ff;
+            }
 
-    <div class="form-group">
-        <label>Lương cơ bản</label>
-        <input type="number" step="1000" name="LuongCoBan_HopDong" class="form-control" required />
-    </div>
-
-    <div class="form-group">
-        <label>Ghi chú</label>
-        <textarea name="Note_HopDong" class="form-control"></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-success">Lưu hợp đồng</button>
-    <a href="@Url.Action("Index")" class="btn btn-secondary">Hủy</a>
-</form>
-
-@if (ViewBag.ThongBao != null)
-{
-    <div class="alert alert-danger mt-3">@ViewBag.ThongBao</div>
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #6a1b9a, #9c4dcc);
+        }
+    </style>
 }

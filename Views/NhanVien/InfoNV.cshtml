@@ -1,0 +1,65 @@
+﻿@model QL_Luong_MVC.Models.NhanVien
+@{
+    ViewBag.Title = "Thông tin nhân viên";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Thông tin nhân viên</h2>
+
+    @if (Model != null)
+    {
+        <table class="table table-bordered table-striped">
+            <tr>
+                <th>Mã nhân viên</th>
+                <td>@Model.IDNhanVien</td>
+            </tr>
+            <tr>
+                <th>Họ và tên</th>
+                <td>@Model.FullNameNhanVien</td>
+            </tr>
+            <tr>
+                <th>Ngày sinh</th>
+                <td>@Model.DayOfBirth_NhanVien.ToString("dd/MM/yyyy")</td>
+            </tr>
+            <tr>
+                <th>Giới tính</th>
+                <td>@Model.Sex_NhanVien</td>
+            </tr>
+            <tr>
+                <th>Địa chỉ</th>
+                <td>@Model.Address_NhanVien</td>
+            </tr>
+            <tr>
+                <th>Số điện thoại</th>
+                <td>@Model.SDT_NhanVien</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>@Model.Email_NhanVien</td>
+            </tr>
+            <tr>
+                <th>Trạng thái</th>
+                <td>@Model.State_NhanVien</td>
+            </tr>
+            <tr>
+                <th>Mã chức vụ</th>
+                <td>@Model.IDCV_NhanVien</td>
+            </tr>
+            <tr>
+                <th>Mã phòng ban</th>
+                <td>@Model.IDPB_NhanVien</td>
+            </tr>
+        </table>
+
+        <div class="text-center mt-3">
+            <a href="@Url.Action("Logout", "Login")" class="btn btn-danger">
+                Đăng xuất
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center">Không tìm thấy thông tin nhân viên.</div>
+    }
+</div>

@@ -231,8 +231,9 @@ VALUES
 (9, 10, 2025, 15000000, 700000, 1500000, 1);
 
 
-
-
+INSERT INTO TaiKhoan (TenDangNhap, MatKhau, Quyen)
+VALUES 
+(N'admin', N'123456', N'Admin')
 
 -- ================================================
 --         CHƯƠNG 2: CÀI ĐẶT YÊU CẦU XỬ LÝ

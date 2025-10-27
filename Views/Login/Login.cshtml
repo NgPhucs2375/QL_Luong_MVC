@@ -1,0 +1,42 @@
+﻿@{
+    ViewBag.Title = "Đăng nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-lg" style="width: 400px; border-radius: 16px;">
+        <div class="card-body p-4">
+            <h3 class="text-center mb-4 text-primary fw-bold">
+                <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+            </h3>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger text-center">@ViewBag.Error</div>
+            }
+
+            @using (Html.BeginForm("Login", "Login", FormMethod.Post))
+            {
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Tên đăng nhập (Email)</label>
+                    <input type="text" name="username" class="form-control" placeholder="Nhập tên đăng nhập" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Mật khẩu</label>
+                    <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-semibold">
+                    <i class="bi bi-door-open"></i> Đăng nhập
+                </button>
+            }
+
+            <div class="text-center mt-3">
+                <a href="@Url.Action("Register", "Login")" class="text-decoration-none">
+                    <i class="bi bi-person-plus"></i> Chưa có tài khoản? Đăng ký
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

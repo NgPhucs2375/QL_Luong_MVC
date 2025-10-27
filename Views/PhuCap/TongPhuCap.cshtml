@@ -3,15 +3,60 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Tổng phụ cấp nhân viên</h2>
+<div class="container py-5" style="min-height:100vh;">
+    <div class="card shadow-lg border-0 mx-auto" style="max-width:600px; border-radius:20px; background-color:#ffffffcc; backdrop-filter:blur(8px);">
+        <div class="card-header text-center" style="background:linear-gradient(90deg,#7e57c2,#b388ff); color:white; border-radius:20px 20px 0 0;">
+            <h4 class="mb-0"><i class="fas fa-hand-holding-usd me-2"></i>Tổng phụ cấp nhân viên</h4>
+        </div>
 
-@if (ViewBag.NhanVien != null)
-{
-    <p><b>Tên nhân viên:</b> @ViewBag.NhanVien.FullNameNhanVien</p>
-    <p><b>Mã nhân viên:</b> @ViewBag.NhanVien.IDNhanVien</p>
-    <p><b>Tổng phụ cấp:</b> @string.Format("{0:N0} VNĐ", ViewBag.Tong)</p>
-}
-else
-{
-    <p>Không tìm thấy thông tin nhân viên.</p>
+        <div class="card-body text-center py-5">
+            @if (ViewBag.NhanVien != null)
+            {
+                <h5 class="fw-bold text-dark mb-3">@ViewBag.NhanVien.FullNameNhanVien</h5>
+                <p class="text-muted mb-1">Mã nhân viên: <strong>@ViewBag.NhanVien.IDNhanVien</strong></p>
+                <div class="my-4">
+                    <span class="display-5 fw-bold" style="color:#7e57c2;">@string.Format("{0:N0}", ViewBag.Tong)</span>
+                    <span class="fs-5 text-secondary">VNĐ</span>
+                </div>
+                <a href="@Url.Action("Index","PhuCap")" class="btn btn-gradient text-white px-4">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                </a>
+            }
+            else
+            {
+                <div class="alert alert-warning shadow-sm">
+                    <i class="fas fa-exclamation-circle me-2"></i>Không tìm thấy thông tin nhân viên.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
+            background-attachment: fixed;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(90deg, #7c4dff, #b388ff);
+            border: none;
+            transition: 0.3s;
+        }
+
+        .btn-gradient:hover {
+            opacity: 0.9;
+        }
+
+        .card {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 }

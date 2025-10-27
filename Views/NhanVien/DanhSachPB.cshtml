@@ -1,0 +1,57 @@
+﻿@model List<QL_Luong_MVC.Models.NhanVien>
+@{
+    ViewBag.Title = "Danh Sách Nhân Viên";
+}
+
+<h2 class="text-center mb-4">📋 Danh Sách Nhân Viên</h2>
+
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert alert-info">@TempData["ThongBao"]</div>
+}
+
+<table class="table table-bordered table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Mã NV</th>
+            <th>Họ Tên</th>
+            <th>Ngày Sinh</th>
+            <th>Giới Tính</th>
+            <th>Địa Chỉ</th>
+            <th>Điện Thoại</th>
+            <th>Email</th>
+            <th>Trạng Thái</th>
+            <th>Chức Vụ</th>
+            <th>Phòng Ban</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var nv in Model)
+        {
+            <tr>
+                <td>@nv.IDNhanVien</td>
+                <td>@nv.FullNameNhanVien</td>
+                <td>@nv.DayOfBirth_NhanVien.ToString("dd/MM/yyyy")</td>
+                <td>@nv.Sex_NhanVien</td>
+                <td>@nv.Address_NhanVien</td>
+                <td>@nv.SDT_NhanVien</td>
+                <td>@nv.Email_NhanVien</td>
+                <td>@nv.State_NhanVien</td>
+                <td>@nv.IDCV_NhanVien</td>
+                <td>@nv.IDPB_NhanVien</td>
+                <td>
+                    <a href="@Url.Action("SuaNV", "NhanVien", new { id = nv.IDNhanVien })" class="btn btn-warning btn-sm">Sửa</a>
+                    <a href="@Url.Action("XoaNV", "NhanVien", new { id = nv.IDNhanVien })"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này không?');">
+                        Xóa
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("ThemNV", "NhanVien")" class="btn btn-success mt-3">➕ Thêm Nhân Viên</a>
+

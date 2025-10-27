@@ -1,39 +1,107 @@
-﻿
+﻿@model IEnumerable<QL_Luong_MVC.Models.LuongCoban>
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Quản lý mức lương cơ bản";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@model IEnumerable<QL_Luong_MVC.Models.LuongCoban>
+<div class="container-fluid py-4" style="min-height:100vh;">
+    <div class="card shadow-lg border-0" style="border-radius: 15px; background-color: #ffffffcc; backdrop-filter: blur(6px);">
+        <div class="card-header d-flex justify-content-between align-items-center"
+             style="background: linear-gradient(90deg, #7c4dff, #b388ff); color:white; border-radius:15px 15px 0 0;">
+            <h4 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Quản lý mức lương cơ bản</h4>
+            <a href="@Url.Action("Create","Create")" class="btn btn-light text-dark fw-bold shadow-sm">
+                <i class="fas fa-plus-circle me-1"></i> Thêm mức lương
+            </a>
+        </div>
 
-<h2>Quản lý mức lương cơ bản</h2>
+        <div class="card-body p-4 bg-white" style="border-radius: 0 0 15px 15px;">
+            <table class="table table-hover align-middle text-center mb-0">
+                <thead style="background: linear-gradient(90deg, #9575cd, #b388ff); color:white;">
+                    <tr>
+                        <th style="width:15%">Mã lương</th>
+                        <th style="width:35%">Tên chức vụ</th>
+                        <th style="width:25%">Mức lương (VNĐ)</th>
+                        <th style="width:25%">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var cv = new QL_Luong_MVC.Models.DB().dsChucVu.FirstOrDefault(c => c.IDChucVu == item.IDChucVu_LuongCB);
+                            <tr>
+                                <td><strong>@item.IDLuongCoBan</strong></td>
+                                <td>@(cv != null ? cv.NameChucVu : "Không xác định")</td>
+                                <td>@string.Format("{0:N0}", item.MucLuong)</td>
+                                <td>
+                                    <a href="@Url.Action("Edit","Edit", new { id = item.IDLuongCoBan })"
+                                       class="btn btn-outline-primary btn-sm px-3 me-2">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a href="@Url.Action("Delete", new { id = item.IDLuongCoBan })"
+                                       class="btn btn-outline-danger btn-sm px-3"
+                                       onclick="return confirm('Bạn có chắc muốn xóa không?');">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-muted py-4">
+                                <i class="fas fa-info-circle me-2"></i>Không có dữ liệu mức lương.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-<p>
-    <a href="@Url.Action("Create")" class="btn btn-success">+ Thêm mức lương</a>
-</p>
-
-<table class="table table-bordered table-hover">
-    <thead>
-        <tr>
-            <th>Mã lương</th>
-            <th>Tên chức vụ</th>
-            <th>Mức lương (VNĐ)</th>
-            <th>Thao tác</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            var cv = new QL_Luong_MVC.Models.DB().dsChucVu.FirstOrDefault(c => c.IDChucVu == item.IDChucVu_LuongCB);
-            <tr>
-                <td>@item.IDLuongCoBan</td>
-                <td>@(cv != null ? cv.NameChucVu : "Không xác định")</td>
-                <td>@string.Format("{0:N0}", item.MucLuong)</td>
-                <td>
-                    <a href="@Url.Action("Edit", new { id = item.IDLuongCoBan })" class="btn btn-primary btn-sm">Sửa</a>
-                    <a href="@Url.Action("Delete", new { id = item.IDLuongCoBan })" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa không?');">Xóa</a>
-                </td>
-            </tr>
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
+            background-attachment: fixed;
+            font-family: "Segoe UI", sans-serif;
         }
-    </tbody>
-</table>
+
+        .table-hover tbody tr:hover {
+            background-color: #f3e8ff !important;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-outline-primary {
+            border-color: #7c4dff;
+            color: #7c4dff;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #7c4dff;
+            color: white;
+        }
+
+        .btn-outline-danger {
+            border-color: #e57373;
+            color: #e57373;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #e57373;
+            color: white;
+        }
+
+        .card {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+}
