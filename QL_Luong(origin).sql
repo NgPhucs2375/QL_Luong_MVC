@@ -129,11 +129,7 @@ create table TaiKhoan
 	Quyen nvarchar(20) default N'User',
 	constraint FK_MaNV_TaiKhoan foreign key (MaNV) references NhanVien(MaNV)
 )
-CREATE TABLE AdminAccount
-(
-    TenDangNhap NVARCHAR(50) NOT NULL PRIMARY KEY,
-    MatKhau NVARCHAR(100) NOT NULL
-);
+
 
 -- ========================
 -- DỮ LIỆU MẪU
@@ -239,9 +235,9 @@ VALUES
 (9, 10, 2025, 15000000, 700000, 1500000, 1);
 select * from BangLuong
 
-INSERT INTO AdminAccount (TenDangNhap, MatKhau)
-VALUES
-('admin', '123456');
+INSERT INTO TaiKhoan (TenDangNhap, MatKhau, Quyen)
+VALUES 
+(N'admin', N'123456', N'Admin')
 
 select * from AdminAccount
 

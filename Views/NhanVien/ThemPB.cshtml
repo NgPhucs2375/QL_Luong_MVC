@@ -1,0 +1,28 @@
+﻿@model QL_Luong_MVC.Models.PhongBan
+@{
+    ViewBag.Title = "Thêm Phòng Ban";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">➕ Thêm Phòng Ban</h2>
+
+@using (Html.BeginForm())
+{
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.NamePhongBan)
+        @Html.TextBoxFor(m => m.NamePhongBan, new { @class = "form-control", placeholder = "Tên phòng ban" })
+    </div>
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.DateOf_Establishment)
+        @Html.TextBoxFor(m => m.DateOf_Establishment, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-success">Thêm</button>
+    <a href="@Url.Action("DanhSachPB")" class="btn btn-secondary">Hủy</a>
+
+    @* Bỏ @ trước if khi nằm trong block *@
+    if (ViewBag.ThongBao != null)
+    {
+        <div class="alert alert-info mt-3">@ViewBag.ThongBao</div>
+    }
+}

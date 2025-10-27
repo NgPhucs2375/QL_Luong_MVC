@@ -19,7 +19,6 @@ namespace QL_Luong_MVC.Controllers
         {
             return View();
         }
-
         [HttpPost]
         public ActionResult Login(string username, string password)
         {
@@ -31,55 +30,32 @@ namespace QL_Luong_MVC.Controllers
                     return View();
                 }
 
-                // ✅ 1. Kiểm tra tài khoản admin mặc định
-                if (username.ToLower() == "admin" && password == "123456")
+                
+                var result = db.CheckLogin(username, password);
+
+                if (!result.Success)
                 {
-                    Session["TenDangNhap"] = "admin";
-                    Session["Quyen"] = "Admin";
-                    return RedirectToAction("Index", "Home");
+                    // Nếu có message trả về (lỗi kết nối hay sai), hiển thị
+                    ViewBag.Error = result.Message ?? "Sai tên đăng nhập hoặc mật khẩu.";
+                    return View();
                 }
 
-                // ✅ 2. Kiểm tra tài khoản trong CSDL
-                using (SqlConnection con = new SqlConnection(DB.strcon))
-                {
-                    con.Open();
-                    string query = "SELECT * FROM TaiKhoan WHERE TenDangNhap=@user AND MatKhau=@pass";
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@user", username);
-                    cmd.Parameters.AddWithValue("@pass", password);
+                // Đăng nhập thành công -> lưu session
+                Session["TenDangNhap"] = username;
+                Session["Quyen"] = result.Role ?? "User";
+                Session["MaNV"] = result.MaNV ?? 0;
 
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        Session["TenDangNhap"] = dr["TenDangNhap"].ToString();
-                        Session["Quyen"] = dr["Quyen"].ToString();
-                        Session["MaNV"] = dr["MaNV"] == DBNull.Value ? 0 : Convert.ToInt32(dr["MaNV"]);
-
-                        dr.Close();
-                        con.Close();
-
-                        // ✅ Điều hướng dựa theo quyền
-                        if (Session["Quyen"].ToString() == "Admin")
-                            return RedirectToAction("Index", "Home");
-                        else
-                            return RedirectToAction("InfoNV", "NhanVien");
-                    }
-
-                    ViewBag.Error = "❌ Sai tên đăng nhập hoặc mật khẩu.";
-                    dr.Close();
-                    con.Close();
-                }
-            }
-            catch (SqlException)
-            {
-                ViewBag.Error = "⚠️ Không thể kết nối đến cơ sở dữ liệu. Vui lòng thử lại sau.";
+                // Điều hướng dựa trên quyền
+                if ((result.Role ?? "User").Equals("Admin", StringComparison.OrdinalIgnoreCase))
+                    return RedirectToAction("Index", "Home"); // hoặc controller admin nếu có
+                else
+                    return RedirectToAction("InfoNV", "NhanVien");
             }
             catch (Exception ex)
             {
                 ViewBag.Error = "Đã xảy ra lỗi: " + ex.Message;
+                return View();
             }
-
-            return View();
         }
 
         // --------------------- LOGOUT ---------------------

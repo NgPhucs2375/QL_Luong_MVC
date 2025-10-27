@@ -23,10 +23,14 @@ namespace QL_Luong_MVC.Controllers
 
             return View(nv);
         }
-        string conStr = "Data Source=DESKTOP-5EMC8PJ;Initial Catalog=QL_LuongNV;Integrated Security=True";
+        public ActionResult DanhSachNV()
+        {
+            db.Lap_ListNhanVien(); // load lại danh sách mới nhất
+            return View(db.dsNhanVien);
+        }
 
         [HttpGet]
-        public ActionResult Them()
+        public ActionResult ThemNV()
         {
             return View();
         }
@@ -40,48 +44,97 @@ namespace QL_Luong_MVC.Controllers
                 return View(nv);
             }
 
-            try
+            var result = db.ThemNhanVien(nv);
+            ViewBag.ThongBao = result.Message;
+
+            if (result.Success)
+                ModelState.Clear();
+
+            return View();
+        }
+        [HttpGet]
+        public ActionResult SuaNV(int id)
+        {
+            DB db = new DB();
+            NhanVien nv = db.LayNhanVienTheoID(id); // gọi method mới
+            if (nv == null)
             {
-                using (SqlConnection conn = new SqlConnection(conStr))
-                {
-                    conn.Open();
-                    string sql = @"INSERT INTO NhanVien 
-                            (HoTen, GioiTinh, NgaySinh, DiaChi, DienThoai, Email, TrangThai, MaCV, MaPB)
-                           VALUES
-                            (@HoTen, @GioiTinh, @NgaySinh, @DiaChi, @DienThoai, @Email, @TrangThai, @MaCV, @MaPB)";
-
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@HoTen", (object)nv.FullNameNhanVien ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@GioiTinh", (object)nv.Sex_NhanVien ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@NgaySinh", (object)nv.DayOfBirth_NhanVien ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@DiaChi", (object)nv.Address_NhanVien ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@DienThoai", (object)nv.SDT_NhanVien ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@Email", (object)nv.Email_NhanVien ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@TrangThai", (object)nv.State_NhanVien ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@MaCV", nv.IDCV_NhanVien != 0 ? (object)nv.IDCV_NhanVien : DBNull.Value);
-                        cmd.Parameters.AddWithValue("@MaPB", nv.IDPB_NhanVien != 0 ? (object)nv.IDPB_NhanVien : DBNull.Value);
-
-                        int rows = cmd.ExecuteNonQuery();
-                        if (rows > 0)
-                        {
-                            ViewBag.ThongBao = "✅ Thêm nhân viên thành công!";
-                            ModelState.Clear();
-                            return View();
-                        }
-                        else
-                        {
-                            ViewBag.ThongBao = "⚠️ Không thể thêm nhân viên.";
-                        }
-                    }
-                }
+                TempData["ThongBao"] = " Không tìm thấy nhân viên!";
+                return RedirectToAction("DanhSachNV");
             }
-            catch (Exception ex)
+            return View(nv); // gửi dữ liệu sang view
+        }
+        [HttpPost]
+        public ActionResult SuaNV(NhanVien nv)
+        {
+            var result = db.SuaNhanVien(nv);
+            ViewBag.ThongBao = result.Message;
+            return RedirectToAction("DanhSachNV");
+        }
+
+        public ActionResult XoaNV(int id)
+        {
+            var result = db.XoaNhanVien(id);
+            TempData["ThongBao"] = result.Message;
+            return RedirectToAction("DanhSachNV");
+        }
+
+
+        //======================Phòng Ban==========================
+
+        public ActionResult DanhSachPB()
+        {
+            return View(db.dsPhongBan);
+        }
+
+        [HttpGet]
+        public ActionResult ThemPB()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult ThemPB(PhongBan pb)
+        {
+            var result = db.ThemPhongBan(pb);
+            ViewBag.ThongBao = result.Message;
+            if (result.Success) ModelState.Clear();
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult SuaPB(int id)
+        {
+            PhongBan pb = db.LayPhongBanTheoID(id);
+            if (pb == null)
             {
-                ViewBag.ThongBao = "❌ Lỗi hệ thống: " + ex.Message;
+                TempData["ThongBao"] = "⚠️ Không tìm thấy phòng ban!";
+                return RedirectToAction("DanhSachPB");
             }
+            return View(pb);
+        }
 
-            return View(nv);
+        [HttpPost]
+        public ActionResult SuaPB(PhongBan pb)
+        {
+            var result = db.SuaPhongBan(pb);
+            TempData["ThongBao"] = result.Message;
+            return RedirectToAction("DanhSachPB");
+        }
+
+        public ActionResult XoaPB(int id)
+        {
+            var result = db.XoaPhongBan(id);
+            TempData["ThongBao"] = result.Message;
+            return RedirectToAction("DanhSachPB");
+        }
+
+        public ActionResult ChiTietNV(int id) // id = MaPB
+        {
+            var nhanviens = db.dsNhanVien.Where(nv => nv.IDPB_NhanVien == id).ToList();
+            var phong = db.dsPhongBan.FirstOrDefault(pb => pb.IDPhongBan == id);
+            ViewBag.TenPhong = phong?.NamePhongBan ?? "Không xác định";
+            return View(nhanviens);
         }
     }
 }

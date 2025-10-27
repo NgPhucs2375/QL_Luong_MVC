@@ -1,4 +1,4 @@
-﻿<form method="post" action="/Login/Register">
+﻿<form method="post" action="/Login/Register" class="p-3 rounded shadow-sm">
     <div class="mb-3">
         <label class="form-label fw-semibold">Tên đăng nhập</label>
         <input type="text" name="TenDangNhap" class="form-control" required />
@@ -14,7 +14,20 @@
         <input type="number" name="MaNV" class="form-control" required />
     </div>
 
-    <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
+    <div class="d-flex justify-content-between">
+        <!-- Nút đăng ký -->
+        <button type="submit" class="btn w-50 me-2"
+                style="background-color:#007bff; color:white; border:none;">
+            Đăng ký
+        </button>
+
+        <!-- Nút đăng nhập -->
+        <a href="@Url.Action("Login", "Login")"
+           class="btn w-50"
+           style="background-color:#28a745; color:white; border:none; text-align:center;">
+            Bạn đã có tài khoản? Đăng nhập
+        </a>
+    </div>
 
     @if (ViewBag.Error != null)
     {

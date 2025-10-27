@@ -1,0 +1,42 @@
+﻿@model List<QL_Luong_MVC.Models.NhanVien>
+@{
+    ViewBag.Title = "Nhân Viên Phòng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">👥 Nhân Viên Phòng: @ViewBag.TenPhong</h2>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Mã NV</th>
+            <th>Họ Tên</th>
+            <th>Ngày Sinh</th>
+            <th>Giới Tính</th>
+            <th>Địa Chỉ</th>
+            <th>Điện Thoại</th>
+            <th>Email</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var nv in Model)
+        {
+            <tr>
+                <td>@nv.IDNhanVien</td>
+                <td>@nv.FullNameNhanVien</td>
+                <td>@nv.DayOfBirth_NhanVien.ToString("dd/MM/yyyy")</td>
+                <td>@nv.Sex_NhanVien</td>
+                <td>@nv.Address_NhanVien</td>
+                <td>@nv.SDT_NhanVien</td>
+                <td>@nv.Email_NhanVien</td>
+                <td>
+                    <a href="@Url.Action("SuaNV", "NhanVien", new { id = nv.IDNhanVien })" class="btn btn-warning btn-sm">Sửa</a>
+                    <a href="@Url.Action("XoaNV", "NhanVien", new { id = nv.IDNhanVien })" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này không?');">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("DanhSachNV", "NhanVien")" class="btn btn-secondary mt-3">⬅ Quay Lại Danh Sách</a>

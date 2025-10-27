@@ -1,0 +1,51 @@
+﻿@model List<QL_Luong_MVC.Models.TaiKhoan>
+@{
+    ViewBag.Title = "Quản lý tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Quản lý tài khoản</h2>
+
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-info text-center">@TempData["ThongBao"]</div>
+    }
+
+    <table class="table table-bordered table-striped text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Tên đăng nhập</th>
+                <th>Mã nhân viên</th>
+                <th>Quyền</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.TenDangNhap</td>
+                    <td>@item.MaNV</td>
+                    <td>@item.Quyen</td>
+                    <td>
+                        @if (item.Quyen == "Admin")
+                        {
+                            <a href="@Url.Action("XoaQuyen", "Admin", new { user = item.TenDangNhap })"
+                               class="btn btn-danger btn-sm">
+                                Xóa quyền Admin
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("CapQuyen", "Admin", new { user = item.TenDangNhap })"
+                               class="btn btn-success btn-sm">
+                                Cấp quyền Admin
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -21,8 +21,11 @@ namespace QL_Luong_MVC.Models
         // ======= CONSTRUCTOR =======
         public DB()
         {
-            strcon = ConfigurationManager.ConnectionStrings["QL_Luong_MVC"]?.ConnectionString 
-                                      ?? "Data Source=DESKTOP-5EMC8PJ;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;";
+            //strcon = ConfigurationManager.ConnectionStrings["QL_Luong_MVC"]?.ConnectionString 
+            //                          ?? "Data Source=DESKTOP-5EMC8PJ;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;";
+            strcon = ConfigurationManager.ConnectionStrings["QL_Luong_MVC"]?.ConnectionString
+                                ?? "Data Source=DESKTOP-I1S5SR8;Initial Catalog=QL_LuongNV;User ID=sa;Password=123;TrustServerCertificate=True;";
+
             conStr = strcon;
             Lap_ListNhanVien();
             Lap_ListPhongBan();
@@ -231,7 +234,217 @@ namespace QL_Luong_MVC.Models
                 return (false, "Lỗi khi đăng ký: " + ex.Message);
             }
         }
+        // ======================== NHÂN VIÊN: THÊM - SỬA - XÓA ========================
 
+        // Thêm nhân viên
+        public (bool Success, string Message) ThemNhanVien(NhanVien nv)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(conStr))
+                {
+                    conn.Open();
+                    string sql = @"INSERT INTO NhanVien (HoTen, GioiTinh, NgaySinh, DiaChi, DienThoai, Email, TrangThai, MaCV, MaPB)
+                           VALUES (@HoTen, @GioiTinh, @NgaySinh, @DiaChi, @DienThoai, @Email, @TrangThai, @MaCV, @MaPB)";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@HoTen", nv.FullNameNhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@GioiTinh", nv.Sex_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@NgaySinh", nv.DayOfBirth_NhanVien == DateTime.MinValue ? (object)DBNull.Value : nv.DayOfBirth_NhanVien);
+                        cmd.Parameters.AddWithValue("@DiaChi", nv.Address_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@DienThoai", nv.SDT_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Email", nv.Email_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@TrangThai", nv.State_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@MaCV", nv.IDCV_NhanVien == 0 ? (object)DBNull.Value : nv.IDCV_NhanVien);
+                        cmd.Parameters.AddWithValue("@MaPB", nv.IDPB_NhanVien == 0 ? (object)DBNull.Value : nv.IDPB_NhanVien);
+
+                        int rows = cmd.ExecuteNonQuery();
+                        if (rows > 0)
+                            return (true, "✅ Thêm nhân viên thành công!");
+                        else
+                            return (false, "⚠️ Không thể thêm nhân viên.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, "❌ Lỗi khi thêm nhân viên: " + ex.Message);
+            }
+        }
+
+        // Sửa nhân viên
+        public (bool Success, string Message) SuaNhanVien(NhanVien nv)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(conStr))
+                {
+                    conn.Open();
+                    string sql = @"UPDATE NhanVien SET 
+                               HoTen=@HoTen, GioiTinh=@GioiTinh, NgaySinh=@NgaySinh,
+                               DiaChi=@DiaChi, DienThoai=@DienThoai, Email=@Email,
+                               TrangThai=@TrangThai, MaCV=@MaCV, MaPB=@MaPB
+                           WHERE MaNV=@MaNV";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MaNV", nv.IDNhanVien);
+                        cmd.Parameters.AddWithValue("@HoTen", nv.FullNameNhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@GioiTinh", nv.Sex_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@NgaySinh", nv.DayOfBirth_NhanVien == DateTime.MinValue ? (object)DBNull.Value : nv.DayOfBirth_NhanVien);
+                        cmd.Parameters.AddWithValue("@DiaChi", nv.Address_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@DienThoai", nv.SDT_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Email", nv.Email_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@TrangThai", nv.State_NhanVien ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@MaCV", nv.IDCV_NhanVien == 0 ? (object)DBNull.Value : nv.IDCV_NhanVien);
+                        cmd.Parameters.AddWithValue("@MaPB", nv.IDPB_NhanVien == 0 ? (object)DBNull.Value : nv.IDPB_NhanVien);
+
+                        int rows = cmd.ExecuteNonQuery();
+                        if (rows > 0)
+                            return (true, "✏️ Sửa thông tin thành công!");
+                        else
+                            return (false, "⚠️ Không tìm thấy nhân viên cần sửa.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, "❌ Lỗi khi sửa nhân viên: " + ex.Message);
+            }
+        }
+        public NhanVien LayNhanVienTheoID(int id)
+        {
+            return dsNhanVien.FirstOrDefault(nv => nv.IDNhanVien == id);
+        }
+
+        //  Xóa nhân viên
+        public (bool Success, string Message) XoaNhanVien(int maNV)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(conStr))
+                {
+                    conn.Open();
+                    string sql = "DELETE FROM NhanVien WHERE MaNV = @MaNV";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MaNV", maNV);
+                        int rows = cmd.ExecuteNonQuery();
+                        if (rows > 0)
+                            return (true, "🗑️ Đã xóa nhân viên thành công!");
+                        else
+                            return (false, "⚠️ Không tìm thấy nhân viên cần xóa.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, "❌ Lỗi khi xóa nhân viên: " + ex.Message);
+            }
+        }
+        public PhongBan LayPhongBanTheoID(int id)
+        {
+            return dsPhongBan.FirstOrDefault(pb => pb.IDPhongBan == id);
+        }
+
+        // Thêm phòng ban
+        public (bool Success, string Message) ThemPhongBan(PhongBan pb)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(conStr))
+                {
+                    conn.Open();
+                    string sql = @"INSERT INTO PhongBan (TenPB, NgayThanhLap)
+                           VALUES (@TenPB, @NgayThanhLap)";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@TenPB", pb.NamePhongBan ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@NgayThanhLap", pb.DateOf_Establishment == DateTime.MinValue
+                                                                    ? (object)DBNull.Value
+                                                                    : pb.DateOf_Establishment);
+
+                        int rows = cmd.ExecuteNonQuery();
+                        if (rows > 0)
+                        {
+                            Lap_ListPhongBan(); // cập nhật dsPhongBan
+                            return (true, "Thêm phòng ban thành công!");
+                        }
+                        else
+                            return (false, "Không thể thêm phòng ban.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, "Lỗi khi thêm phòng ban: " + ex.Message);
+            }
+        }
+
+        // Sửa phòng ban
+        public (bool Success, string Message) SuaPhongBan(PhongBan pb)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(conStr))
+                {
+                    conn.Open();
+                    string sql = @"UPDATE PhongBan SET 
+                               TenPB=@TenPB, NgayThanhLap=@NgayThanhLap
+                           WHERE MaPB=@MaPB";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MaPB", pb.IDPhongBan);
+                        cmd.Parameters.AddWithValue("@TenPB", pb.NamePhongBan ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@NgayThanhLap", pb.DateOf_Establishment == DateTime.MinValue
+                                                                    ? (object)DBNull.Value
+                                                                    : pb.DateOf_Establishment);
+
+                        int rows = cmd.ExecuteNonQuery();
+                        if (rows > 0)
+                        {
+                            Lap_ListPhongBan(); // cập nhật dsPhongBan
+                            return (true, "Sửa thông tin phòng ban thành công!");
+                        }
+                        else
+                            return (false, "Không tìm thấy phòng ban cần sửa.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, "Lỗi khi sửa phòng ban: " + ex.Message);
+            }
+        }
+
+        // Xóa phòng ban
+        public (bool Success, string Message) XoaPhongBan(int id)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(conStr))
+                {
+                    conn.Open();
+                    string sql = "DELETE FROM PhongBan WHERE MaPB=@MaPB";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MaPB", id);
+                        int rows = cmd.ExecuteNonQuery();
+                        if (rows > 0)
+                        {
+                            Lap_ListPhongBan(); // cập nhật dsPhongBan
+                            return (true, "Đã xóa phòng ban thành công!");
+                        }
+                        else
+                            return (false, "Không tìm thấy phòng ban cần xóa.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, "Lỗi khi xóa phòng ban: " + ex.Message);
+            }
+        }
 
     }
 }
