@@ -239,7 +239,7 @@ INSERT INTO TaiKhoan (TenDangNhap, MatKhau, Quyen)
 VALUES 
 (N'admin', N'123456', N'Admin')
 
-select * from AdminAccount
+select * from TaiKhoan
 
 -- ================================================
 --         CHƯƠNG 2: CÀI ĐẶT YÊU CẦU XỬ LÝ
@@ -507,3 +507,297 @@ GO
 --    INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
 --    SELECT i.MaNV, MONTH(GETDATE()), YEAR(GETDATE()), 0, 0, 0, 0
 --    FROM inserted
+
+--Phần của Scu
+
+--------------------------------------------------
+-- 1️ PROCEDURE 
+--------------------------------------------------
+
+-- 1: Thêm nhân viên mới
+CREATE OR ALTER PROCEDURE sp_ThemNhanVien
+    @HoTen NVARCHAR(40),
+    @NgaySinh DATE,
+    @GioiTinh NVARCHAR(5),
+    @DiaChi NVARCHAR(50),
+    @DienThoai NVARCHAR(15),
+    @Email NVARCHAR(60) = NULL,
+    @MaPB INT = NULL,
+    @MaCV INT = NULL
+AS
+BEGIN
+    IF @Email IS NOT NULL AND EXISTS(SELECT 1 FROM NhanVien WHERE Email = @Email)
+    BEGIN
+        RAISERROR(N'Email đã tồn tại!',16,1);
+        RETURN;
+    END
+
+    INSERT INTO NhanVien(HoTen, NgaySinh, GioiTinh, DiaChi, DienThoai, Email, MaPB, MaCV)
+    VALUES(@HoTen, @NgaySinh, @GioiTinh, @DiaChi, @DienThoai, @Email, @MaPB, @MaCV);
+
+    PRINT N'Đã thêm nhân viên mới thành công!';
+END;
+GO
+
+-- 2: Xóa nhân viên (gọi trigger ghi log)
+CREATE PROCEDURE sp_DeleteNhanVien
+    @MaNV NVARCHAR(10)
+AS
+BEGIN
+    DELETE FROM NhanVien WHERE MaNV = @MaNV
+END
+GO
+
+
+-- 3: Tạo tài khoản cho nhân viên
+CREATE OR ALTER PROCEDURE sp_TaoTaiKhoan
+    @MaNV INT,
+    @TenDangNhap NVARCHAR(50),
+    @MatKhau NVARCHAR(100),
+    @Quyen NVARCHAR(20) = N'User'
+AS
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM NhanVien WHERE MaNV = @MaNV)
+    BEGIN
+        RAISERROR(N'Không tồn tại nhân viên này!',16,1);
+        RETURN;
+    END
+
+    IF EXISTS(SELECT 1 FROM TaiKhoan WHERE TenDangNhap = @TenDangNhap)
+    BEGIN
+        RAISERROR(N'Tên đăng nhập đã tồn tại!',16,1);
+        RETURN;
+    END
+
+    INSERT INTO TaiKhoan(MaNV, TenDangNhap, MatKhau, Quyen)
+    VALUES(@MaNV, @TenDangNhap, @MatKhau, @Quyen);
+
+    PRINT N'Đã tạo tài khoản cho nhân viên thành công!';
+END;
+GO
+
+
+-- 4: Quản lý phòng ban (Thêm / Sửa / Xóa)
+CREATE OR ALTER PROCEDURE sp_QuanLyPhongBan
+    @ThaoTac NVARCHAR(10),  -- 'THEM', 'SUA', 'XOA'
+    @MaPB INT = NULL,
+    @TenPB NVARCHAR(50) = NULL
+AS
+BEGIN
+    IF @ThaoTac = 'THEM'
+        INSERT INTO PhongBan(TenPB) VALUES(@TenPB);
+
+    ELSE IF @ThaoTac = 'SUA'
+        UPDATE PhongBan SET TenPB = @TenPB WHERE MaPB = @MaPB;
+
+    ELSE IF @ThaoTac = 'XOA'
+        DELETE FROM PhongBan WHERE MaPB = @MaPB;
+
+    ELSE
+        RAISERROR(N'Thao tác không hợp lệ (THEM/SUA/XOA)!',16,1);
+
+    PRINT N'Đã thực hiện quản lý phòng ban thành công!';
+END;
+GO
+
+
+-- 5: Quản lý chức vụ và hệ số lương (Thêm / Sửa / Xóa)
+CREATE OR ALTER PROCEDURE sp_QuanLyChucVu
+    @ThaoTac NVARCHAR(10),
+    @MaCV INT = NULL,
+    @TenCV NVARCHAR(50) = NULL,
+    @HeSoLuong DECIMAL(4,2) = NULL
+AS
+BEGIN
+    IF @ThaoTac = 'THEM'
+        INSERT INTO ChucVu(TenCV, HeSoLuong) VALUES(@TenCV, @HeSoLuong);
+
+    ELSE IF @ThaoTac = 'SUA'
+        UPDATE ChucVu SET TenCV = @TenCV, HeSoLuong = @HeSoLuong WHERE MaCV = @MaCV;
+
+    ELSE IF @ThaoTac = 'XOA'
+        DELETE FROM ChucVu WHERE MaCV = @MaCV;
+
+    ELSE
+        RAISERROR(N'Thao tác không hợp lệ (THEM/SUA/XOA)!',16,1);
+
+    PRINT N'Đã thực hiện quản lý chức vụ thành công!';
+END;
+GO
+
+
+--------------------------------------------------
+-- 2️ TRIGGER : 5 UC (QL_Luong)
+--------------------------------------------------
+
+-- 1: Khi thêm nhân viên → tự tạo bảng lương
+CREATE OR ALTER TRIGGER trg_TaoBangLuongKhiThemNV
+ON NhanVien
+AFTER INSERT
+AS
+BEGIN
+    INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
+    SELECT MaNV, MONTH(GETDATE()), YEAR(GETDATE()), 0, 0, 0, 0
+    FROM inserted;
+    PRINT N'Đã tự tạo bảng lương cho nhân viên mới!';
+END;
+GO
+
+
+-- 2: Khi xóa nhân viên → ghi log vào LichSuXoaNhanVien
+CREATE OR ALTER TRIGGER trg_Log_Delete_NhanVien
+ON NhanVien
+AFTER DELETE
+AS
+BEGIN
+    INSERT INTO LichSuXoaNhanVien(MaNV, HoTen, NgayXoa, LyDo)
+    SELECT MaNV, HoTen, GETDATE(), N'Xóa nhân viên khỏi hệ thống'
+    FROM deleted;
+    PRINT N'Đã ghi log xóa nhân viên!';
+END;
+GO
+
+
+-- 3: Khi thêm tài khoản → log lịch sử tạo tài khoản
+CREATE OR ALTER TRIGGER trg_Log_TaoTaiKhoan
+ON TaiKhoan
+AFTER INSERT
+AS
+BEGIN
+    INSERT INTO LichSuTaiKhoan(MaNV, TenDangNhap, NgayTao)
+    SELECT MaNV, TenDangNhap, GETDATE() FROM inserted;
+    PRINT N'Đã ghi log tạo tài khoản!';
+END;
+GO
+
+
+-- 4: Khi xóa phòng ban → tự động set MaPB của nhân viên = NULL
+CREATE OR ALTER TRIGGER trg_SetNull_MaPB_WhenPhongBanXoa
+ON PhongBan
+AFTER DELETE
+AS
+BEGIN
+    UPDATE NhanVien
+    SET MaPB = NULL
+    WHERE MaPB IN (SELECT MaPB FROM deleted);
+    PRINT N'Phòng ban bị xóa → cập nhật lại nhân viên!';
+END;
+GO
+
+
+-- 5: Khi sửa hệ số lương → tự cập nhật bảng lương liên quan
+CREATE OR ALTER TRIGGER trg_CapNhatLuongKhiDoiHeSo
+ON ChucVu
+AFTER UPDATE
+AS
+BEGIN
+    UPDATE b
+    SET b.LuongCoBan = c.HeSoLuong * 1000000
+    FROM BangLuong b
+    INNER JOIN NhanVien n ON b.MaNV = n.MaNV
+    INNER JOIN inserted c ON n.MaCV = c.MaCV;
+    PRINT N'Đã cập nhật lương cơ bản khi thay đổi hệ số!';
+END;
+GO
+
+
+--------------------------------------------------
+-- 3️ FUNCTION : 5 UC (QL_Luong)
+--------------------------------------------------
+
+-- 1: Lấy mã nhân viên theo email
+CREATE OR ALTER FUNCTION fn_LayMaNhanVienTheoEmail(@Email NVARCHAR(60))
+RETURNS INT
+AS
+BEGIN
+    DECLARE @MaNV INT;
+    SELECT TOP 1 @MaNV = MaNV FROM NhanVien WHERE Email = @Email;
+    RETURN ISNULL(@MaNV, 0);
+END;
+GO
+
+
+-- 2: Kiểm tra xem nhân viên có tồn tại trước khi xóa
+CREATE OR ALTER FUNCTION fn_KiemTraNhanVienTonTai(@MaNV INT)
+RETURNS BIT
+AS
+BEGIN
+    RETURN (SELECT CASE WHEN EXISTS(SELECT 1 FROM NhanVien WHERE MaNV = @MaNV) THEN 1 ELSE 0 END);
+END;
+GO
+
+
+-- 3: Lấy quyền của tài khoản
+CREATE OR ALTER FUNCTION fn_LayQuyenTaiKhoan(@TenDangNhap NVARCHAR(50))
+RETURNS NVARCHAR(20)
+AS
+BEGIN
+    DECLARE @Quyen NVARCHAR(20);
+    SELECT @Quyen = Quyen FROM TaiKhoan WHERE TenDangNhap = @TenDangNhap;
+    RETURN ISNULL(@Quyen, N'User');
+END;
+GO
+
+
+-- 4: Đếm số nhân viên trong phòng ban
+CREATE OR ALTER FUNCTION fn_DemNhanVienTrongPhong(@MaPB INT)
+RETURNS INT
+AS
+BEGIN
+    RETURN (SELECT COUNT(*) FROM NhanVien WHERE MaPB = @MaPB);
+END;
+GO
+
+
+-- 5: Tính trung bình hệ số lương các chức vụ
+CREATE OR ALTER FUNCTION fn_TrungBinhHeSoLuong()
+RETURNS DECIMAL(5,2)
+AS
+BEGIN
+    RETURN (SELECT AVG(HeSoLuong) FROM ChucVu);
+END;
+GO
+
+
+
+
+
+
+
+
+
+
+--Chương 3 lưu trữ
+BACKUP DATABASE QL_LuongNV
+TO DISK = 'D:\code\DoAnHQT_SQL\QL_LuongNV_Full.bak'
+WITH FORMAT, INIT,
+     NAME = 'Full Backup of QL_LuongNV',
+     SKIP, NOREWIND, NOUNLOAD, STATS = 10;
+
+
+CREATE OR ALTER PROCEDURE sp_TaoBackup_QLLuong
+AS
+BEGIN
+    DECLARE @File NVARCHAR(300);
+
+    -- Tạo tên file dạng QL_Luong_YYYYMMDD_HHMMSS.bak
+    SET @File = 'D:\Backup_QLLuong\QL_Luong_' 
+                + CONVERT(VARCHAR(8), GETDATE(), 112) + '_' 
+                + REPLACE(CONVERT(VARCHAR(8), GETDATE(), 108), ':', '') + '.bak';
+
+    BACKUP DATABASE QL_LuongNV
+    TO DISK = @File
+    WITH INIT, FORMAT,
+         NAME = 'Backup tu dong CSDL QL_Luong',
+         SKIP, NOREWIND, NOUNLOAD, STATS = 10;
+END;
+GO
+--EXEC sp_TaoBackup_QLLuong;
+--Xóa tự động các file cũ ( giữ lại 7 ngày gần nhất)
+EXEC xp_cmdshell 'forfiles /p "D:\code\DoAnHQT_SQL" /s /m *.bak /d -7 /c "cmd /c del @path"';
+
+--Khôi phục csdl khi có sự cố 
+USE master;
+RESTORE DATABASE QL_LuongNV
+FROM DISK = 'D:\code\DoAnHQT_SQL\QL_LuongNV_Full.bak'
+WITH REPLACE;
