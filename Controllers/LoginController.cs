@@ -1,10 +1,13 @@
-﻿using QL_Luong_MVC.Models;
+
+using QL_Luong_MVC.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Data;
+
 
 namespace QL_Luong_MVC.Controllers
 {
@@ -28,8 +31,6 @@ namespace QL_Luong_MVC.Controllers
                     ViewBag.Error = "⚠️ Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.";
                     return View();
                 }
-
-
                 var result = db.CheckLogin(username, password);
 
                 if (!result.Success)
@@ -122,6 +123,7 @@ namespace QL_Luong_MVC.Controllers
             try
             {
                 using (SqlConnection con = new SqlConnection(strcon))
+
                 {
                     con.Open();
                     string query = "UPDATE TaiKhoan SET Quyen = 'Admin' WHERE TenDangNhap = @TenDangNhap";

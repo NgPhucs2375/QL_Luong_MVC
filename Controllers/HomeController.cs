@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.SqlClient;
+using System.Data;
 using QL_Luong_MVC.Models;
 using QL_Luong_MVC.ViewModel;
+
 
 namespace QL_Luong_MVC.Controllers
 {
@@ -27,7 +30,6 @@ namespace QL_Luong_MVC.Controllers
             }
 
             ViewBag.Username = username;
-
             // ✅ Tạo dữ liệu Dashboard
             var db = new DB();
 

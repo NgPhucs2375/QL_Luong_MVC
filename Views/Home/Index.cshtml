@@ -6,7 +6,6 @@
 }
 
 <div class="container-fluid py-4" style="min-height:100vh;">
-    <!-- Tiêu đề -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 fw-bold text-purple">Bảng điều khiển</h1>
         <a href="#" class="btn btn-gradient shadow-sm">
@@ -14,7 +13,6 @@
         </a>
     </div>
 
-    <!-- Thống kê -->
     <div class="row g-4">
         <div class="col-xl-3 col-md-6">
             <div class="card stat-card border-0 shadow">
@@ -54,7 +52,6 @@
         </div>
     </div>
 
-    <!-- Biểu đồ -->
     <div class="row mt-4">
         <div class="col-xl-8 col-lg-7">
             <div class="card border-0 shadow" style="border-radius: 15px;">
@@ -80,7 +77,6 @@
         </div>
     </div>
 
-    <!-- Phòng ban và nhân viên -->
     <div class="row mt-4">
         <div class="col-12">
             <div class="card border-0 shadow" style="border-radius: 15px;">
@@ -151,11 +147,13 @@
             box-shadow: 0 3px 8px rgba(123, 97, 255, 0.3);
         }
 
-            .btn-gradient:hover {
-                opacity: 0.9;
-                transform: translateY(-3px) scale(1.02);
-                box-shadow: 0 6px 16px rgba(123, 97, 255, 0.4);
-            }
+        /* === BẮT ĐẦU PHẦN SỬA XUNG ĐỘT === */
+        /* Giữ lại code CSS từ HEAD và xóa code HTML rác từ origin/Scu */
+        .btn-gradient:hover {
+            opacity: 0.9;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(123, 97, 255, 0.4);
+        }
 
         .stat-card {
             background: #fff;
@@ -167,6 +165,7 @@
             position: relative;
             overflow: hidden;
         }
+
             .stat-card::before {
                 content: "";
                 position: absolute;
@@ -177,12 +176,14 @@
                 background: radial-gradient(circle at top left, rgba(155, 89, 182, 0.1), transparent 70%);
                 z-index: 0;
             }
+        /* === KẾT THÚC PHẦN SỬA XUNG ĐỘT === */
 
             .stat-card:hover {
                 transform: translateY(-6px);
                 box-shadow: 0 10px 25px rgba(123, 97, 255, 0.25);
                 border-color: rgba(123, 97, 255, 0.4);
             }
+
             .stat-card .card-body {
                 position: relative;
                 z-index: 1;
