@@ -4,20 +4,19 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<body  class="purple-theme">
+<body class="purple-theme">
     <div class="container-fluid py-4" style="min-height:100vh;">
-        <div class="card shadow-lg border-0" style="border-radius: 15px; background-color: #ffffffcc; backdrop-filter: blur(6px);">
-            <div class="card-header d-flex justify-content-between align-items-center"
-                 style="background: linear-gradient(90deg, #6f42c1, #b18aff); color:white; border-radius:15px 15px 0 0;">
+        <div class="card shadow-lg border-0 list-card">
+            <div class="card-header d-flex justify-content-between align-items-center header-purple">
                 <h4 class="mb-0"><i class="fas fa-file-contract me-2"></i>Danh sách hợp đồng</h4>
-                <a href="@Url.Action("Create", "HopDong")" class="btn btn-light text-dark fw-bold shadow-sm">
+                <a href="@Url.Action("Create", "HopDong")" class="btn add-btn shadow-sm">
                     <i class="fas fa-plus-circle me-1"></i> Thêm hợp đồng
                 </a>
             </div>
 
-            <div class="card-body bg-white p-4" style="border-radius: 0 0 15px 15px;">
+            <div class="card-body bg-white p-4 table-container">
                 <table class="table table-hover text-center align-middle mb-0" id="hopdongTable">
-                    <thead style="background: linear-gradient(90deg, #8e63d1, #b78dfc); color:white;">
+                    <thead class="table-header">
                         <tr>
                             <th>Mã HD</th>
                             <th>Nhân viên</th>
@@ -41,11 +40,11 @@
                                     <td>
                                         @if (item.Loai_HopDong == "Có thời hạn")
                                         {
-                                            <span class="badge bg-primary">Có thời hạn</span>
+                                            <span class="badge badge-purple">Có thời hạn</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-success">Không thời hạn</span>
+                                            <span class="badge badge-green">Không thời hạn</span>
                                         }
                                     </td>
                                     <td class="text-end">@item.LuongCoBan_HopDong.ToString("N0")</td>
@@ -66,41 +65,93 @@
             </div>
         </div>
     </div>
-
 </body>
 
 @section Styles {
     <style>
+        /* ==== Tổng thể ==== */
         body {
             background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
             background-attachment: fixed;
             font-family: "Segoe UI", sans-serif;
-            box-shadow: 0 8px 20px rgba(111, 66, 193, 0.2);
+            color: #4a148c;
         }
 
-        .table-hover tbody tr:hover {
-            background-color: #f3e8ff !important;
-            transition: background-color 0.3s ease;
-        }
         .purple-theme {
             background: linear-gradient(135deg, #d9c2ff, #c7b6ff, #b8a4ff) !important;
         }
 
-        .btn-light:hover {
-            background-color: #e1d0ff;
+        .list-card {
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-in-out;
         }
 
-        .badge.bg-primary {
-            background-color: #8e63d1 !important;
+            .list-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 25px rgba(111, 66, 193, 0.2);
+            }
+
+        /* ==== Header ==== */
+        .header-purple {
+            background: linear-gradient(90deg, #7e57c2, #9575cd);
+            color: #fff;
+            border-radius: 18px 18px 0 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.25);
         }
 
-        .badge.bg-success {
-            background-color: #a678e3 !important;
+        /* ==== Table ==== */
+        .table-container {
+            border-radius: 0 0 18px 18px;
         }
 
-        .card {
-            animation: fadeIn 0.4s ease-in-out;
+        .table-header {
+            background: linear-gradient(90deg, #8e63d1, #b78dfc);
+            color: white;
         }
+
+        .table-hover tbody tr:hover {
+            background: rgba(155, 120, 255, 0.12) !important;
+            transform: scale(1.01);
+            transition: all 0.25s ease;
+        }
+
+        /* ==== Badge ==== */
+        .badge-purple {
+            background: linear-gradient(90deg, #8e63d1, #b388ff);
+            color: white;
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-weight: 500;
+        }
+
+        .badge-green {
+            background: linear-gradient(90deg, #9575cd, #b39ddb);
+            color: white;
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-weight: 500;
+        }
+
+        /* ==== Button ==== */
+        .add-btn {
+            background: linear-gradient(90deg, #ffffff, #f3e8ff);
+            color: #4a148c;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.25s ease;
+        }
+
+            .add-btn:hover {
+                background: linear-gradient(90deg, #e1d0ff, #f0e0ff);
+                color: #311b92;
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px rgba(94, 53, 177, 0.25);
+            }
+
+        /* ==== Hiệu ứng nhẹ ==== */
         body::before {
             content: "";
             position: fixed;
@@ -111,6 +162,7 @@
             background: radial-gradient(circle at top left, #f3e5f5 0%, transparent 60%), radial-gradient(circle at bottom right, #ede7f6 0%, transparent 60%);
             z-index: -1;
         }
+
         @@keyframes fadeIn {
             from {
                 opacity: 0;

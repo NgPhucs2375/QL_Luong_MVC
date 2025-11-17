@@ -4,27 +4,83 @@
 }
 
 <div class="container py-5" style="min-height:100vh;">
-    <div class="card shadow-lg border-0 mx-auto" style="max-width:600px; border-radius:20px; background-color:#ffffffcc; backdrop-filter:blur(8px);">
-        <div class="card-header text-center" style="background:linear-gradient(90deg,#7e57c2,#b388ff); color:white; border-radius:20px 20px 0 0;">
-            <h4 class="mb-0"><i class="fas fa-hand-holding-usd me-2"></i>Tổng phụ cấp nhân viên</h4>
+    <div class="card shadow-lg border-0 mx-auto"
+         style="max-width:700px; border-radius:20px; background-color:#ffffffcc; backdrop-filter:blur(8px);">
+        <div class="card-header text-center"
+             style="background:linear-gradient(90deg,#7e57c2,#b388ff); color:white; border-radius:20px 20px 0 0;">
+            <h4 class="mb-0">
+                <i class="fas fa-hand-holding-usd me-2"></i>Tổng phụ cấp nhân viên
+            </h4>
         </div>
 
         <div class="card-body text-center py-5">
             @if (ViewBag.NhanVien != null)
             {
-                <h5 class="fw-bold text-dark mb-3">@ViewBag.NhanVien.FullNameNhanVien</h5>
-                <p class="text-muted mb-1">Mã nhân viên: <strong>@ViewBag.NhanVien.IDNhanVien</strong></p>
-                <div class="my-4">
-                    <span class="display-5 fw-bold" style="color:#7e57c2;">@string.Format("{0:N0}", ViewBag.Tong)</span>
-                    <span class="fs-5 text-secondary">VNĐ</span>
+                <h5 class="fw-bold text-dark mb-2">@ViewBag.NhanVien.FullNameNhanVien</h5>
+                <p class="text-muted mb-3">
+                    <i class="fas fa-id-badge me-2"></i>Mã nhân viên:
+                    <strong>@ViewBag.NhanVien.IDNhanVien</strong>
+                </p>
+
+                <div class="py-3">
+                    <h1 class="fw-bold mb-1" style="color:#7e57c2;">
+                        @string.Format("{0:N0}", ViewBag.Tong)
+                    </h1>
+                    <span class="text-secondary fs-5">VNĐ</span>
                 </div>
-                <a href="@Url.Action("Index","PhuCap")" class="btn btn-gradient text-white px-4">
-                    <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
-                </a>
+
+                <p class="text-muted mb-3">
+                    <i class="fas fa-building me-2 text-primary"></i>
+                    Phòng ban: <strong>@ViewBag.PhongBanName</strong>
+                </p>
+
+                <hr />
+
+                <div class="mt-4 text-start px-4">
+                    <h6 class="fw-bold text-secondary mb-3">
+                        <i class="fas fa-list-alt me-2 text-info"></i>Chi tiết các khoản phụ cấp
+                    </h6>
+                    <table class="table table-hover table-striped align-middle">
+                        <thead style="background:linear-gradient(90deg,#ede7f6,#d1c4e9);">
+                            <tr>
+                                <th>Tên phụ cấp</th>
+                                <th>Mức tiền (VNĐ)</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.ChiTiet != null && ViewBag.ChiTiet.Count > 0)
+                            {
+                                foreach (var item in ViewBag.ChiTiet)
+                                {
+                                    <tr>
+                                        <td>@item.Loai_PhuCap</td>
+                                        <td>@string.Format("{0:N0}", item.SoTien_PhuCap)</td>
+                                        <td>@item.GhiChu</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-3">
+                                        Không có phụ cấp chi tiết.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="@Url.Action("Index","PhuCap")" class="btn btn-gradient text-white px-4">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                    </a>
+                </div>
             }
             else
             {
-                <div class="alert alert-warning shadow-sm">
+                <div class="alert alert-warning shadow-sm mt-4">
                     <i class="fas fa-exclamation-circle me-2"></i>Không tìm thấy thông tin nhân viên.
                 </div>
             }
@@ -46,17 +102,24 @@
             transition: 0.3s;
         }
 
-        .btn-gradient:hover {
-            opacity: 0.9;
-        }
+            .btn-gradient:hover {
+                transform: scale(1.03);
+            }
 
         .card {
             animation: fadeIn 0.5s ease-in-out;
         }
 
         @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 }

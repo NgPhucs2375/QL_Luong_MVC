@@ -53,7 +53,7 @@ create table NhanVien
 	MaCV int ,
 	MaPB int ,
 	constraint FK_MaCV_NhanVien foreign key (MaCV) references  ChucVu(MaCV),
-	constraint FK_MaPB_NhanVien foreign key (MaPB) references  PhongBan(MaPB),
+	constraint FK_MaPB_NhanVien foreign key (MaPB) references  PhongBan(MaPB)
 
 )
 
@@ -131,109 +131,7 @@ create table TaiKhoan
 )
 
 
--- ========================
--- DỮ LIỆU MẪU
--- ========================
 
-Insert into PhongBan(TenPB)
-Values(N'Phòng Nhân Sự'),
-(N'Phòng Kế Toán'),
-(N'Phòng IT'),
-(N'Phòng Kinh Doanh'),
-(N'Phòng Marketing'),
-(N'Phòng Hành Chính');
-
-Insert into ChucVu(TenCV,HeSoLuong)
-Values(N'Nhân viên',1.20),
-(N'Trưởng phòng',2.00),
-(N'Giám đốc',3.50),
-(N'Phó phòng', 1.70),
-(N'Kế toán trưởng', 2.20);
-
-Insert into NhanVien(HoTen,NgaySinh,GioiTinh,DiaChi,DienThoai,Email,MaPB,MaCV)
-Values(N'Nguyễn Văn A', '1995-05-12', N'Nam', N'Hà Nội', '0905123456', 'a.nguyen@company.vn', 1, 1),
-(N'Trần Thị B', '1998-11-20', N'Nữ', N'Đà Nẵng', '0906789123', 'b.tran@company.vn', 2, 2),
-(N'Lê Văn C', '1990-03-18', N'Nam', N'HCM', '0934567890', 'c.le@company.vn', 3, 3),
-(N'Phạm Thị D', '1997-09-10', N'Nữ', N'Hải Phòng', '0975123999', 'd.pham@company.vn', 4, 1),
-(N'Vũ Minh E', '1992-02-25', N'Nam', N'Nam Định', '0912555333', 'e.vu@company.vn', 1, 4),
-(N'Lý Thị F', '1996-07-08', N'Nữ', N'Bắc Ninh', '0968888777', 'f.ly@company.vn', 2, 5),
-(N'Đỗ Văn G', '1991-04-30', N'Nam', N'Ninh Bình', '0941234123', 'g.do@company.vn', 3, 1),
-(N'Tạ Thị H', '1999-12-12', N'Nữ', N'Huế', '0933333111', 'h.ta@company.vn', 5, 4),
-(N'Ngô Văn I', '1988-06-06', N'Nam', N'Quảng Nam', '0909090909', 'i.ngo@company.vn', 6, 2);
-
-INSERT INTO HopDong(MaNV, NgayBatDau, LoaiHD, LuongCoBan)
-VALUES
-(1, '2021-01-01', N'Có thời hạn', 8000000),
-(2, '2020-07-01', N'Không thời hạn', 12000000),
-(3, '2019-03-01', N'Không thời hạn', 20000000),
-(4, '2022-05-10', N'Có thời hạn', 7000000),
-(5, '2021-09-15', N'Không thời hạn', 10000000),
-(6, '2023-01-05', N'Có thời hạn', 11000000),
-(7, '2020-08-22', N'Không thời hạn', 9000000),
-(8, '2024-02-01', N'Có thời hạn', 8500000),
-(9, '2018-06-10', N'Không thời hạn', 15000000);
-
-INSERT INTO BangChamCong(MaNV, Ngay, NgayCong, GioTangCa)
-VALUES
-(1, '2025-10-01', 1, 2),
-(2, '2025-10-01', 1, 0),
-(3, '2025-10-01', 1, 1.5),
-(4, '2025-10-01', 1, 0.5),
-(5, '2025-10-01', 1, 1),
-(6, '2025-10-01', 1, 0),
-(7, '2025-10-01', 1, 2.5),
-(8, '2025-10-01', 1, 0),
-(9, '2025-10-01', 1, 1);
-
-INSERT INTO PhuCap(MaNV, LoaiPhuCap, SoTien)
-VALUES
-(1, N'Xăng xe', 500000),
-(2, N'Điện thoại', 700000),
-(3, N'Trách nhiệm', 2000000),
-(4, N'Ăn trưa', 400000),
-(5, N'Đi lại', 600000),
-(6, N'Nhà ở', 800000),
-(7, N'Chuyên cần', 500000),
-(8, N'Trợ cấp con nhỏ', 900000),
-(9, N'Xăng xe', 700000);
-
-INSERT INTO ThuongPhat(MaNV, Loai, SoTien, LyDo)
-VALUES
-(1, N'Thưởng', 1000000, N'Hoàn thành tốt công việc'),
-(2, N'Phạt', 300000, N'Đi muộn'),
-(3, N'Thưởng', 2000000, N'Dự án xuất sắc'),
-(4, N'Thưởng', 500000, N'Đạt chỉ tiêu tháng'),
-(5, N'Phạt', 200000, N'Nghỉ không phép'),
-(6, N'Thưởng', 1000000, N'Ý tưởng sáng tạo'),
-(7, N'Thưởng', 800000, N'Hỗ trợ nhóm tốt'),
-(8, N'Phạt', 300000, N'Đi muộn 2 lần'),
-(9, N'Thưởng', 1500000, N'Quản lý xuất sắc');
-
-INSERT INTO LuongCoBan(MaCV, MucLuong)
-VALUES
-(1, 8000000),
-(2, 12000000),
-(3, 20000000),
-(4, 10000000),
-(5, 13000000);
-
-
-INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
-VALUES
-(1, 10, 2025, 8000000, 500000, 1000000, 2),
-(2, 10, 2025, 12000000, 700000, -300000, 0),
-(3, 10, 2025, 20000000, 2000000, 2000000, 1.5),
-(4, 10, 2025, 7000000, 400000, 500000, 0.5),
-(5, 10, 2025, 10000000, 600000, -200000, 1),
-(6, 10, 2025, 11000000, 800000, 1000000, 0),
-(7, 10, 2025, 9000000, 500000, 800000, 2.5),
-(8, 10, 2025, 8500000, 900000, -300000, 0),
-(9, 10, 2025, 15000000, 700000, 1500000, 1);
-
-
-INSERT INTO TaiKhoan (TenDangNhap, MatKhau, Quyen)
-VALUES 
-(N'admin', N'123456', N'Admin')
 
 -- ================================================
 --         CHƯƠNG 2: CÀI ĐẶT YÊU CẦU XỬ LÝ
@@ -319,6 +217,7 @@ begin
 				isnull(TongThuongPhat,0) + case when @Loai = N'Thưởng'
 			Then @SoTien 
 			else -@SoTien 
+			
 		end
 
 			commit transaction;
@@ -439,7 +338,7 @@ BEGIN
     ) s ON bl.MaNV = s.MaNV
     WHERE bl.Thang = MONTH(GETDATE()) AND bl.Nam = YEAR(GETDATE());
 END;
-GO
+
 
 -- 2.Ngăn chặn chấm công trùng ngày cho cùng 1 nhân viên (AFTER INSERT)
 CREATE OR ALTER TRIGGER trg_PreventDuplicate_ChanCong
@@ -506,14 +405,14 @@ GO
 
 
 -- PHUC : PHAN C --
--- Thêm hợp đồng mới --
+-- 1.sp_ThemHopDong: Thêm hợp đồng mới --
 create procedure sp_ThemHopDong @MaNV int,@NgayBatDau date ,@NgayKetThuc date = null , @LoaiHD nvarchar(50), @Luongcoban decimal(18,2), @Ghichu nvarchar(200) = null
 AS 
 	Begin 
 		Set nocount on;
 		if exists (select 1 from HopDong 
 					Where MaNV = @MaNV
-					And(NgayKetThuc is not null and NgayKetThuc > GETDATE()))
+					And(NgayKetThuc is not null and NgayKetThuc > GETDATE())OR LoaiHD = N'Không thời hạn') 
 				Begin
 					Raiserror(N'Nhân viên này đang có hợp đồng còn hiệu lực!',16,1);
 					return ;
@@ -528,67 +427,12 @@ AS
 --=================================================================================
 --=================================================================================
 
--- Cập nhật trạng thái hợp đồng hết hạn
--- Khi cập nhật HopDong — nếu NgayKetThuc < GETDATE() thì cập nhật NhanVien.TrangThai = 'Nghỉ việc'
-
-create trigger tr_HopDong_AfterUpdate
-On HopDong
-After Update
-AS
-	Begin
-		Set Nocount on;
-
-		Update NhanVien
-		Set TrangThai = N'Nghỉ việc'
-		Where MaNV in(
-		Select i.MaNV
-		from inserted i
-		where i.NgayKetThuc < Getdate()
-		);
-	End
-
--- TEST --
--- TH1: Nhân viên chưa có hợp đồng còn hiệu lực
-EXEC sp_ThemHopDong 
-    @MaNV = 4,
-    @NgayBatDau = '2025-11-01',
-    @NgayKetThuc = '2026-11-01',
-    @LoaiHD = N'Có thời hạn',
-    @LuongCoBan = 7500000,
-    @GhiChu = N'Hợp đồng thử nghiệm 1 năm';
-
--- Kết quả mong đợi:
--- => Dòng mới được thêm vào bảng HopDong
-SELECT * FROM HopDong WHERE MaNV = 4;
--- TH2: Nhân viên đã có hợp đồng còn hiệu lực
-EXEC sp_ThemHopDong 
-    @MaNV = 1,
-    @NgayBatDau = '2025-10-15',
-    @NgayKetThuc = '2026-10-15',
-    @LoaiHD = N'Có thời hạn',
-    @LuongCoBan = 8500000,
-    @GhiChu = N'Thử thêm hợp đồng trùng';
--- Kết quả mong đợi:
--- => Lỗi: “Nhân viên này đang có hợp đồng còn hiệu lực!”
-
--- Kiểm tra trạng thái trước
-SELECT MaNV, TrangThai FROM NhanVien WHERE MaNV = 2;
-
--- Cập nhật NgayKetThuc của hợp đồng sang quá khứ
-UPDATE HopDong
-SET NgayKetThuc = '2023-01-01'
-WHERE MaNV = 2;
-
--- Sau khi update, trigger sẽ đổi trạng thái
-SELECT MaNV, TrangThai FROM NhanVien WHERE MaNV = 2;
--- Kết quả mong đợi:
--- => TrangThai = 'Nghỉ việc'
 
 --=================================================================================
 --=================================================================================
 --=================================================================================
 
--- Thêm phụ cấp cho nhân viên
+--3.sp_ThemPhuCap: Thêm phụ cấp cho nhân viên
 -- 
 Create or alter procedure sp_ThemPhuCap @MaNV INT,@LoaiPhuCap NVARCHAR(50),@SoTien DECIMAL(18,2)
 AS
@@ -610,22 +454,6 @@ AS
 		print N'Đã thêm phụ cấp cho MaNV= ' + Cast(@MaNV AS nvarchar);
 	End
 
-	-- Thêm phụ cấp mới cho nhân viên 3
-EXEC sp_ThemPhuCap 
-    @MaNV = 3,
-    @LoaiPhuCap = N'Phụ cấp chuyên cần',
-    @SoTien = 600000;
-
--- Kết quả mong đợi:
--- => Một dòng mới trong bảng PhuCap
-SELECT * FROM PhuCap WHERE MaNV = 3;
-
--- TH2: Nhân viên không tồn tại
-EXEC sp_ThemPhuCap 
-    @MaNV = 999,
-    @LoaiPhuCap = N'Làm thêm',
-    @SoTien = 500000;
--- => Lỗi: “Nhân viên không tồn tại!”
 
 --=================================================================================
 --=================================================================================
@@ -644,23 +472,13 @@ AS
 		return isnull(@Tong,0)
 	end
 
--- gọi  vd
--- Kiểm tra tổng phụ cấp của nhân viên 3
-SELECT dbo.fn_TongPhuCap_NV(3) AS TongPhuCap_NV3;
-
--- Kết quả mong đợi:
--- => Tổng = tổng tất cả SoTien trong bảng PhuCap có MaNV = 3
-
--- Kiểm tra nhân viên chưa có phụ cấp
-SELECT dbo.fn_TongPhuCap_NV(100) AS TongPhuCap_NV100;
--- => Kết quả mong đợi: 0
 
 
 --=================================================================================
 --=================================================================================
 --=================================================================================
 
--- Quản lí mức lương cơ bản
+--1. Quản lí mức lương cơ bản
 create procedure sp_QuanLyLuongCoBan @HanhDong nvarchar(10),@MaCV int,@MucLuong decimal(18,2) = null
 AS
 	Begin
@@ -683,26 +501,301 @@ AS
 			Commit transaction ;
 		End try
 		Begin Catch
-			Rollback Trasaction;
+			Rollback Transaction;
 			Declare @Loi nvarchar(4000) = ERROR_MESSAGE();
 			Raiserror(@Loi,16,1);
 		End Catch
 	End
 
-	-- Thêm mới
-EXEC sp_QuanLyLuongCoBan @Action = 'ADD', @MaCV = 4, @MucLuong = 10500000;
-SELECT * FROM LuongCoBan;
 
--- Cập nhật
-EXEC sp_QuanLyLuongCoBan @Action = 'UPDATE', @MaCV = 4, @MucLuong = 11000000;
-SELECT * FROM LuongCoBan WHERE MaCV = 4;
 
--- Xóa
-EXEC sp_QuanLyLuongCoBan @Action = 'DELETE', @MaCV = 4;
-SELECT * FROM LuongCoBan WHERE MaCV = 4;
+-- 2 . sp_CapNhatTrangThaiNV : khi nhân viên không có hợp đồng còn hiệu lực thì tự động set "Nghỉ việc"
+create or alter procedure sp_CapNhatTrangThaiNV
+AS
+Begin
+	Set nocount on;
+	Update NhanVien
+	Set TrangThai = N'Nghỉ việc'
+	Where MaNV Not in (
+		Select MaNV From HopDong
+		Where(NgayKetThuc is null or NgayKetThuc>GETDATE())
+		);
+End
 
--- TH4: Truyền sai tham số
-EXEC sp_QuanLyLuongCoBan @Action = 'REMOVE', @MaCV = 3;
--- => Lỗi: “Hành động không hợp lệ! Chỉ được dùng ADD/UPDATE/DELETE.”
+-- 4. sp_DanhSachHopDongNV : liệt kê hợp đồng theo nhân viên,loại hợp đồng,thời hạn.
+create procedure sp_DanhSachHopDongNV @MaNV int = null
+as
+begin 
+	set nocount on;
+	select * from HopDong
+	where @MaNV is null or MaNV = @MaNV;
+end
 
-select * From HopDong
+-- 5. sp_TongPhuCapTheoLoai : tổng phụ cấp theo loại cho toàn bộ nhân viên,hỗ trợ phân tích
+create procedure sp_TongPhuCapTheoLoai @LoaiPhuCap nvarchar(50) = null
+as
+begin 
+	set nocount on;
+	select LoaiPhuCap, sum(SoTien) as TongPhuCap
+	from PhuCap
+	Where @LoaiPhuCap is null or LoaiPhuCap = @LoaiPhuCap
+	group by LoaiPhuCap
+end
+
+-- 1.tr_HopDong_AfterUpdate: Cập nhật trạng thái hợp đồng hết hạn
+-- Khi cập nhật HopDong — nếu NgayKetThuc < GETDATE() thì cập nhật NhanVien.TrangThai = 'Nghỉ việc'
+
+create trigger tr_HopDong_AfterUpdate
+On HopDong
+After Update
+AS
+	Begin
+		Set Nocount on;
+
+		Update NhanVien
+		Set TrangThai = N'Nghỉ việc'
+		Where MaNV in(
+		Select i.MaNV
+		from inserted i
+		where i.NgayKetThuc < Getdate()
+		);
+	End
+
+-- 2. tr_HopDong_AlterInsert: tự động cập nhật trạng thái nhân viên khi thêm hợp đồng mới (tránh trạng thái “Nghỉ việc” nhầm).
+create trigger tr_HopDong_AlterInsert 
+on HopDong
+After insert
+as
+begin
+	set nocount on;
+	Update NhanVien
+	Set TrangThai = N'Đang làm'
+	where MaNV in (
+		select i.MaNV
+		from inserted i
+		where i.NgayKetThuc is null or i.NgayKetThuc > GETDATE()
+		);
+end
+
+-- 3.tr_NhanVien_AfterUpdate : Nếu nhân viên được cập nhật MaCV (chức vụ), tự động cập nhật mức lương cơ bản tương ứng từ LuongCoBan.
+create trigger tr_NhanVien_AfterUpdate 
+on NhanVien
+After Update
+as
+begin
+	Set nocount on;
+
+	-- cap nhat LuongCoBan khi MaCV thay doi
+	Update nv
+	Set nv.LuongHienTai = lc.MucLuong
+	From NhanVien nv
+	join inserted i on nv.MaNV = i.MaNV
+	join LuongCoban lc on i.MaCV = lc.MaCV
+	Where i.MaCV <> (Select d.MaCV from deleted d where d.MaNV = i.MaNV);
+end
+
+Alter table NhanVien
+Add LuongHienTai decimal(18,2);
+
+-- truy vấn cập nhật lương hiện tại cho các nhân viên trong db theo LuongCoBan theo MaCV của nhan viên đó 
+UPDATE nv
+SET nv.LuongHienTai = ISNULL(hd.LuongCoBan, lc.MucLuong)
+FROM NhanVien nv
+LEFT JOIN HopDong hd 
+       ON nv.MaNV = hd.MaNV 
+       AND (hd.NgayKetThuc IS NULL OR hd.NgayKetThuc > GETDATE())
+LEFT JOIN LuongCoban lc
+       ON nv.MaCV = lc.MaCV;
+
+
+SELECT MaNV, HoTen, MaCV, LuongHienTai
+FROM NhanVien;
+
+-- 5. tr_LuongCoBan_AfterUpdate 
+-- Tạo bảng Audit nếu chưa có
+IF OBJECT_ID('LuongCoBanLog') IS NULL
+BEGIN
+    CREATE TABLE LuongCoBanLog(
+        ID INT IDENTITY(1,1) PRIMARY KEY,
+        MaCV INT,
+        MucLuongCu DECIMAL(18,2),
+        MucLuongMoi DECIMAL(18,2),
+        NgayCapNhat DATETIME DEFAULT GETDATE()
+    );
+END
+
+
+CREATE TRIGGER tr_LuongCoBan_AfterUpdate
+ON LuongCoBan
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO LuongCoBanLog(MaCV, MucLuongCu, MucLuongMoi)
+    SELECT d.MaCV, d.MucLuong, i.MucLuong
+    FROM inserted i
+    JOIN deleted d ON i.MaCV = d.MaCV
+    WHERE i.MucLuong <> d.MucLuong;
+END
+
+
+-- 1.  fn_HopDongConHieuLuc: trả về 1/0 nếu nhân viên có hợp đồng còn hiệu lực.
+create function fn_HopDongConHieuLuc(@MaNV int)
+returns bit
+as
+begin
+    declare @Kq bit;
+    if exists(select 1 from HopDong where MaNV = @MaNV and (NgayKetThuc is null or NgayKetThuc > getdate()))
+        set @Kq = 1;
+    else
+        set @Kq = 0;
+    return @Kq;
+end
+
+-- 2. fn_LuongTong_NV – tính tổng lương = Lương cơ bản + tổng phụ cấp của nhân viên.
+create function fn_LuongTong_NV(@MaNV int)
+returns decimal(18,2)
+as
+begin
+    declare @Luong decimal(18,2);
+    select @Luong = isnull((select MucLuong from LuongCoBan lc
+                            join NhanVien nv on nv.MaCV = lc.MaCV
+                            where nv.MaNV = @MaNV),0)
+                   + dbo.fn_TongPhuCap_NV(@MaNV);
+    return @Luong;
+end
+
+-- 3. fn_SoLuongHopDongHetHan: Trả về số lượng hợp đồng đã hết hạn.
+CREATE FUNCTION fn_SoLuongHopDongHetHan()
+RETURNS INT
+AS
+BEGIN
+    DECLARE @SoLuong INT;
+
+    SELECT @SoLuong = COUNT(*)
+    FROM HopDong
+    WHERE NgayKetThuc IS NOT NULL
+      AND NgayKetThuc < GETDATE();
+
+    RETURN ISNULL(@SoLuong, 0);
+END
+
+
+-- 4. fn_TongPhuCapLoai: Trả về tổng phụ cấp theo loại, có thể dùng để báo cáo.
+CREATE FUNCTION fn_TongPhuCapLoai(@LoaiPhuCap NVARCHAR(50) = NULL)
+RETURNS DECIMAL(18,2)
+AS
+BEGIN
+    DECLARE @Tong DECIMAL(18,2);
+
+    SELECT @Tong = SUM(SoTien)
+    FROM PhuCap
+    WHERE @LoaiPhuCap IS NULL OR LoaiPhuCap = @LoaiPhuCap;
+
+    RETURN ISNULL(@Tong, 0);
+END
+
+-- ========================
+-- DỮ LIỆU MẪU
+-- ========================
+
+Insert into PhongBan(TenPB)
+Values(N'Phòng Nhân Sự'),
+(N'Phòng Kế Toán'),
+(N'Phòng IT'),
+(N'Phòng Kinh Doanh'),
+(N'Phòng Marketing'),
+(N'Phòng Hành Chính');
+
+Insert into ChucVu(TenCV,HeSoLuong)
+Values(N'Nhân viên',1.20),
+(N'Trưởng phòng',2.00),
+(N'Giám đốc',3.50),
+(N'Phó phòng', 1.70),
+(N'Kế toán trưởng', 2.20);
+
+Insert into NhanVien(HoTen,NgaySinh,GioiTinh,DiaChi,DienThoai,Email,MaPB,MaCV)
+Values(N'Nguyễn Văn A', '1995-05-12', N'Nam', N'Hà Nội', '0905123456', 'a.nguyen@company.vn', 1, 1),
+(N'Trần Thị B', '1998-11-20', N'Nữ', N'Đà Nẵng', '0906789123', 'b.tran@company.vn', 2, 2),
+(N'Lê Văn C', '1990-03-18', N'Nam', N'HCM', '0934567890', 'c.le@company.vn', 3, 3),
+(N'Phạm Thị D', '1997-09-10', N'Nữ', N'Hải Phòng', '0975123999', 'd.pham@company.vn', 4, 1),
+(N'Vũ Minh E', '1992-02-25', N'Nam', N'Nam Định', '0912555333', 'e.vu@company.vn', 1, 4),
+(N'Lý Thị F', '1996-07-08', N'Nữ', N'Bắc Ninh', '0968888777', 'f.ly@company.vn', 2, 5),
+(N'Đỗ Văn G', '1991-04-30', N'Nam', N'Ninh Bình', '0941234123', 'g.do@company.vn', 3, 1),
+(N'Tạ Thị H', '1999-12-12', N'Nữ', N'Huế', '0933333111', 'h.ta@company.vn', 5, 4),
+(N'Ngô Văn I', '1988-06-06', N'Nam', N'Quảng Nam', '0909090909', 'i.ngo@company.vn', 6, 2);
+
+INSERT INTO HopDong(MaNV, NgayBatDau, LoaiHD, LuongCoBan)
+VALUES
+(1, '2021-01-01', N'Có thời hạn', 8000000),
+(2, '2020-07-01', N'Không thời hạn', 12000000),
+(3, '2019-03-01', N'Không thời hạn', 20000000),
+(4, '2022-05-10', N'Có thời hạn', 7000000),
+(5, '2021-09-15', N'Không thời hạn', 10000000),
+(6, '2023-01-05', N'Có thời hạn', 11000000),
+(7, '2020-08-22', N'Không thời hạn', 9000000),
+(8, '2024-02-01', N'Có thời hạn', 8500000),
+(9, '2018-06-10', N'Không thời hạn', 15000000);
+
+INSERT INTO BangChamCong(MaNV, Ngay, NgayCong, GioTangCa)
+VALUES
+(1, '2025-10-01', 1, 2),
+(2, '2025-10-01', 1, 0),
+(3, '2025-10-01', 1, 1.5),
+(4, '2025-10-01', 1, 0.5),
+(5, '2025-10-01', 1, 1),
+(6, '2025-10-01', 1, 0),
+(7, '2025-10-01', 1, 2.5),
+(8, '2025-10-01', 1, 0),
+(9, '2025-10-01', 1, 1);
+
+INSERT INTO PhuCap(MaNV, LoaiPhuCap, SoTien)
+VALUES
+(1, N'Xăng xe', 500000),
+(2, N'Điện thoại', 700000),
+(3, N'Trách nhiệm', 2000000),
+(4, N'Ăn trưa', 400000),
+(5, N'Đi lại', 600000),
+(6, N'Nhà ở', 800000),
+(7, N'Chuyên cần', 500000),
+(8, N'Trợ cấp con nhỏ', 900000),
+(9, N'Xăng xe', 700000);
+
+INSERT INTO ThuongPhat(MaNV, Loai, SoTien, LyDo)
+VALUES
+(1, N'Thưởng', 1000000, N'Hoàn thành tốt công việc'),
+(2, N'Phạt', 300000, N'Đi muộn'),
+(3, N'Thưởng', 2000000, N'Dự án xuất sắc'),
+(4, N'Thưởng', 500000, N'Đạt chỉ tiêu tháng'),
+(5, N'Phạt', 200000, N'Nghỉ không phép'),
+(6, N'Thưởng', 1000000, N'Ý tưởng sáng tạo'),
+(7, N'Thưởng', 800000, N'Hỗ trợ nhóm tốt'),
+(8, N'Phạt', 300000, N'Đi muộn 2 lần'),
+(9, N'Thưởng', 1500000, N'Quản lý xuất sắc');
+
+INSERT INTO LuongCoBan(MaCV, MucLuong)
+VALUES
+(1, 8000000),
+(2, 12000000),
+(3, 20000000),
+(4, 10000000),
+(5, 13000000);
+
+
+INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
+VALUES
+(1, 10, 2025, 8000000, 500000, 1000000, 2),
+(2, 10, 2025, 12000000, 700000, -300000, 0),
+(3, 10, 2025, 20000000, 2000000, 2000000, 1.5),
+(4, 10, 2025, 7000000, 400000, 500000, 0.5),
+(5, 10, 2025, 10000000, 600000, -200000, 1),
+(6, 10, 2025, 11000000, 800000, 1000000, 0),
+(7, 10, 2025, 9000000, 500000, 800000, 2.5),
+(8, 10, 2025, 8500000, 900000, -300000, 0),
+(9, 10, 2025, 15000000, 700000, 1500000, 1);
+
+
+INSERT INTO TaiKhoan (TenDangNhap, MatKhau, Quyen)
+VALUES 
+(N'admin', N'123456', N'Admin')
