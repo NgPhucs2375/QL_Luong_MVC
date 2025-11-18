@@ -609,3 +609,39 @@ ALTER ROLE role_KeToan ADD MEMBER KeToanUser;
 GO
 
 PRINT N'*** HOÀN TẤT 100% ***';
+
+
+SELECT TOP 5 
+    T.TenDangNhap, 
+    '123456' AS MatKhau, 
+    N.HoTen, 
+    CV.TenCV AS ChucVu, 
+    'Admin' AS QuyenWeb
+FROM TaiKhoan T
+JOIN NhanVien N ON T.MaNV = N.MaNV
+JOIN ChucVu CV ON N.MaCV = CV.MaCV
+WHERE T.MaRole = 1; -- Role Admin
+
+PRINT N'=== DANH SÁCH TÀI KHOẢN KẾ TOÁN (Quản lý lương) ===';
+SELECT TOP 5 
+    T.TenDangNhap, 
+    '123456' AS MatKhau, 
+    N.HoTen, 
+    CV.TenCV AS ChucVu, 
+    'KeToan' AS QuyenWeb
+FROM TaiKhoan T
+JOIN NhanVien N ON T.MaNV = N.MaNV
+JOIN ChucVu CV ON N.MaCV = CV.MaCV
+WHERE T.MaRole = 3; -- Role KeToan
+
+PRINT N'=== DANH SÁCH TÀI KHOẢN NHÂN VIÊN (Chỉ xem cá nhân) ===';
+SELECT TOP 5 
+    T.TenDangNhap, 
+    '123456' AS MatKhau, 
+    N.HoTen, 
+    CV.TenCV AS ChucVu, 
+    'User' AS QuyenWeb
+FROM TaiKhoan T
+JOIN NhanVien N ON T.MaNV = N.MaNV
+JOIN ChucVu CV ON N.MaCV = CV.MaCV
+WHERE T.MaRole = 4; -- Role NhanVien
