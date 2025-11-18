@@ -4,39 +4,114 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2 class="text-center mb-4">👥 Nhân Viên Phòng: @ViewBag.TenPhong</h2>
+<style>
+    /* CSS Tùy chỉnh cho Table View */
+    .theme-card {
+        border: none;
+        padding: 1.5rem;
+        border-radius: 15px;
+        /* Áp dụng Kính Mờ và shadow tím */
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(106, 13, 173, 0.15);
+    }
 
-<table class="table table-bordered table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>Mã NV</th>
-            <th>Họ Tên</th>
-            <th>Ngày Sinh</th>
-            <th>Giới Tính</th>
-            <th>Địa Chỉ</th>
-            <th>Điện Thoại</th>
-            <th>Email</th>
-            <th>Hành Động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var nv in Model)
-        {
-            <tr>
-                <td>@nv.IDNhanVien</td>
-                <td>@nv.FullNameNhanVien</td>
-                <td>@nv.DayOfBirth_NhanVien.ToString("dd/MM/yyyy")</td>
-                <td>@nv.Sex_NhanVien</td>
-                <td>@nv.Address_NhanVien</td>
-                <td>@nv.SDT_NhanVien</td>
-                <td>@nv.Email_NhanVien</td>
-                <td>
-                    <a href="@Url.Action("SuaNV", "NhanVien", new { id = nv.IDNhanVien })" class="btn btn-warning btn-sm">Sửa</a>
-                    <a href="@Url.Action("XoaNV", "NhanVien", new { id = nv.IDNhanVien })" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này không?');">Xóa</a>
-                </td>
-            </tr>
+    /* Header Bảng Tím đậm */
+    .table-purple-head {
+        background-color: #6A0DAD !important; /* Tím đậm */
+        color: white;
+    }
+
+    /* Hover Bảng Tím nhạt */
+    .table-hover tbody tr:hover {
+        background-color: rgba(106, 13, 173, 0.1) !important; /* Tím mờ nhạt */
+    }
+
+    /* Nút Sửa (Vàng Nhấn) */
+    .btn-edit-accent {
+        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
+        border-color: var(--color-accent) !important;
+        color: var(--color-text-dark-purple) !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn-edit-accent:hover {
+            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
+            border-color: var(--color-accent-hover) !important;
         }
-    </tbody>
-</table>
 
-<a href="@Url.Action("DanhSachNV", "NhanVien")" class="btn btn-secondary mt-3">⬅ Quay Lại Danh Sách</a>
+    /* Nút Xóa (Đỏ Cảnh báo) */
+    .btn-delete-danger-themed {
+        background-color: #DC3545 !important;
+        color: white !important;
+        border-color: #DC3545 !important;
+        transition: all 0.2s ease;
+    }
+
+        .btn-delete-danger-themed:hover {
+            background-color: #C82333 !important;
+        }
+
+    /* Nút Quay Lại */
+    .btn-back-secondary {
+        background-color: #9370DB !important; /* Tím trung bình */
+        color: white !important;
+        border-color: #9370DB !important;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card theme-card mb-4">
+
+        <h2 class="text-center mb-4" style="color: var(--color-text-dark-purple); font-weight: 700;">
+            <i class="fas fa-users-cog mr-2"></i> Nhân Viên Phòng: <span style="color: #6A0DAD;">@ViewBag.TenPhong</span>
+        </h2>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-purple-head">
+                    <tr>
+                        <th>Mã NV</th>
+                        <th>Họ Tên</th>
+                        <th>Ngày Sinh</th>
+                        <th>Giới Tính</th>
+                        <th>Địa Chỉ</th>
+                        <th>Điện Thoại</th>
+                        <th>Email</th>
+                        <th style="width: 130px;">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var nv in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span style="font-weight: 600; color: #6A0DAD;">@nv.IDNhanVien</span>
+                            </td>
+                            <td>@nv.FullNameNhanVien</td>
+                            <td>@nv.DayOfBirth_NhanVien.ToString("dd/MM/yyyy")</td>
+                            <td>@nv.Sex_NhanVien</td>
+                            <td>@nv.Address_NhanVien</td>
+                            <td>@nv.SDT_NhanVien</td>
+                            <td>@nv.Email_NhanVien</td>
+                            <td>
+                                <a href="@Url.Action("SuaNV", "NhanVien", new { id = nv.IDNhanVien })" class="btn btn-edit-accent btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="@Url.Action("XoaNV", "NhanVien", new { id = nv.IDNhanVien })" class="btn btn-delete-danger-themed btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên @nv.FullNameNhanVien không?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <a href="@Url.Action("DanhSachPB", "NhanVien")" class="btn btn-back-secondary mt-3 align-self-start">
+            <i class="fas fa-arrow-left mr-1"></i> Quay Lại Danh Sách Phòng Ban
+        </a>
+    </div>
+</div>

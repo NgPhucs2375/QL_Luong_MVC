@@ -645,3 +645,5 @@ FROM TaiKhoan T
 JOIN NhanVien N ON T.MaNV = N.MaNV
 JOIN ChucVu CV ON N.MaCV = CV.MaCV
 WHERE T.MaRole = 4; -- Role NhanVien
+
+select * from TaiKhoan

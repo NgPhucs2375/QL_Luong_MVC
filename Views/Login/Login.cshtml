@@ -3,38 +3,107 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow-lg" style="width: 400px; border-radius: 16px;">
+<style>
+    /* * Sử dụng Glassmorphism và màu Tím/Vàng nhấn của theme
+    * để làm nổi bật Form Đăng nhập
+    */
+    .login-container {
+        /* Nền chính là màu tím siêu nhạt (var(--color-main-bg)) */
+        background: var(--color-main-bg) !important;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-card {
+        /* Nền Card theo kiểu Kính mờ của theme (30%) */
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        border-radius: 20px !important; /* Lớn hơn để nổi bật */
+        box-shadow: 0 8px 30px rgba(106, 13, 173, 0.2); /* Shadow tím nhẹ */
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        padding: 30px;
+    }
+
+    /* Tiêu đề màu Tím đậm */
+    .login-title {
+        color: var(--color-text-dark-purple); /* #4B0082 */
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+
+    /* Nút Đăng nhập (Màu nhấn 10% - Vàng Cam) */
+    .btn-login-accent {
+        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
+        border-color: var(--color-accent) !important;
+        color: var(--color-text-dark-purple) !important;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+        .btn-login-accent:hover {
+            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
+            border-color: var(--color-accent-hover) !important;
+            transform: translateY(-2px);
+        }
+
+    /* Link Đăng ký (Màu tím đậm) */
+    .register-link {
+        color: #6A0DAD !important; /* Tím đậm */
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+
+        .register-link:hover {
+            color: var(--color-text-dark-purple) !important; /* Tím đậm hơn khi hover */
+        }
+
+    /* Dùng font awesome thay cho bi (Bootstrap Icons) vì layout gốc chỉ dùng fas */
+    .fas-icon-style {
+        margin-right: 5px;
+    }
+</style>
+
+<div class="login-container">
+    <div class="card login-card" style="width: 420px;">
         <div class="card-body p-4">
-            <h3 class="text-center mb-4 text-primary fw-bold">
-                <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+
+            <h3 class="text-center mb-5 login-title">
+                <i class="fas fa-sign-in-alt fas-icon-style"></i> Đăng nhập Hệ thống
             </h3>
 
             @if (ViewBag.Error != null)
             {
-                <div class="alert alert-danger text-center">@ViewBag.Error</div>
+                <div class="alert alert-danger text-center" style="background-color: #f4f1fa; color: #DC3545; border-radius: 8px; border: 1px solid #DC3545;">
+                    <i class="fas fa-exclamation-circle mr-2"></i> @ViewBag.Error
+                </div>
             }
 
             @using (Html.BeginForm("Login", "Login", FormMethod.Post))
             {
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Tên đăng nhập (Email)</label>
+                    <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);">
+                        <i class="fas fa-user fas-icon-style"></i> Tên đăng nhập (Email)
+                    </label>
                     <input type="text" name="username" class="form-control" placeholder="Nhập tên đăng nhập" required />
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label fw-semibold">Mật khẩu</label>
+                    <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);">
+                        <i class="fas fa-lock fas-icon-style"></i> Mật khẩu
+                    </label>
                     <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required />
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 fw-semibold">
-                    <i class="bi bi-door-open"></i> Đăng nhập
+                <button type="submit" class="btn btn-login-accent w-100 fw-semibold mt-3">
+                    <i class="fas fa-door-open fas-icon-style"></i> Đăng nhập
                 </button>
             }
 
-            <div class="text-center mt-3">
-                <a href="@Url.Action("Register", "Login")" class="text-decoration-none">
-                    <i class="bi bi-person-plus"></i> Chưa có tài khoản? Đăng ký
+            <div class="text-center mt-4">
+                <a href="@Url.Action("Register", "Login")" class="text-decoration-none register-link">
+                    <i class="fas fa-user-plus fas-icon-style"></i> Chưa có tài khoản? Đăng ký
                 </a>
             </div>
         </div>

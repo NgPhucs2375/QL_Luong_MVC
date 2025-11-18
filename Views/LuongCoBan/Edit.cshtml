@@ -5,18 +5,100 @@
     var dsCV = ViewBag.DSChucVu as List<QL_Luong_MVC.Models.ChucVu>;
 }
 
+<style>
+    /* Lưu ý: Các style dưới đây đã được điều chỉnh để sử dụng biến màu của layout gốc. */
+
+    /* === Card Glass Style (Đảm bảo dùng 30% theme) === */
+    .glass-card-themed {
+        border-radius: 18px;
+        /* Kế thừa style kính mờ và màu nền nội dung (30%) */
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 25px rgba(111, 66, 193, 0.25); /* Shadow tím nhẹ */
+        border: 1px solid rgba(255, 255, 255, 0.5); /* Viền trắng mờ */
+        transition: all 0.3s ease;
+    }
+
+        .glass-card-themed:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(106, 13, 173, 0.35);
+        }
+
+    /* === Header tím (Dùng Gradient 30% theme) === */
+    .header-purple-themed {
+        background: var(--color-sidebar-bg) !important;
+        border-radius: 18px 18px 0 0;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Chữ Label Tím đậm */
+    .form-label-dark-purple {
+        color: var(--color-text-dark-purple);
+    }
+
+    /* === Input & Select (Màu Tím nhẹ) === */
+    .form-purple-input {
+        border-radius: 10px;
+        border: 1px solid #cbb2ff; /* Tím nhạt */
+        box-shadow: 0 1px 3px rgba(187, 134, 252, 0.1);
+        transition: 0.25s;
+    }
+
+        .form-purple-input:focus {
+            border-color: #b388ff;
+            box-shadow: 0 0 6px rgba(155, 120, 255, 0.6);
+        }
+
+    /* === Nút Lưu (Primary Action - Vàng/Cam Nhấn 10% theme) === */
+    .btn-accent-save {
+        background-color: var(--color-accent) !important; /* Vàng */
+        color: var(--color-text-dark-purple) !important; /* Chữ Tím đậm */
+        border: 2px solid var(--color-accent);
+        border-radius: 10px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+
+        .btn-accent-save:hover {
+            background-color: var(--color-accent-hover) !important; /* Cam */
+            border-color: var(--color-accent-hover) !important;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.6); /* Shadow Vàng */
+        }
+
+    /* === Nút Quay lại (Secondary Action - Tím/Trắng) === */
+    .btn-back-purple {
+        border: 1px solid #cbb2ff;
+        color: #5e35b1; /* Tím đậm */
+        background-color: #f7f2ff; /* Tím siêu nhạt */
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-back-purple:hover {
+            background-color: #e6dcff;
+            border-color: #b388ff;
+            color: #311b92;
+        }
+</style>
+
 <div class="container py-5" style="max-width:700px;">
-    <div class="card border-0 shadow-lg glass-card">
-        <div class="card-header text-white header-purple">
-            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Thêm mức lương mới</h4>
+    <!-- Sử dụng class đã tối ưu hóa theme -->
+    <div class="card border-0 shadow-lg glass-card-themed">
+
+        <!-- Header dùng màu Gradient Tím của Layout -->
+        <div class="card-header text-white header-purple-themed">
+            <h4 class="mb-0 fw-bold">
+                <i class="fas fa-plus-circle me-2" style="color: var(--color-accent);"></i> Thêm mức lương mới
+            </h4>
         </div>
 
         <div class="card-body p-4">
             @using (Html.BeginForm())
             {
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Chức vụ</label>
-                    <select class="form-select form-purple" name="IDChucVu_LuongCB" required>
+                    <label class="form-label fw-semibold form-label-dark-purple"><i class="fas fa-user-tie me-2"></i> Chức vụ</label>
+                    <select class="form-select form-purple-input" name="IDChucVu_LuongCB" required>
                         <option value="">-- Chọn chức vụ --</option>
                         @foreach (var cv in dsCV)
                         {
@@ -26,10 +108,10 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Mức lương (VNĐ)</label>
+                    <label class="form-label fw-semibold form-label-dark-purple"><i class="fas fa-money-bill-wave me-2"></i> Mức lương (VNĐ)</label>
                     @Html.TextBoxFor(m => m.MucLuong, new
                     {
-                        @class = "form-control form-purple",
+                        @class = "form-control form-purple-input",
                         @type = "number",
                         @min = "0",
                         @step = "1000",
@@ -37,11 +119,15 @@
                     })
                 </div>
 
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="@Url.Action("Index")" class="btn btn-outline-light btn-back px-4 fw-semibold">
+                <div class="d-flex justify-content-between mt-5 pt-3 border-top" style="border-color: rgba(106, 13, 173, 0.2) !important;">
+
+                    <!-- Nút Quay lại dùng style Tím/Trắng -->
+                    <a href="@Url.Action("Index")" class="btn btn-back-purple px-4 fw-semibold">
                         <i class="fas fa-arrow-left me-1"></i> Quay lại
                     </a>
-                    <button type="submit" class="btn btn-gradient px-4 fw-semibold shadow-sm">
+
+                    <!-- Nút Lưu dùng màu Vàng/Cam nhấn 10% -->
+                    <button type="submit" class="btn btn-accent-save px-4 fw-semibold shadow-sm">
                         <i class="fas fa-save me-1"></i> Lưu
                     </button>
                 </div>
@@ -49,102 +135,3 @@
         </div>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        /* === Toàn trang === */
-        body {
-            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
-            background-attachment: fixed;
-            font-family: "Segoe UI", sans-serif;
-            color: #4a148c;
-        }
-
-        /* === Card Glass Style === */
-        .glass-card {
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(10px);
-            animation: fadeIn 0.4s ease-in-out;
-            box-shadow: 0 8px 25px rgba(111, 66, 193, 0.25);
-            transition: all 0.3s ease;
-        }
-
-            .glass-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 12px 30px rgba(111, 66, 193, 0.35);
-            }
-
-        /* === Header tím === */
-        .header-purple {
-            background: linear-gradient(90deg, #7e57c2, #9575cd);
-            border-radius: 18px 18px 0 0;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-        }
-
-        /* === Input & Select === */
-        .form-purple {
-            border-radius: 10px;
-            border: 1px solid #cbb2ff;
-            box-shadow: 0 1px 3px rgba(187, 134, 252, 0.1);
-            transition: 0.25s;
-        }
-
-            .form-purple:focus {
-                border-color: #b388ff;
-                box-shadow: 0 0 6px rgba(155, 120, 255, 0.6);
-            }
-
-        /* === Button Gradient === */
-        .btn-gradient {
-            background: linear-gradient(90deg, #7c4dff, #b388ff);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-            .btn-gradient:hover {
-                background: linear-gradient(90deg, #6a1b9a, #9c4dcc);
-                transform: scale(1.05);
-                box-shadow: 0 4px 12px rgba(123, 97, 255, 0.4);
-            }
-
-        /* === Button quay lại === */
-        .btn-back {
-            border: 1px solid #cbb2ff;
-            color: #5e35b1;
-            background-color: #f7f2ff;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-            .btn-back:hover {
-                background-color: #e6dcff;
-                border-color: #b388ff;
-                color: #311b92;
-            }
-
-        /* === Animation === */
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* === Background effect === */
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at top left, #f3e5f5 0%, transparent 60%), radial-gradient(circle at bottom right, #ede7f6 0%, transparent 60%);
-            z-index: -1;
-        }
-    </style>
-}

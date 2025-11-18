@@ -35,7 +35,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Admin")">
+                <a class="nav-link" href="@Url.Action("Index", "Home")">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Bảng điều khiển</span>
                 </a>
@@ -219,14 +219,20 @@
 
         /* Nút tìm kiếm */
         .purple-theme .navbar-search .btn-primary {
-            background-color: var(--color-accent) !important;
-            border-color: var(--color-accent) !important;
-            color: var(--color-text-dark-purple) !important;
+            background-color: #6A0DAD !important; /* Tím đậm - Màu đầu của gradient Sidebar */
+            border-color: #7B68EE !important; /* Tím nhạt hơn - Màu cuối của gradient Sidebar */
+            /* Đổi từ Icon Tím sang Icon Vàng */
+            color: var(--color-accent) !important; /* Vàng nhấn */
+            transition: all 0.2s ease-in-out;
         }
 
             .purple-theme .navbar-search .btn-primary:hover {
-                background-color: var(--color-accent-hover) !important;
-                border-color: var(--color-accent-hover) !important;
+                /* Đổi nền hover thành màu tím nhạt hơn */
+                background-color: #7B68EE !important;
+                border-color: #6A0DAD !important;
+                /* Icon vẫn là Vàng Cam */
+                color: var(--color-accent-hover) !important;
+                transform: scale(1.05);
             }
 
         /* Sidebar Hover */

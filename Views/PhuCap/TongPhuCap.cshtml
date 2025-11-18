@@ -3,123 +3,160 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    /* CSS Tối Ưu (Sử dụng biến màu của theme gốc) */
+
+    .total-phucap-card {
+        /* Áp dụng style Kính Mờ của theme (30%) */
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(106, 13, 173, 0.25);
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Header dùng Gradient Tím (30%) */
+    .card-header-themed {
+        background: var(--color-sidebar-bg) !important;
+        color: var(--color-text-light); /* Chữ trắng */
+        border-radius: 20px 20px 0 0;
+    }
+
+    /* Tiền Tổng cộng (Màu tím đậm của 30% theme) */
+    .total-amount {
+        color: #6A0DAD; /* Tím đậm */
+    }
+
+    /* Header bảng chi tiết (Tím siêu nhạt + Tím mờ) */
+    .table-detail-head {
+        background: linear-gradient(90deg, var(--color-main-bg), rgba(155, 120, 255, 0.2)) !important;
+        color: var(--color-text-dark-purple); /* Chữ tím đậm */
+        font-weight: 600;
+    }
+
+    /* Nút Quay lại (Gradient Tím 30%) */
+    .btn-gradient-themed {
+        background: linear-gradient(90deg, #6A0DAD, #7B68EE) !important;
+        border: none;
+        color: var(--color-text-light) !important;
+        transition: 0.3s;
+        border-radius: 8px;
+    }
+
+        .btn-gradient-themed:hover {
+            transform: scale(1.03);
+            background: linear-gradient(90deg, #7B68EE, #9C8CFF) !important;
+        }
+
+    /* Alert Tím nhạt */
+    .alert-themed-warning {
+        background-color: #f4f1fa !important; /* Tím siêu nhạt */
+        color: #4B0082 !important; /* Tím đậm */
+        border: 1px solid var(--color-accent) !important; /* Viền Vàng cảnh báo */
+        font-weight: 600;
+        border-radius: 10px;
+    }
+
+    /* Animation (Giữ lại của bạn) */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+@* Xóa CSS ghi đè body bằng cách loại bỏ section Styles *@
+
 <div class="container py-5" style="min-height:100vh;">
-    <div class="card shadow-lg border-0 mx-auto"
-         style="max-width:700px; border-radius:20px; background-color:#ffffffcc; backdrop-filter:blur(8px);">
-        <div class="card-header text-center"
-             style="background:linear-gradient(90deg,#7e57c2,#b388ff); color:white; border-radius:20px 20px 0 0;">
-            <h4 class="mb-0">
-                <i class="fas fa-hand-holding-usd me-2"></i>Tổng phụ cấp nhân viên
+    <div class="card shadow-lg border-0 mx-auto total-phucap-card"
+         style="max-width:700px;">
+
+        <div class="card-header text-center card-header-themed">
+            <h4 class="mb-0 fw-bold">
+                <i class="fas fa-hand-holding-usd me-2" style="color: var(--color-accent);"></i>Tổng phụ cấp nhân viên
             </h4>
         </div>
 
         <div class="card-body text-center py-5">
             @if (ViewBag.NhanVien != null)
             {
-                <h5 class="fw-bold text-dark mb-2">@ViewBag.NhanVien.FullNameNhanVien</h5>
+                <h5 class="fw-bold total-amount mb-2">@ViewBag.NhanVien.FullNameNhanVien</h5>
                 <p class="text-muted mb-3">
-                    <i class="fas fa-id-badge me-2"></i>Mã nhân viên:
-                    <strong>@ViewBag.NhanVien.IDNhanVien</strong>
+                    <i class="fas fa-id-badge me-2" style="color: #6A0DAD;"></i>Mã nhân viên:
+                    <strong class="total-amount">@ViewBag.NhanVien.IDNhanVien</strong>
                 </p>
 
                 <div class="py-3">
-                    <h1 class="fw-bold mb-1" style="color:#7e57c2;">
+                    <h1 class="fw-bold mb-1 total-amount">
                         @string.Format("{0:N0}", ViewBag.Tong)
                     </h1>
                     <span class="text-secondary fs-5">VNĐ</span>
                 </div>
 
                 <p class="text-muted mb-3">
-                    <i class="fas fa-building me-2 text-primary"></i>
+                    <i class="fas fa-building me-2" style="color: #6A0DAD;"></i>
                     Phòng ban: <strong>@ViewBag.PhongBanName</strong>
                 </p>
 
                 <hr />
 
                 <div class="mt-4 text-start px-4">
-                    <h6 class="fw-bold text-secondary mb-3">
-                        <i class="fas fa-list-alt me-2 text-info"></i>Chi tiết các khoản phụ cấp
+                    <h6 class="fw-bold text-secondary mb-3" style="color: var(--color-text-dark-purple) !important;">
+                        <i class="fas fa-list-alt me-2" style="color: var(--color-accent);"></i>Chi tiết các khoản phụ cấp
                     </h6>
-                    <table class="table table-hover table-striped align-middle">
-                        <thead style="background:linear-gradient(90deg,#ede7f6,#d1c4e9);">
-                            <tr>
-                                <th>Tên phụ cấp</th>
-                                <th>Mức tiền (VNĐ)</th>
-                                <th>Ghi chú</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (ViewBag.ChiTiet != null && ViewBag.ChiTiet.Count > 0)
-                            {
-                                foreach (var item in ViewBag.ChiTiet)
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped align-middle rounded-3 overflow-hidden">
+                            <thead class="table-detail-head">
+                                <tr>
+                                    <th>Tên phụ cấp</th>
+                                    <th>Mức tiền (VNĐ)</th>
+                                    <th>Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.ChiTiet != null && ViewBag.ChiTiet.Count > 0)
+                                {
+                                    foreach (var item in ViewBag.ChiTiet)
+                                    {
+                                        <tr>
+                                            <td>@item.Loai_PhuCap</td>
+                                            <td class="fw-bold" style="color: #4B0082;">@string.Format("{0:N0}", item.SoTien_PhuCap)</td>
+                                            <td>@(string.IsNullOrEmpty(item.GhiChu) ? "N/A" : item.GhiChu)</td>
+                                        </tr>
+                                    }
+                                }
+                                else
                                 {
                                     <tr>
-                                        <td>@item.Loai_PhuCap</td>
-                                        <td>@string.Format("{0:N0}", item.SoTien_PhuCap)</td>
-                                        <td>@item.GhiChu</td>
+                                        <td colspan="3" class="text-center text-muted py-3">
+                                            <i class="fas fa-info-circle me-2"></i>Không có phụ cấp chi tiết.
+                                        </td>
                                     </tr>
                                 }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted py-3">
-                                        Không có phụ cấp chi tiết.
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="text-center mt-4">
-                    <a href="@Url.Action("Index","PhuCap")" class="btn btn-gradient text-white px-4">
+                    <a href="@Url.Action("Index","PhuCap")" class="btn btn-gradient-themed btn-lg px-5">
                         <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                     </a>
                 </div>
             }
             else
             {
-                <div class="alert alert-warning shadow-sm mt-4">
+                <div class="alert shadow-sm mt-4 alert-themed-warning">
                     <i class="fas fa-exclamation-circle me-2"></i>Không tìm thấy thông tin nhân viên.
                 </div>
             }
         </div>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        body {
-            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
-            background-attachment: fixed;
-            font-family: "Segoe UI", sans-serif;
-        }
-
-        .btn-gradient {
-            background: linear-gradient(90deg, #7c4dff, #b388ff);
-            border: none;
-            transition: 0.3s;
-        }
-
-            .btn-gradient:hover {
-                transform: scale(1.03);
-            }
-
-        .card {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-}

@@ -4,21 +4,92 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    /* CSS Tối Ưu (Sử dụng biến màu của theme gốc) */
+
+    .purple-card-themed {
+        border-radius: 15px;
+        /* Nền nội dung (30% - Kính mờ) */
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 10px rgba(140, 110, 255, 0.15);
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .purple-header-themed {
+        /* Header dùng Gradient Tím (30% - Sidebar/Footer) */
+        background: var(--color-sidebar-bg) !important;
+        border-radius: 15px 15px 0 0;
+        padding: 1rem 1.25rem;
+    }
+
+    .purple-thead-themed {
+        /* Header bảng dùng Tím đậm (Có thể dùng màu gradient hoặc tím đậm cố định) */
+        background: linear-gradient(90deg, #6A0DAD, #7B68EE); /* Dùng màu từ theme 30% */
+        color: var(--color-text-light);
+        font-weight: 600;
+    }
+
+    /* Nút "Xem tổng" (Màu Tím Gradient) */
+    .btn-gradient-themed {
+        background: linear-gradient(90deg, #6A0DAD, #7B68EE) !important;
+        border: none;
+        color: var(--color-text-light) !important;
+        transition: 0.3s;
+    }
+
+        .btn-gradient-themed:hover {
+            background: linear-gradient(90deg, #7B68EE, #9C8CFF) !important;
+        }
+
+    /* Nút "Thêm phụ cấp" (Màu Vàng Nhấn 10%) */
+    .btn-accent-themed {
+        background-color: var(--color-accent) !important; /* Vàng Nhấn */
+        color: var(--color-text-dark-purple) !important; /* Chữ Tím đậm */
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-accent-themed:hover {
+            background-color: var(--color-accent-hover) !important; /* Cam Nhấn */
+        }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(106, 13, 173, 0.1) !important; /* Tím mờ nhạt */
+        transition: 0.3s;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
 <div class="container-fluid py-4">
-    <div class="card shadow border-0 purple-card">
-        <div class="card-header d-flex justify-content-between align-items-center purple-header">
-            <h4 class="mb-0 text-white">
-                <i class="fas fa-hand-holding-usd me-2"></i>Danh sách phụ cấp
+    <div class="card shadow border-0 purple-card-themed">
+
+        <div class="card-header d-flex justify-content-between align-items-center purple-header-themed">
+            <h4 class="mb-0 text-white fw-bold">
+                <i class="fas fa-hand-holding-usd me-2" style="color: var(--color-accent);"></i>Danh sách phụ cấp
             </h4>
-            <a href="@Url.Action("Create", "PhuCap")" class="btn btn-accent shadow-sm">
+            <a href="@Url.Action("Create", "PhuCap")" class="btn btn-accent-themed shadow-sm">
                 <i class="fas fa-plus-circle me-1"></i> Thêm phụ cấp
             </a>
         </div>
 
-        <div class="card-body p-4 bg-light-subtle">
+        <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-hover text-center align-middle mb-0">
-                    <thead class="purple-thead">
+                    <thead class="purple-thead-themed">
                         <tr>
                             <th>Mã NV</th>
                             <th>Loại phụ cấp</th>
@@ -32,12 +103,12 @@
                             foreach (var p in Model)
                             {
                                 <tr>
-                                    <td><strong>@p.IDNhanVien_PhuCap</strong></td>
+                                    <td><strong style="color: #6A0DAD;">@p.IDNhanVien_PhuCap</strong></td>
                                     <td>@p.Loai_PhuCap</td>
                                     <td class="text-end">@p.SoTien_PhuCap.ToString("N0")</td>
                                     <td>
                                         <a href="@Url.Action("TongPhuCap", "PhuCap", new { id = p.IDNhanVien_PhuCap })"
-                                           class="btn btn-sm btn-gradient text-white">
+                                           class="btn btn-sm btn-gradient-themed">
                                             <i class="fas fa-eye me-1"></i> Xem tổng
                                         </a>
                                     </td>
@@ -58,69 +129,3 @@
         </div>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        /* ==== Đồng bộ với theme tím của layout ==== */
-        .purple-card {
-            border-radius: 15px;
-            background-color: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 10px rgba(140, 110, 255, 0.15);
-            animation: fadeIn 0.4s ease-in-out;
-        }
-
-        .purple-header {
-            background: linear-gradient(90deg, #6A0DAD, #7B68EE);
-            border-radius: 15px 15px 0 0;
-            padding: 1rem 1.25rem;
-        }
-
-        .purple-thead {
-            background: linear-gradient(90deg, #7B68EE, #9575CD);
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .btn-gradient {
-            background: linear-gradient(90deg, #6A0DAD, #7B68EE);
-            border: none;
-            color: #fff;
-            transition: 0.3s;
-        }
-
-            .btn-gradient:hover {
-                background: linear-gradient(90deg, #7B68EE, #9C8CFF);
-                color: #fff;
-            }
-
-        .btn-accent {
-            background-color: #FFC107;
-            color: #4B0082;
-            font-weight: 600;
-            border-radius: 8px;
-            border: none;
-        }
-
-            .btn-accent:hover {
-                background-color: #FFB74D;
-            }
-
-        .table-hover tbody tr:hover {
-            background-color: rgba(240, 230, 255, 0.8) !important;
-            transition: 0.3s;
-        }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-}

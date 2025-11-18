@@ -1,68 +1,167 @@
 ﻿@model QL_Luong_MVC.Models.NhanVien
 @{
-    ViewBag.Title = "Thông tin nhân viên";
+    ViewBag.Title = "Thông tin cá nhân";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="text-center mb-4">Thông tin nhân viên</h2>
-
-    @if (Model != null)
-    {
-        <table class="table table-bordered table-striped">
-            <tr>
-                <th>Mã nhân viên</th>
-                <td>@Model.IDNhanVien</td>
-            </tr>
-            <tr>
-                <th>Họ và tên</th>
-                <td>@Model.FullNameNhanVien</td>
-            </tr>
-            <tr>
-                <th>Ngày sinh</th>
-                <td>@Model.DayOfBirth_NhanVien.ToString("dd/MM/yyyy")</td>
-            </tr>
-            <tr>
-                <th>Giới tính</th>
-                <td>@Model.Sex_NhanVien</td>
-            </tr>
-            <tr>
-                <th>Địa chỉ</th>
-                <td>@Model.Address_NhanVien</td>
-            </tr>
-            <tr>
-                <th>Số điện thoại</th>
-                <td>@Model.SDT_NhanVien</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>@Model.Email_NhanVien</td>
-            </tr>
-            <tr>
-                <th>Trạng thái</th>
-                <td>@Model.State_NhanVien</td>
-            </tr>
-            <tr>
-                <th>Mã chức vụ</th>
-                <td>@Model.IDCV_NhanVien</td>
-            </tr>
-            <tr>
-                <th>Mã phòng ban</th>
-                <td>@Model.IDPB_NhanVien</td>
-            </tr>
-        </table>
-
-        <div class="text-center mt-3">
-            <a href="@Url.Action("EditNV", "NhanVien", new { id = Model.IDNhanVien })" class="btn btn-primary">
-                Chỉnh sửa thông tin
-            </a>
-            <a href="@Url.Action("Logout", "Login")" class="btn btn-danger">
-                Đăng xuất
-            </a>
-        </div>
+<style>
+    /* CSS Tùy chỉnh cho Profile View */
+    .profile-card {
+        /* Kế thừa từ theme glassmorphism */
+        border: none;
+        padding: 2.5rem;
+        border-radius: 15px;
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(106, 13, 173, 0.15);
     }
-    else
-    {
-        <div class="alert alert-warning text-center">Không tìm thấy thông tin nhân viên.</div>
+
+    .profile-header {
+        color: var(--color-text-dark-purple);
+        font-weight: 700;
+        border-bottom: 3px solid rgba(106, 13, 173, 0.2);
+        padding-bottom: 15px;
+        margin-bottom: 30px;
     }
+
+    /* Tiêu đề (<th>) màu Tím đậm */
+    .profile-table th {
+        background-color: rgba(106, 13, 173, 0.1); /* Tím mờ nhạt */
+        color: var(--color-text-dark-purple);
+        font-weight: 600;
+        width: 35%;
+        border-right: none;
+    }
+
+    .profile-table td {
+        background-color: transparent; /* Nền trong suốt để lộ card kính mờ */
+        font-weight: 500;
+        border-left: none;
+    }
+
+    /* Dữ liệu quan trọng */
+    .highlight-data {
+        color: #6A0DAD; /* Tím đậm */
+        font-weight: 700;
+    }
+
+    /* Nút Chỉnh Sửa (Màu Vàng Nhấn) */
+    .btn-edit-accent {
+        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
+        border-color: var(--color-accent) !important;
+        color: var(--color-text-dark-purple) !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn-edit-accent:hover {
+            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
+            border-color: var(--color-accent-hover) !important;
+            transform: translateY(-1px);
+        }
+</style>
+
+<div class="container-fluid">
+    <div class="card profile-card shadow-lg mb-4">
+
+        <h2 class="text-center profile-header">
+            <i class="fas fa-id-card-alt mr-2"></i> Thông tin cá nhân
+        </h2>
+
+        @if (Model != null)
+        {
+            <div class="row">
+                <div class="col-lg-6">
+                    <h4 class="mb-3" style="color: #6A0DAD;"><i class="fas fa-info-circle mr-2"></i> Chi tiết Cá nhân</h4>
+                    <table class="table table-striped table-bordered profile-table mb-4">
+                        <tbody>
+                            <tr>
+                                <th>Mã nhân viên</th>
+                                <td class="highlight-data">@Model.IDNhanVien</td>
+                            </tr>
+                            <tr>
+                                <th>Họ và tên</th>
+                                <td class="highlight-data">@Model.FullNameNhanVien</td>
+                            </tr>
+                            <tr>
+                                <th>Ngày sinh</th>
+                                <td>@Model.DayOfBirth_NhanVien.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                            <tr>
+                                <th>Giới tính</th>
+                                <td>@Model.Sex_NhanVien</td>
+                            </tr>
+                            <tr>
+                                <th>Địa chỉ</th>
+                                <td>@Model.Address_NhanVien</td>
+                            </tr>
+                            <tr>
+                                <th>Số điện thoại</th>
+                                <td>@Model.SDT_NhanVien</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>@Model.Email_NhanVien</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-lg-6">
+                    <h4 class="mb-3" style="color: #6A0DAD;"><i class="fas fa-briefcase mr-2"></i> Chi tiết Công việc</h4>
+                    <table class="table table-striped table-bordered profile-table mb-4">
+                        <tbody>
+                            <tr>
+                                <th>Trạng thái</th>
+                                <td>
+                                    @{
+                                        string statusClass = Model.State_NhanVien == "Đang làm" ? "badge-success" : "badge-danger";
+                                    }
+                                    <span class="badge @statusClass p-2" style="font-size: 0.95rem;">
+                                        @Model.State_NhanVien
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Mã chức vụ</th>
+                                <td>@Model.IDCV_NhanVien</td>
+                            </tr>
+                            <tr>
+                                <th>Mã phòng ban</th>
+                                <td>@Model.IDPB_NhanVien</td>
+                            </tr>
+                            <tr>
+                                <th>Lương hiện tại</th>
+                                <td class="highlight-data">
+                                    @(Model.GetType().GetProperty("LuongHienTai") != null ? (object)string.Format("{0:N0} VND", Model.GetType().GetProperty("LuongHienTai").GetValue(Model)) : "N/A")
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Ngày tham gia</th>
+                                <td>
+                                    @(Model.GetType().GetProperty("NgayThamGia") != null ? ((DateTime)Model.GetType().GetProperty("NgayThamGia").GetValue(Model)).ToString("dd/MM/yyyy") : "Chưa cập nhật")
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="text-center mt-4 pt-3 border-top">
+                <a href="@Url.Action("EditNV", "NhanVien", new { id = Model.IDNhanVien })" class="btn btn-edit-accent btn-lg mr-3">
+                    <i class="fas fa-edit mr-1"></i> Chỉnh sửa thông tin
+                </a>
+
+                <a href="@Url.Action("Logout", "Login")" class="btn btn-danger btn-lg">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Đăng xuất
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning text-center" style="background-color: #f4f1fa; color: var(--color-text-dark-purple); border-radius: 8px; border: 1px solid rgba(255, 193, 7, 0.5);">
+                <i class="fas fa-exclamation-triangle mr-2"></i> Không tìm thấy thông tin nhân viên.
+            </div>
+        }
+    </div>
 </div>

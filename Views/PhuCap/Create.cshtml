@@ -1,89 +1,122 @@
-﻿@{
+﻿@model QL_Luong_MVC.Models.PhuCap
+@{
     ViewBag.Title = "Thêm phụ cấp";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@model QL_Luong_MVC.Models.PhuCap
+<style>
+    /* CSS Tùy chỉnh (Sử dụng biến màu của theme gốc) */
+    .add-phucap-card {
+        /* Áp dụng style Kính Mờ của theme (30%) */
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(106, 13, 173, 0.25);
+    }
+
+    /* Header dùng Gradient Tím (30%) */
+    .card-header-themed {
+        background: var(--color-sidebar-bg) !important;
+        color: var(--color-text-light); /* Chữ trắng */
+        border-radius: 20px 20px 0 0;
+    }
+
+    /* Label và Input */
+    .form-group label {
+        color: var(--color-text-dark-purple); /* Tím đậm cho label */
+        font-weight: 700 !important;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+
+    .form-control-themed {
+        border-radius: 8px;
+        border: 1px solid rgba(106, 13, 173, 0.3); /* Viền tím mờ */
+        transition: 0.2s;
+        box-shadow: none !important;
+    }
+
+        .form-control-themed:focus {
+            border-color: #7B68EE;
+            box-shadow: 0 0 5px rgba(155, 120, 255, 0.5) !important;
+        }
+
+    /* Nút Lưu (Primary Action - Vàng Nhấn 10%) */
+    .btn-save-accent {
+        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
+        border-color: var(--color-accent) !important;
+        color: var(--color-text-dark-purple) !important; /* Chữ Tím đậm */
+        font-weight: 700;
+        transition: all 0.2s ease;
+        border-radius: 8px;
+    }
+
+        .btn-save-accent:hover {
+            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
+            border-color: var(--color-accent-hover) !important;
+            transform: translateY(-2px);
+        }
+
+    /* Nút Hủy (Secondary Action - Tím) */
+    .btn-cancel-secondary-themed {
+        background-color: #9370DB !important; /* Tím trung bình */
+        color: white !important;
+        border-color: #9370DB !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border-radius: 8px;
+    }
+
+        .btn-cancel-secondary-themed:hover {
+            background-color: #7B68EE !important;
+        }
+</style>
 
 <div class="container py-5" style="min-height:100vh;">
-    <div class="card shadow-lg border-0 mx-auto" style="max-width:600px; border-radius:20px; background-color:#ffffffcc; backdrop-filter:blur(8px);">
-        <div class="card-header text-center"
-             style="background:linear-gradient(90deg,#7e57c2,#b388ff); color:white; border-radius:20px 20px 0 0;">
-            <h4 class="mb-0"><i class="fas fa-hand-holding-usd me-2"></i>Thêm phụ cấp mới</h4>
+    <div class="card add-phucap-card mx-auto" style="max-width:650px;">
+
+        <div class="card-header text-center card-header-themed">
+            <h4 class="mb-0 fw-bold">
+                <i class="fas fa-hand-holding-usd me-2" style="color: var(--color-accent);"></i> Thêm phụ cấp mới
+            </h4>
         </div>
 
-        <div class="card-body px-5 py-4">
+        <div class="card-body px-5 py-5">
             <form method="post">
-                <div class="form-group mb-3">
-                    <label class="fw-semibold">Nhân viên</label>
-                    <select name="IDNhanVien_PhuCap" class="form-control shadow-sm" required>
+                @Html.AntiForgeryToken()
+
+                <div class="form-group mb-4">
+                    <label><i class="fas fa-user-friends me-2"></i> Nhân viên</label>
+                    <select name="IDNhanVien_PhuCap" class="form-control form-control-themed" required>
+                        @* Thêm option mặc định cho đẹp *@
+                        <option value="" disabled selected>-- Chọn nhân viên --</option>
                         @foreach (var nv in ViewBag.DSNhanVien)
                         {
-                            <option value="@nv.IDNhanVien">@nv.FullNameNhanVien</option>
+                            <option value="@nv.IDNhanVien">@nv.FullNameNhanVien (@nv.IDNhanVien)</option>
                         }
                     </select>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label class="fw-semibold">Loại phụ cấp</label>
-                    <input type="text" name="Loai_PhuCap" class="form-control shadow-sm" placeholder="Ví dụ: Xăng xe, Ăn trưa..." required />
-                </div>
-
                 <div class="form-group mb-4">
-                    <label class="fw-semibold">Số tiền (VNĐ)</label>
-                    <input type="number" name="SoTien_PhuCap" step="1000" class="form-control shadow-sm" placeholder="Nhập số tiền..." required />
+                    <label><i class="fas fa-tag me-2"></i> Loại phụ cấp</label>
+                    <input type="text" name="Loai_PhuCap" class="form-control form-control-themed" placeholder="Ví dụ: Xăng xe, Ăn trưa..." required />
                 </div>
 
-                <div class="text-center">
-                    <button type="submit" class="btn btn-gradient px-4">
-                        <i class="fas fa-save me-2"></i>Lưu phụ cấp
+                <div class="form-group mb-5">
+                    <label><i class="fas fa-sack-dollar me-2"></i> Số tiền (VNĐ)</label>
+                    <input type="number" name="SoTien_PhuCap" step="1000" min="0" class="form-control form-control-themed" placeholder="Nhập số tiền..." required />
+                </div>
+
+                <div class="text-center pt-3 border-top">
+                    <button type="submit" class="btn btn-save-accent btn-lg px-5">
+                        <i class="fas fa-save me-2"></i> Lưu phụ cấp
                     </button>
-                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary px-4 ms-2">Hủy</a>
+                    <a href="@Url.Action("Index")" class="btn btn-cancel-secondary-themed btn-lg px-5 ms-3">
+                        <i class="fas fa-times me-2"></i> Hủy
+                    </a>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        body {
-            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
-            background-attachment: fixed;
-            font-family: "Segoe UI", sans-serif;
-        }
-
-        .btn-gradient {
-            background: linear-gradient(90deg, #7c4dff, #b388ff);
-            border: none;
-            color: white;
-            font-weight: 500;
-            transition: 0.3s;
-            border-radius: 8px;
-        }
-
-        .btn-gradient:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .form-control {
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-
-        .form-control:focus {
-            border-color: #a678e3;
-            box-shadow: 0 0 0 0.25rem rgba(166, 120, 227, 0.25);
-        }
-
-        .card {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-}

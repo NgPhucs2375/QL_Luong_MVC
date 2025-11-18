@@ -1,105 +1,143 @@
 ﻿@model QL_Luong_MVC.Models.NhanVien
-
 @{
-    ViewBag.Title = "XoaNV";
+    ViewBag.Title = "Xóa Nhân Viên";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>XoaNV</h2>
-
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>NhanVien</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.IDNhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.IDNhanVien)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.FullNameNhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.FullNameNhanVien)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DayOfBirth_NhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DayOfBirth_NhanVien)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Sex_NhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Sex_NhanVien)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Address_NhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Address_NhanVien)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.SDT_NhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.SDT_NhanVien)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Email_NhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Email_NhanVien)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.State_NhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.State_NhanVien)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.IDCV_NhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.IDCV_NhanVien)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.IDPB_NhanVien)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.IDPB_NhanVien)
-        </dd>
-
-    </dl>
-
-    @using (Html.BeginForm()) {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            @Html.ActionLink("Back to List", "Index")
-        </div>
+<style>
+    /* CSS Tùy chỉnh cho Delete View (Đồng bộ với các View xóa khác) */
+    .delete-card {
+        /* Kế thừa từ theme glassmorphism */
+        border: none;
+        padding: 2.5rem 3rem;
+        border-radius: 18px;
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(106, 13, 173, 0.15);
     }
+
+    .delete-header {
+        color: var(--color-text-dark-purple);
+        font-weight: 700;
+        border-bottom: 3px solid #DC3545; /* Viền đỏ cảnh báo */
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }
+
+    .confirmation-text {
+        color: #DC3545; /* Màu đỏ cảnh báo */
+        font-weight: 700;
+        margin-bottom: 25px;
+        font-size: 1.15rem;
+    }
+
+    /* Chi tiết Dữ liệu (dl-horizontal) */
+    .dl-horizontal-themed dt {
+        color: #6A0DAD; /* Tím đậm cho tiêu đề */
+        font-weight: 600;
+        text-align: right;
+        padding-right: 15px;
+        width: 30%;
+        margin-bottom: 10px;
+    }
+
+    .dl-horizontal-themed dd {
+        font-weight: 500;
+        color: #333;
+        width: 70%;
+        margin-bottom: 10px;
+    }
+
+    /* Nút Xóa (Primary Action - Danger/Vàng Nhấn) */
+    .btn-delete-danger-themed {
+        /* Nền đỏ đậm cảnh báo */
+        background-color: #DC3545 !important;
+        color: white;
+        /* Viền Vàng nhấn (Accent 10%) để đồng bộ thương hiệu */
+        border: 2px solid var(--color-accent) !important;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+        .btn-delete-danger-themed:hover {
+            background-color: #C82333 !important;
+            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.4); /* Shadow Vàng nhấn */
+            transform: translateY(-2px);
+        }
+
+    /* Nút Quay Lại (Secondary Action - Tím) */
+    .btn-back-secondary {
+        background-color: #9370DB !important; /* Tím trung bình */
+        color: white !important;
+        border-color: #9370DB !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn-back-secondary:hover {
+            background-color: #7B68EE !important;
+        }
+</style>
+
+<div class="container-fluid py-5">
+
+    <div class="card delete-card shadow-lg mx-auto" style="max-width: 750px;">
+
+        <h2 class="text-center delete-header">
+            <i class="fas fa-trash-alt mr-2"></i> Xác nhận Xóa Nhân Viên
+        </h2>
+
+        <h3 class="text-center confirmation-text">Bạn có chắc chắn muốn xóa bản ghi này?</h3>
+
+        <div class="mb-4">
+            <h4 style="color: #4B0082; font-weight: 600; text-align: center;">@Model.FullNameNhanVien</h4>
+            <hr />
+
+            <dl class="dl-horizontal row dl-horizontal-themed">
+                <dt class="col-sm-4">Mã nhân viên:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.IDNhanVien)</dd>
+
+                <dt class="col-sm-4">Họ và tên:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.FullNameNhanVien)</dd>
+
+                <dt class="col-sm-4">Ngày sinh:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.DayOfBirth_NhanVien)</dd>
+
+                <dt class="col-sm-4">Giới tính:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Sex_NhanVien)</dd>
+
+                <dt class="col-sm-4">Địa chỉ:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Address_NhanVien)</dd>
+
+                <dt class="col-sm-4">Điện thoại:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.SDT_NhanVien)</dd>
+
+                <dt class="col-sm-4">Email:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Email_NhanVien)</dd>
+
+                <dt class="col-sm-4">Trạng thái:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.State_NhanVien)</dd>
+
+                <dt class="col-sm-4">Mã chức vụ:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.IDCV_NhanVien)</dd>
+
+                <dt class="col-sm-4">Mã phòng ban:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.IDPB_NhanVien)</dd>
+            </dl>
+        </div>
+
+        @using (Html.BeginForm("DeleteConfirmed", "NhanVien", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-actions text-center pt-4 border-top">
+
+                <input type="submit" value="XÓA VĨNH VIỄN" class="btn btn-delete-danger-themed btn-lg px-5" />
+
+                <a href="@Url.Action("DanhSachNV", "NhanVien")" class="btn btn-back-secondary btn-lg px-5 ms-3">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        }
+    </div>
 </div>

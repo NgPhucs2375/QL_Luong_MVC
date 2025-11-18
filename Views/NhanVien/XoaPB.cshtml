@@ -4,14 +4,132 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2 class="text-center mb-4 text-danger">⚠️ Xóa Phòng Ban</h2>
+<style>
+    /* CSS Tùy chỉnh cho Delete View (Đồng bộ với các View xóa khác) */
+    .delete-card {
+        /* Kế thừa từ theme glassmorphism */
+        border: none;
+        padding: 2.5rem 3rem;
+        border-radius: 18px;
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(106, 13, 173, 0.15);
+    }
 
-<p>Bạn có chắc chắn muốn xóa phòng ban: <strong>@Model.NamePhongBan</strong> không?</p>
+    .delete-header {
+        color: var(--color-text-dark-purple);
+        font-weight: 700;
+        border-bottom: 3px solid #DC3545; /* Viền đỏ cảnh báo */
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }
 
-@using (Html.BeginForm("XoaPB", "PhongBan", FormMethod.Post))
-{
-    @Html.HiddenFor(m => m.IDPhongBan)
+    .confirmation-text {
+        color: #DC3545; /* Màu đỏ cảnh báo */
+        font-weight: 700;
+        margin-bottom: 25px;
+        font-size: 1.15rem;
+        padding: 15px;
+        background-color: var(--color-main-bg); /* Nền tím siêu nhạt */
+        border: 1px solid var(--color-accent); /* Viền vàng nhấn */
+        border-radius: 10px;
+        display: inline-block;
+    }
 
-    <button type="submit" class="btn btn-danger">Xóa</button>
-    <a href="@Url.Action("DanhSachPB")" class="btn btn-secondary">Hủy</a>
-}
+    /* Chi tiết Dữ liệu (dl-horizontal) */
+    .dl-horizontal-themed dt {
+        color: #6A0DAD; /* Tím đậm cho tiêu đề */
+        font-weight: 600;
+        text-align: right;
+        padding-right: 15px;
+        width: 30%;
+        margin-bottom: 10px;
+    }
+
+    .dl-horizontal-themed dd {
+        font-weight: 500;
+        color: #333;
+        width: 70%;
+        margin-bottom: 10px;
+    }
+
+    /* Nút Xóa (Primary Action - Danger/Vàng Nhấn) */
+    .btn-delete-danger-themed {
+        /* Nền đỏ đậm cảnh báo */
+        background-color: #DC3545 !important;
+        color: white;
+        /* Viền Vàng nhấn (Accent 10%) để đồng bộ thương hiệu */
+        border: 2px solid var(--color-accent) !important;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+        .btn-delete-danger-themed:hover {
+            background-color: #C82333 !important;
+            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.4); /* Shadow Vàng nhấn */
+            transform: translateY(-2px);
+        }
+
+    /* Nút Hủy (Secondary Action - Tím) */
+    .btn-cancel-secondary {
+        background-color: #9370DB !important; /* Tím trung bình */
+        color: white !important;
+        border-color: #9370DB !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn-cancel-secondary:hover {
+            background-color: #7B68EE !important;
+        }
+</style>
+
+<div class="container-fluid py-5">
+
+    <div class="card delete-card shadow-lg mx-auto" style="max-width: 600px;">
+
+        <h2 class="text-center delete-header">
+            <i class="fas fa-trash-alt mr-2"></i> Xác nhận Xóa Phòng Ban
+        </h2>
+
+        <p class="text-center">
+            <span class="confirmation-text">
+                <i class="fas fa-exclamation-triangle me-2"></i> Bạn có chắc chắn muốn xóa phòng ban:
+                <strong style="color: #4B0082;">@Model.NamePhongBan</strong> không?
+            </span>
+        </p>
+
+        <div class="mb-4 pt-3 border-top">
+            <h4 style="color: #6A0DAD; font-weight: 600; text-align: center;">Thông tin chi tiết</h4>
+            <hr class="mt-2 mb-4" />
+
+            <dl class="dl-horizontal row dl-horizontal-themed">
+                <dt class="col-sm-5">Mã Phòng Ban:</dt>
+                <dd class="col-sm-7">@Model.IDPhongBan</dd>
+
+                <dt class="col-sm-5">Tên Phòng Ban:</dt>
+                <dd class="col-sm-7">@Model.NamePhongBan</dd>
+
+                <dt class="col-sm-5">Ngày Thành Lập:</dt>
+                <dd class="col-sm-7">@Model.DateOf_Establishment.ToString("dd/MM/yyyy")</dd>
+            </dl>
+        </div>
+
+        @using (Html.BeginForm("XoaPB", "NhanVien", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.IDPhongBan)
+
+            <div class="form-actions text-center pt-4 border-top">
+
+                <button type="submit" class="btn btn-delete-danger-themed btn-lg px-5">
+                    <i class="fas fa-trash-alt me-2"></i> XÓA NGAY
+                </button>
+
+                <a href="@Url.Action("DanhSachPB")" class="btn btn-cancel-secondary btn-lg px-5 ms-3">
+                    <i class="fas fa-times"></i> Hủy
+                </a>
+            </div>
+        }
+    </div>
+</div>

@@ -2267,12 +2267,12 @@
     <Content Include="Views\NhanVien\ThemNV.cshtml" />
     <Content Include="Views\NhanVien\SuaNV.cshtml" />
     <Content Include="Views\NhanVien\XoaNV.cshtml" />
-    <Content Include="Views\NhanVien\DanhSachPB.cshtml" />
     <Content Include="Views\NhanVien\ThemPB.cshtml" />
     <Content Include="Views\NhanVien\SuaPB.cshtml" />
     <Content Include="Views\NhanVien\XoaPB.cshtml" />
     <Content Include="Views\NhanVien\ChiTietNV.cshtml" />
     <Content Include="Views\LuongCoBan\Delete.cshtml" />
+    <Content Include="Views\NhanVien\DanhSachPB.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
