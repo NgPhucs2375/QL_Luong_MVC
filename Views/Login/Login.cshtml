@@ -1,69 +1,70 @@
 ﻿@{
     ViewBag.Title = "Đăng nhập";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    // *** THAY ĐỔI LAYOUT ĐỂ TRỎ VỀ LAYOUT TRỐNG ***
+    Layout = "~/Views/Login/EmptyView.cshtml";
 }
 
-<style>
-    /* * Sử dụng Glassmorphism và màu Tím/Vàng nhấn của theme
-    * để làm nổi bật Form Đăng nhập
-    */
-    .login-container {
-        /* Nền chính là màu tím siêu nhạt (var(--color-main-bg)) */
-        background: var(--color-main-bg) !important;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .login-card {
-        /* Nền Card theo kiểu Kính mờ của theme (30%) */
-        background-color: var(--color-content-bg) !important;
-        backdrop-filter: blur(10px);
-        border-radius: 20px !important; /* Lớn hơn để nổi bật */
-        box-shadow: 0 8px 30px rgba(106, 13, 173, 0.2); /* Shadow tím nhẹ */
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        padding: 30px;
-    }
-
-    /* Tiêu đề màu Tím đậm */
-    .login-title {
-        color: var(--color-text-dark-purple); /* #4B0082 */
-        font-weight: 700;
-        font-size: 1.8rem;
-    }
-
-    /* Nút Đăng nhập (Màu nhấn 10% - Vàng Cam) */
-    .btn-login-accent {
-        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
-        border-color: var(--color-accent) !important;
-        color: var(--color-text-dark-purple) !important;
-        font-weight: 700;
-        transition: all 0.2s ease;
-    }
-
-        .btn-login-accent:hover {
-            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
-            border-color: var(--color-accent-hover) !important;
-            transform: translateY(-2px);
+@* Kéo TOÀN BỘ style (CSS) từ Login View xuống khối @section Styles *@
+@section Styles {
+    <style>
+        /* * Sử dụng Glassmorphism và màu Tím/Vàng nhấn của theme ... */
+        .login-container {
+            /* Nền chính đã được định nghĩa trong Empty Layout, chỉ cần căn giữa */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-    /* Link Đăng ký (Màu tím đậm) */
-    .register-link {
-        color: #6A0DAD !important; /* Tím đậm */
-        font-weight: 600;
-        transition: color 0.2s;
-    }
-
-        .register-link:hover {
-            color: var(--color-text-dark-purple) !important; /* Tím đậm hơn khi hover */
+        .login-card {
+            /* Nền Card theo kiểu Kính mờ của theme (30%) */
+            background-color: var(--color-content-bg) !important;
+            backdrop-filter: blur(10px);
+            border-radius: 20px !important;
+            box-shadow: 0 8px 30px rgba(106, 13, 173, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 30px;
         }
 
-    /* Dùng font awesome thay cho bi (Bootstrap Icons) vì layout gốc chỉ dùng fas */
-    .fas-icon-style {
-        margin-right: 5px;
-    }
-</style>
+        /* Tiêu đề màu Tím đậm */
+        .login-title {
+            color: var(--color-text-dark-purple);
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        /* Nút Đăng nhập (Màu nhấn 10% - Vàng Cam) */
+        .btn-login-accent {
+            background-color: var(--color-accent) !important;
+            border-color: var(--color-accent) !important;
+            color: var(--color-text-dark-purple) !important;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+            .btn-login-accent:hover {
+                background-color: var(--color-accent-hover) !important;
+                border-color: var(--color-accent-hover) !important;
+                transform: translateY(-2px);
+            }
+
+        /* Link Đăng ký (Màu tím đậm) */
+        .register-link {
+            color: #6A0DAD !important;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+            .register-link:hover {
+                color: var(--color-text-dark-purple) !important;
+            }
+
+        /* Dùng font awesome thay cho bi (Bootstrap Icons) vì layout gốc chỉ dùng fas */
+        .fas-icon-style {
+            margin-right: 5px;
+        }
+    </style>
+}
 
 <div class="login-container">
     <div class="card login-card" style="width: 420px;">

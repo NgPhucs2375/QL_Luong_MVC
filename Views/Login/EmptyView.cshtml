@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - QL Lương NV</title>
+
+    @* Thư viện CSS và Font Awesome cần thiết cho Login *@@* Font Awesome (Icon) *@
+    <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    @* Bootstrap CSS (Giả định nằm trong Styles.Render) *@
+    @Styles.Render("~/Content/css")
+
+    @RenderSection("Styles", required: false)
+</head>
+<body id="page-top" class="purple-theme">
+
+    <div id="login-body">
+        @RenderBody()
+    </div>
+
+    @* Định nghĩa các biến CSS TÍM/VÀNG cần thiết cho Login *@@* * Bảng màu 60/30/10 - COPY TỪ LAYOUT GỐC * *@* 
+    <style>
+                :root {
+                    --color-main-bg: #f4f1fa; /* 60% - Nền chính */
+                    --color-content-bg: rgba(255, 255, 255, 0.85); /* 30% - Nền nội dung (Kính mờ) */
+                    --color-sidebar-bg: linear-gradient(180deg, #6A0DAD, #7B68EE); /* 30% */
+
+                    --color-accent: #FFC107; /* 10% - Nhấn (Vàng) */
+                    --color-accent-hover: #FFB74D; /* 10% - Nhấn (Cam) */
+
+                    --color-text-dark-purple: #4B0082; /* Chữ tím đậm */
+                    --color-text-light: #FFFFFF;
+                }
+
+                /* Áp dụng nền Tím siêu nhạt 60% cho body và container chính */
+                body.purple-theme,
+                #login-body {
+                    background: var(--color-main-bg) !important;
+                    background-attachment: fixed !important;
+                    min-height: 100vh;
+                }
+    </style>
+</body>
+</html>
