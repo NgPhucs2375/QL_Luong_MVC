@@ -1,137 +1,67 @@
 ﻿@model QL_Luong_MVC.Models.LuongCoban
 @{
-    ViewBag.Title = "Thêm mức lương mới";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Điều chỉnh lương cơ bản";
     var dsCV = ViewBag.DSChucVu as List<QL_Luong_MVC.Models.ChucVu>;
 }
 
-<style>
-    /* Lưu ý: Các style dưới đây đã được điều chỉnh để sử dụng biến màu của layout gốc. */
-
-    /* === Card Glass Style (Đảm bảo dùng 30% theme) === */
-    .glass-card-themed {
-        border-radius: 18px;
-        /* Kế thừa style kính mờ và màu nền nội dung (30%) */
-        background-color: var(--color-content-bg) !important;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 8px 25px rgba(111, 66, 193, 0.25); /* Shadow tím nhẹ */
-        border: 1px solid rgba(255, 255, 255, 0.5); /* Viền trắng mờ */
-        transition: all 0.3s ease;
-    }
-
-        .glass-card-themed:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(106, 13, 173, 0.35);
-        }
-
-    /* === Header tím (Dùng Gradient 30% theme) === */
-    .header-purple-themed {
-        background: var(--color-sidebar-bg) !important;
-        border-radius: 18px 18px 0 0;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-    }
-
-    /* Chữ Label Tím đậm */
-    .form-label-dark-purple {
-        color: var(--color-text-dark-purple);
-    }
-
-    /* === Input & Select (Màu Tím nhẹ) === */
-    .form-purple-input {
-        border-radius: 10px;
-        border: 1px solid #cbb2ff; /* Tím nhạt */
-        box-shadow: 0 1px 3px rgba(187, 134, 252, 0.1);
-        transition: 0.25s;
-    }
-
-        .form-purple-input:focus {
-            border-color: #b388ff;
-            box-shadow: 0 0 6px rgba(155, 120, 255, 0.6);
-        }
-
-    /* === Nút Lưu (Primary Action - Vàng/Cam Nhấn 10% theme) === */
-    .btn-accent-save {
-        background-color: var(--color-accent) !important; /* Vàng */
-        color: var(--color-text-dark-purple) !important; /* Chữ Tím đậm */
-        border: 2px solid var(--color-accent);
-        border-radius: 10px;
-        font-weight: 700;
-        transition: all 0.3s ease;
-    }
-
-        .btn-accent-save:hover {
-            background-color: var(--color-accent-hover) !important; /* Cam */
-            border-color: var(--color-accent-hover) !important;
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.6); /* Shadow Vàng */
-        }
-
-    /* === Nút Quay lại (Secondary Action - Tím/Trắng) === */
-    .btn-back-purple {
-        border: 1px solid #cbb2ff;
-        color: #5e35b1; /* Tím đậm */
-        background-color: #f7f2ff; /* Tím siêu nhạt */
-        border-radius: 10px;
-        transition: all 0.3s ease;
-    }
-
-        .btn-back-purple:hover {
-            background-color: #e6dcff;
-            border-color: #b388ff;
-            color: #311b92;
-        }
-</style>
-
-<div class="container py-5" style="max-width:700px;">
-    <!-- Sử dụng class đã tối ưu hóa theme -->
-    <div class="card border-0 shadow-lg glass-card-themed">
-
-        <!-- Header dùng màu Gradient Tím của Layout -->
-        <div class="card-header text-white header-purple-themed">
-            <h4 class="mb-0 fw-bold">
-                <i class="fas fa-plus-circle me-2" style="color: var(--color-accent);"></i> Thêm mức lương mới
-            </h4>
-        </div>
-
-        <div class="card-body p-4">
-            @using (Html.BeginForm())
-            {
-                <div class="mb-3">
-                    <label class="form-label fw-semibold form-label-dark-purple"><i class="fas fa-user-tie me-2"></i> Chức vụ</label>
-                    <select class="form-select form-purple-input" name="IDChucVu_LuongCB" required>
-                        <option value="">-- Chọn chức vụ --</option>
-                        @foreach (var cv in dsCV)
-                        {
-                            <option value="@cv.IDChucVu">@cv.NameChucVu</option>
-                        }
-                    </select>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-plus shadow-sm">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
+                    <h5 class="font-weight-bold text-primary mb-0">Điều chỉnh mức lương</h5>
+                    <span class="badge badge-light text-muted border">Mã lương: #@Model.IDLuongCoBan</span>
                 </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-warning border-0 shadow-sm mb-4">
+                        <div class="d-flex">
+                            <i class="fas fa-exclamation-circle mt-1 mr-3 fa-lg"></i>
+                            <small>
+                                <strong>Lưu ý:</strong> Thay đổi này sẽ cập nhật mức lương cơ bản cho tất cả nhân viên đang giữ chức vụ tương ứng trong kỳ lương tới.
+                            </small>
+                        </div>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-semibold form-label-dark-purple"><i class="fas fa-money-bill-wave me-2"></i> Mức lương (VNĐ)</label>
-                    @Html.TextBoxFor(m => m.MucLuong, new
+                    @using (Html.BeginForm())
                     {
-                        @class = "form-control form-purple-input",
-                        @type = "number",
-                        @min = "0",
-                        @step = "1000",
-                        @placeholder = "Nhập mức lương..."
-                    })
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.IDLuongCoBan)
+
+                        <div class="form-group mb-4">
+                            <label class="small font-weight-bold text-secondary text-uppercase">Chức vụ</label>
+                            <select class="form-control bg-light border-0 h-auto py-2" name="IDChucVu_LuongCB" required>
+                                <option value="">-- Chọn chức vụ --</option>
+                                @if (dsCV != null)
+                                {
+                                    foreach (var cv in dsCV)
+                                    {
+                                        var selected = cv.IDChucVu == Model.IDChucVu_LuongCB ? "selected" : "";
+                                        <option value="@cv.IDChucVu" @selected>@cv.NameChucVu</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="small font-weight-bold text-secondary text-uppercase">Mức lương mới</label>
+                            <div class="input-group">
+                                @Html.TextBoxFor(m => m.MucLuong, new { @class = "form-control bg-light border-0", @type = "number", @min = "0", @step = "1000" })
+                                <div class="input-group-append">
+                                    <span class="input-group-text border-0 bg-light text-muted font-weight-bold">VNĐ</span>
+                                </div>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.MucLuong, "", new { @class = "text-danger small mt-1" })
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5">
+                            <a href="@Url.Action("Index")" class="btn btn-link text-secondary pl-0">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-accent px-4 shadow-sm">
+                                <i class="fas fa-check mr-2"></i> Cập nhật
+                            </button>
+                        </div>
+                    }
                 </div>
-
-                <div class="d-flex justify-content-between mt-5 pt-3 border-top" style="border-color: rgba(106, 13, 173, 0.2) !important;">
-
-                    <!-- Nút Quay lại dùng style Tím/Trắng -->
-                    <a href="@Url.Action("Index")" class="btn btn-back-purple px-4 fw-semibold">
-                        <i class="fas fa-arrow-left me-1"></i> Quay lại
-                    </a>
-
-                    <!-- Nút Lưu dùng màu Vàng/Cam nhấn 10% -->
-                    <button type="submit" class="btn btn-accent-save px-4 fw-semibold shadow-sm">
-                        <i class="fas fa-save me-1"></i> Lưu
-                    </button>
-                </div>
-            }
+            </div>
         </div>
     </div>
 </div>

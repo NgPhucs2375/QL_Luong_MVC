@@ -1,77 +1,58 @@
-﻿using QL_Luong_MVC.Models;
-using System;
-using System.Collections.Generic;
+﻿using QL_Luong_MVC.DAO;
+using QL_Luong_MVC.Models;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace QL_Luong_MVC.Controllers
 {
     public class PhuCapController : Controller
     {
-        DB db = new DB();
+        private PhuCapDAO pcDao = new PhuCapDAO();
+        private NhanVienDAO nvDao = new NhanVienDAO();
+        private PhongBanDAO pbDao = new PhongBanDAO();
 
-        // Danh sách phụ cấp
         public ActionResult Index()
         {
-            return View(db.dsPhuCap);
+            return View(pcDao.GetAll());
         }
 
-        // Form thêm phụ cấp
         public ActionResult Create()
         {
-            ViewBag.DSNhanVien = db.dsNhanVien;
+            ViewBag.DSNhanVien = nvDao.GetAll();
             return View();
         }
 
         [HttpPost]
         public ActionResult Create(PhuCap pc)
         {
-            bool ok = db.ThemPhuCap(pc);
-            if (ok)
+            var result = pcDao.Insert(pc);
+            if (result.Success)
                 return RedirectToAction("Index");
-            else
-            {
-                ViewBag.ThongBao = "Lỗi khi thêm phụ cấp.";
-                ViewBag.DSNhanVien = db.dsNhanVien;
-                return View(pc);
-            }
+
+            ViewBag.ThongBao = result.Message;
+            ViewBag.DSNhanVien = nvDao.GetAll();
+            return View(pc);
         }
 
-        // Plan (pseudocode):
-        // - In TongPhuCap(int? id), after finding nhanVien, use nhanVien.IDNhanVien (non-null)
-        // - Pass this concrete int to DB.TongPhuCapNhanVien to fix CS1503
-        // - Also use this concrete int for filtering dsPhuCap to keep consistency
-        // - Keep the rest of the logic unchanged
-
-        // UC10 - Xem tổng phụ cấp nhân viên
         public ActionResult TongPhuCap(int? id)
         {
-            // Tìm nhân viên
-            var nhanVien = db.dsNhanVien.Find(nv => nv.IDNhanVien == id);
+            if (id == null) return RedirectToAction("Index");
+
+            int idNV = id.Value;
+            var nhanVien = nvDao.GetById(idNV);
+
             if (nhanVien == null)
             {
                 ViewBag.NhanVien = null;
                 return View();
             }
 
-            // Dùng IDNhanVien cụ thể (int) để tránh lỗi int? -> int
-            int idNV = nhanVien.IDNhanVien;
-
-            // Tính tổng phụ cấp
-            decimal tong = db.TongPhuCapNhanVien(idNV);
-            ViewBag.Tong = tong;
-
-            // Lấy chi tiết phụ cấp
-            var chiTiet = db.dsPhuCap.Where(pc => pc.IDNhanVien_PhuCap == idNV).ToList();
-            ViewBag.ChiTiet = chiTiet;
-
-            // Tên phòng ban (nếu có)
-            var phongBan = db.dsPhongBan.Find(pb => pb.IDPhongBan == nhanVien.IDPB_NhanVien);
-            ViewBag.PhongBanName = phongBan?.NamePhongBan ?? "—";
-
-            // Gán lại cho View
             ViewBag.NhanVien = nhanVien;
+            ViewBag.Tong = pcDao.GetTotalByNhanVienId(idNV);
+            ViewBag.ChiTiet = pcDao.GetByNhanVienId(idNV);
+
+            var phongBan = pbDao.GetById(nhanVien.IDPB_NhanVien);
+            ViewBag.PhongBanName = phongBan?.NamePhongBan ?? "—";
 
             return View();
         }

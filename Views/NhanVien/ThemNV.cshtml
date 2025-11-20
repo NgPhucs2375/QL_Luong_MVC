@@ -1,173 +1,154 @@
 ﻿@model QL_Luong_MVC.Models.NhanVien
 @{
-    ViewBag.Title = "Sửa thông tin nhân viên";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Thêm nhân viên mới";
 }
 
 <style>
-    /* CSS Tùy chỉnh cho Edit Form */
-    .edit-card {
-        /* Kế thừa từ theme glassmorphism */
+    /* CSS Form Thêm NV */
+    .add-nv-card {
         border: none;
-        padding: 3rem 4rem;
-        border-radius: 18px;
+        border-radius: 20px;
+        /* Nền kính mờ 30% */
         background-color: var(--color-content-bg) !important;
         backdrop-filter: blur(10px);
-        box-shadow: 0 4px 15px rgba(106, 13, 173, 0.15);
+        box-shadow: 0 8px 30px rgba(106, 13, 173, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.5);
     }
 
-    .edit-header {
-        color: var(--color-text-dark-purple);
+    .add-nv-header {
+        /* Gradient Tím 30% */
+        background: var(--color-sidebar-bg) !important;
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .form-label-purple {
+        color: #6A0DAD;
         font-weight: 700;
-        border-bottom: 3px solid rgba(106, 13, 173, 0.2);
-        padding-bottom: 15px;
-        margin-bottom: 30px;
+        margin-bottom: 5px;
+        display: block;
     }
 
-    /* Label và Input */
-    .form-group label {
-        color: #6A0DAD; /* Tím đậm cho label */
-        font-weight: 700 !important;
-        margin-bottom: 0.3rem;
-        display: block; /* Đảm bảo label chiếm đủ không gian */
-    }
-
-    .form-control-themed {
-        border-radius: 8px;
-        border: 1px solid rgba(106, 13, 173, 0.3); /* Viền tím mờ */
-        transition: 0.2s;
-    }
-
-        .form-control-themed:focus {
-            border-color: #7B68EE;
-            box-shadow: 0 0 5px rgba(155, 120, 255, 0.5);
-        }
-
-    /* Nút Lưu (Primary Action - Vàng Nhấn 10%) */
-    .btn-save-accent {
-        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
-        border-color: var(--color-accent) !important;
-        color: var(--color-text-dark-purple) !important; /* Chữ Tím đậm */
-        font-weight: 700;
-        transition: all 0.2s ease;
-    }
-
-        .btn-save-accent:hover {
-            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
-            border-color: var(--color-accent-hover) !important;
-            transform: translateY(-2px);
-        }
-
-    /* Nút Quay Lại (Secondary Action - Tím) */
-    .btn-back-secondary {
-        background-color: #9370DB !important; /* Tím trung bình */
-        color: white !important;
-        border-color: #9370DB !important;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-        .btn-back-secondary:hover {
-            background-color: #7B68EE !important;
-        }
-
-    /* Alert Tím nhạt */
-    .alert-themed-info {
-        background-color: #e3e0f9 !important; /* Tím siêu nhạt */
-        color: #4a148c !important; /* Tím đậm */
-        border: 1px solid #cbb2ff !important;
-        font-weight: 600;
+    .form-control-purple {
         border-radius: 10px;
+        border: 1px solid rgba(106, 13, 173, 0.3);
+        padding: 12px;
+        transition: 0.3s;
     }
+
+        .form-control-purple:focus {
+            border-color: #7B68EE;
+            box-shadow: 0 0 8px rgba(123, 104, 238, 0.4);
+        }
+
+    /* Nút Thêm (Vàng Nhấn) */
+    .btn-add-accent {
+        background-color: var(--color-accent) !important;
+        border-color: var(--color-accent) !important;
+        color: var(--color-text-dark-purple) !important;
+        font-weight: 700;
+        padding: 12px 40px;
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+        .btn-add-accent:hover {
+            background-color: var(--color-accent-hover) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+        }
 </style>
 
 <div class="container-fluid py-5">
+    <div class="card add-nv-card mx-auto shadow-lg" style="max-width: 900px;">
 
-    <h2 class="text-center mb-5 edit-header">
-        <i class="fas fa-tools mr-2"></i> Sửa thông tin nhân viên
-    </h2>
-
-    <div class="card edit-card shadow-lg mx-auto" style="max-width: 900px;">
-
-        @using (Html.BeginForm("SuaNV", "NhanVien", FormMethod.Post))
-        {
-            @Html.AntiForgeryToken()
-            @Html.HiddenFor(m => m.IDNhanVien)
-
-            <div class="row">
-                <div class="col-md-6">
-                    <h5 class="mb-4" style="color: var(--color-text-dark-purple);"><i class="fas fa-user-circle me-2"></i> Thông tin cá nhân</h5>
-                    <div class="form-group mb-4">
-                        <label><i class="fas fa-signature me-2"></i> Họ tên</label>
-                        @Html.TextBoxFor(m => m.FullNameNhanVien, new { @class = "form-control form-control-themed", placeholder = "Nhập họ tên...", required = "required" })
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label><i class="fas fa-birthday-cake me-2"></i> Ngày sinh</label>
-                        @Html.TextBoxFor(m => m.DayOfBirth_NhanVien, "{0:yyyy-MM-dd}", new { @class = "form-control form-control-themed", type = "date", required = "required" })
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label><i class="fas fa-venus-mars me-2"></i> Giới tính</label>
-                        @Html.DropDownListFor(m => m.Sex_NhanVien,
-                            new SelectList(new[] { "Nam", "Nữ" }, Model.Sex_NhanVien),
-                            "-- Chọn giới tính --",
-                            new { @class = "form-control form-control-themed" })
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label><i class="fas fa-map-marker-alt me-2"></i> Địa chỉ</label>
-                        @Html.TextBoxFor(m => m.Address_NhanVien, new { @class = "form-control form-control-themed", placeholder = "Nhập địa chỉ..." })
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label><i class="fas fa-phone me-2"></i> Số điện thoại</label>
-                        @Html.TextBoxFor(m => m.SDT_NhanVien, new { @class = "form-control form-control-themed", placeholder = "Nhập số điện thoại..." })
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <h5 class="mb-4" style="color: var(--color-text-dark-purple);"><i class="fas fa-briefcase me-2"></i> Thông tin công việc</h5>
-                    <div class="form-group mb-4">
-                        <label><i class="fas fa-envelope me-2"></i> Email</label>
-                        @Html.TextBoxFor(m => m.Email_NhanVien, new { @class = "form-control form-control-themed", placeholder = "Nhập email...", type = "email" })
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label><i class="fas fa-user-check me-2"></i> Trạng thái</label>
-                        @Html.DropDownListFor(m => m.State_NhanVien,
-                            new SelectList(new[] { "Đang làm", "Tạm nghỉ", "Đã nghỉ" }, Model.State_NhanVien),
-                            "-- Chọn trạng thái --",
-                            new { @class = "form-control form-control-themed" })
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label><i class="fas fa-id-badge me-2"></i> Chức vụ (Mã CV)</label>
-                        @Html.TextBoxFor(m => m.IDCV_NhanVien, new { @class = "form-control form-control-themed", placeholder = "Nhập mã chức vụ..." })
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label><i class="fas fa-building me-2"></i> Phòng ban (Mã PB)</label>
-                        @Html.TextBoxFor(m => m.IDPB_NhanVien, new { @class = "form-control form-control-themed", placeholder = "Nhập mã phòng ban..." })
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center pt-4 border-top mt-4">
-                <button type="submit" class="btn btn-save-accent btn-lg px-5">
-                    <i class="fas fa-save me-2"></i> Lưu thay đổi
-                </button>
-                <a href="@Url.Action("DanhSachNV", "NhanVien")" class="btn btn-back-secondary btn-lg px-5 ms-3">
-                    <i class="fas fa-arrow-left"></i> Quay lại
-                </a>
-            </div>
-        }
-    </div>
-
-    @if (ViewBag.ThongBao != null)
-    {
-        <div class="alert mt-4 text-center alert-themed-info mx-auto" style="max-width: 900px;">
-            <i class="fas fa-info-circle me-2"></i> @ViewBag.ThongBao
+        <div class="add-nv-header">
+            <h3 class="mb-0 fw-bold"><i class="fas fa-user-plus me-2"></i> Tiếp nhận nhân sự mới</h3>
         </div>
-    }
+
+        <div class="card-body p-5">
+            @if (ViewBag.ThongBao != null)
+            {
+                <div class="alert alert-info text-center mb-4 shadow-sm" style="border-radius: 10px;">
+                    <i class="fas fa-info-circle me-2"></i> @ViewBag.ThongBao
+                </div>
+            }
+
+            @using (Html.BeginForm("ThemNV", "NhanVien", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="row g-4">
+                    <!-- Cột Trái -->
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label-purple"><i class="fas fa-signature"></i> Họ và tên</label>
+                            @Html.TextBoxFor(m => m.FullNameNhanVien, new { @class = "form-control form-control-purple", placeholder = "Ví dụ: Nguyễn Văn A", required = "required" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label-purple"><i class="fas fa-birthday-cake"></i> Ngày sinh</label>
+                            <input type="date" name="DayOfBirth_NhanVien" class="form-control form-control-purple" required />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label-purple"><i class="fas fa-venus-mars"></i> Giới tính</label>
+                            <select name="Sex_NhanVien" class="form-control form-control-purple">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label-purple"><i class="fas fa-map-marker-alt"></i> Địa chỉ</label>
+                            @Html.TextBoxFor(m => m.Address_NhanVien, new { @class = "form-control form-control-purple", placeholder = "Nhập địa chỉ thường trú" })
+                        </div>
+                    </div>
+
+                    <!-- Cột Phải -->
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label-purple"><i class="fas fa-phone"></i> Điện thoại</label>
+                            @Html.TextBoxFor(m => m.SDT_NhanVien, new { @class = "form-control form-control-purple", placeholder = "09xxxxxxxx" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label-purple"><i class="fas fa-envelope"></i> Email</label>
+                            @Html.TextBoxFor(m => m.Email_NhanVien, new { @class = "form-control form-control-purple", type = "email", placeholder = "email@company.com" })
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-purple"><i class="fas fa-id-badge"></i> Mã Chức vụ</label>
+                                @Html.TextBoxFor(m => m.IDCV_NhanVien, new { @class = "form-control form-control-purple", type = "number", placeholder = "ID CV" })
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-purple"><i class="fas fa-building"></i> Mã Phòng ban</label>
+                                @Html.TextBoxFor(m => m.IDPB_NhanVien, new { @class = "form-control form-control-purple", type = "number", placeholder = "ID PB" })
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label-purple"><i class="fas fa-toggle-on"></i> Trạng thái</label>
+                            <select name="State_NhanVien" class="form-control form-control-purple">
+                                <option value="Đang làm">Đang làm</option>
+                                <option value="Thử việc">Thử việc</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4 pt-3 border-top">
+                    <button type="submit" class="btn btn-add-accent btn-lg">
+                        <i class="fas fa-save me-2"></i> Lưu Hồ Sơ
+                    </button>
+                    <a href="@Url.Action("DanhSachNV")" class="btn btn-outline-secondary btn-lg ms-3" style="border-radius: 10px;">
+                        Hủy bỏ
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
 </div>

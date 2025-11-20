@@ -1,30 +1,34 @@
 ﻿@model IEnumerable<QL_Luong_MVC.Models.HopDong>
 @{
-    ViewBag.Title = "Danh sách hợp đồng";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Quản lý Hợp đồng";
 }
 
-<body class="purple-theme">
-    <div class="container-fluid py-4" style="min-height:100vh;">
-        <div class="card shadow-lg border-0 list-card">
-            <div class="card-header d-flex justify-content-between align-items-center header-purple">
-                <h4 class="mb-0"><i class="fas fa-file-contract me-2"></i>Danh sách hợp đồng</h4>
-                <a href="@Url.Action("Create", "HopDong")" class="btn add-btn shadow-sm">
-                    <i class="fas fa-plus-circle me-1"></i> Thêm hợp đồng
-                </a>
-            </div>
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Hợp đồng lao động</h1>
+        <a href="@Url.Action("Create", "HopDong")" class="btn btn-accent shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50 mr-2"></i>Tạo hợp đồng mới
+        </a>
+    </div>
 
-            <div class="card-body bg-white p-4 table-container">
-                <table class="table table-hover text-center align-middle mb-0" id="hopdongTable">
-                    <thead class="table-header">
+    <!-- Content Card -->
+    <div class="card card-plus shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom-0">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách hợp đồng</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="thead-light">
                         <tr>
-                            <th>Mã HD</th>
-                            <th>Nhân viên</th>
-                            <th>Ngày bắt đầu</th>
-                            <th>Ngày kết thúc</th>
-                            <th>Loại</th>
-                            <th>Lương cơ bản (VNĐ)</th>
-                            <th>Ghi chú</th>
+                            <th>Mã HĐ</th>
+                            <th>Mã NV</th>
+                            <th>Loại Hợp Đồng</th>
+                            <th>Ngày Bắt Đầu</th>
+                            <th>Ngày Kết Thúc</th>
+                            <th>Lương CB</th>
+                            <th>Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -32,31 +36,38 @@
                         {
                             foreach (var item in Model)
                             {
+                                // Logic tính trạng thái hiển thị
+                                bool isExpired = item.DayToEnd.HasValue && item.DayToEnd.Value < DateTime.Now;
+                                string badgeClass = isExpired ? "badge-danger" : "badge-success";
+                                string statusText = isExpired ? "Hết hạn" : "Hiệu lực";
+                                if (item.Loai_HopDong.Contains("Không thời hạn"))
+                                {
+                                    badgeClass = "badge-info"; statusText = "Vĩnh viễn";
+                                }
+
                                 <tr>
-                                    <td><strong>@item.IDHopDong</strong></td>
-                                    <td>@item.IDNhanVIen_HopDong</td>
-                                    <td>@item.DayToStart.ToString("dd/MM/yyyy")</td>
-                                    <td>@(item.DayToEnd.HasValue ? item.DayToEnd.Value.ToString("dd/MM/yyyy") : "—")</td>
+                                    <td class="font-weight-bold text-primary">#@item.IDHopDong</td>
                                     <td>
-                                        @if (item.Loai_HopDong == "Có thời hạn")
-                                        {
-                                            <span class="badge badge-purple">Có thời hạn</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-green">Không thời hạn</span>
-                                        }
+                                        <a href="@Url.Action("InfoNV", "NhanVien", new { id = item.IDNhanVIen_HopDong })" class="text-dark font-weight-bold text-decoration-none">
+                                            <i class="fas fa-user-tag mr-1 text-gray-400"></i> @item.IDNhanVIen_HopDong
+                                        </a>
                                     </td>
-                                    <td class="text-end">@item.LuongCoBan_HopDong.ToString("N0")</td>
-                                    <td>@item.Note_HopDong</td>
+                                    <td>@item.Loai_HopDong</td>
+                                    <td>@item.DayToStart.ToString("dd/MM/yyyy")</td>
+                                    <td>@(item.DayToEnd.HasValue ? item.DayToEnd.Value.ToString("dd/MM/yyyy") : "--")</td>
+                                    <td class="font-weight-bold text-success">@item.LuongCoBan_HopDong.ToString("N0") ₫</td>
+                                    <td>
+                                        <span class="badge badge-pill @badgeClass px-3 py-2">@statusText</span>
+                                    </td>
                                 </tr>
                             }
                         }
                         else
                         {
                             <tr>
-                                <td colspan="7" class="text-muted py-4">
-                                    <i class="fas fa-info-circle me-2"></i>Không có dữ liệu hợp đồng.
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="fas fa-file-signature fa-3x mb-3 text-gray-300"></i><br />
+                                    Chưa có dữ liệu hợp đồng.
                                 </td>
                             </tr>
                         }
@@ -65,114 +76,4 @@
             </div>
         </div>
     </div>
-</body>
-
-@section Styles {
-    <style>
-        /* ==== Tổng thể ==== */
-        body {
-            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
-            background-attachment: fixed;
-            font-family: "Segoe UI", sans-serif;
-            color: #4a148c;
-        }
-
-        .purple-theme {
-            background: linear-gradient(135deg, #d9c2ff, #c7b6ff, #b8a4ff) !important;
-        }
-
-        .list-card {
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-            transition: all 0.3s ease;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-            .list-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 12px 25px rgba(111, 66, 193, 0.2);
-            }
-
-        /* ==== Header ==== */
-        .header-purple {
-            background: linear-gradient(90deg, #7e57c2, #9575cd);
-            color: #fff;
-            border-radius: 18px 18px 0 0;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.25);
-        }
-
-        /* ==== Table ==== */
-        .table-container {
-            border-radius: 0 0 18px 18px;
-        }
-
-        .table-header {
-            background: linear-gradient(90deg, #8e63d1, #b78dfc);
-            color: white;
-        }
-
-        .table-hover tbody tr:hover {
-            background: rgba(155, 120, 255, 0.12) !important;
-            transform: scale(1.01);
-            transition: all 0.25s ease;
-        }
-
-        /* ==== Badge ==== */
-        .badge-purple {
-            background: linear-gradient(90deg, #8e63d1, #b388ff);
-            color: white;
-            border-radius: 10px;
-            padding: 6px 12px;
-            font-weight: 500;
-        }
-
-        .badge-green {
-            background: linear-gradient(90deg, #9575cd, #b39ddb);
-            color: white;
-            border-radius: 10px;
-            padding: 6px 12px;
-            font-weight: 500;
-        }
-
-        /* ==== Button ==== */
-        .add-btn {
-            background: linear-gradient(90deg, #ffffff, #f3e8ff);
-            color: #4a148c;
-            font-weight: 600;
-            border-radius: 10px;
-            transition: all 0.25s ease;
-        }
-
-            .add-btn:hover {
-                background: linear-gradient(90deg, #e1d0ff, #f0e0ff);
-                color: #311b92;
-                transform: scale(1.05);
-                box-shadow: 0 4px 12px rgba(94, 53, 177, 0.25);
-            }
-
-        /* ==== Hiệu ứng nhẹ ==== */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at top left, #f3e5f5 0%, transparent 60%), radial-gradient(circle at bottom right, #ede7f6 0%, transparent 60%);
-            z-index: -1;
-        }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-}
+</div>

@@ -1,3 +1,17 @@
 ﻿@{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    // 1. Đặt mặc định là layout Nhân Viên (hoặc Admin tùy bạn),
+    // NHƯNG TUYỆT ĐỐI KHÔNG ĐƯỢC ĐỂ LÀ "~/Views/Shared/_Layout.cshtml" NỮA
+    Layout = "~/Views/Shared/_LayoutNhanVien.cshtml";
+
+    // 2. Logic chọn layout động dựa trên Session
+    if (HttpContext.Current.Session["Quyen"] != null)
+    {
+        string userRole = HttpContext.Current.Session["Quyen"].ToString();
+
+        // Nếu là nhóm quản trị thì đổi sang Layout Admin
+        if (userRole == "Admin" || userRole == "NhanSu" || userRole == "KeToan")
+        {
+            Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+        }
+    }
 }

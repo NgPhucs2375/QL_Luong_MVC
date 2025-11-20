@@ -1,96 +1,78 @@
-﻿using QL_Luong_MVC.Models;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Net;
-using System.Web;
+﻿using QL_Luong_MVC.DAO;
+using QL_Luong_MVC.Models;
 using System.Web.Mvc;
 
 namespace QL_Luong_MVC.Controllers
 {
     public class LuongCoBanController : Controller
     {
-        DB db = new DB();
+        private LuongCoBanDAO luongDao = new LuongCoBanDAO();
+        private ChucVuDAO cvDao = new ChucVuDAO();
 
-        // GET: Danh sách LuongCoBan
         public ActionResult Index()
         {
-            return View(db.dsLuongCoban);
+            return View(luongDao.GetAll());
         }
 
-        // GET: Thêm mới
         public ActionResult Create()
         {
-            ViewBag.DSChucVu = db.dsChucVu; // để hiển thị combobox chức vụ
+            ViewBag.DSChucVu = cvDao.GetAll();
             return View();
         }
 
-        // Post: thêm mới
         [HttpPost]
         public ActionResult Create(LuongCoban luong)
         {
             if (ModelState.IsValid)
             {
-                string sql = "Insert into LuongCoban (MaCV, MucLuong) VALUES(@MaCV, @MucLuong)" ;
-                     using (SqlConnection con = new SqlConnection("Data Source=MSI;Initial Catalog=QL_LuongNV;User ID=sa;Password=123456"))
-                {
-                    con.Open();
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("@MaCV", luong.IDChucVu_LuongCB);
-                    cmd.Parameters.AddWithValue("@MucLuong", luong.MucLuong);
-                    cmd.ExecuteNonQuery();
-                }
-                return RedirectToAction("Index");
+                var result = luongDao.ExecuteAction("Thêm", luong);
+                if (result.Success) return RedirectToAction("Index");
+                ModelState.AddModelError("", result.Message);
             }
-            return View(luong);
-        }
-        // GET: Sửa
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            var luong = db.dsLuongCoban.FirstOrDefault(x => x.IDLuongCoBan == id);
-            if (luong == null)
-                return HttpNotFound();
-            ViewBag.DSChucVu = db.dsChucVu;
+            ViewBag.DSChucVu = cvDao.GetAll();
             return View(luong);
         }
 
-        // POST: Sửa
+        public ActionResult Edit(int? id)
+        {
+            if (id == null) return HttpNotFound();
+            var luong = luongDao.GetById(id.Value);
+            if (luong == null) return HttpNotFound();
+
+            ViewBag.DSChucVu = cvDao.GetAll();
+            return View(luong);
+        }
+
         [HttpPost]
-        public ActionResult Edit(LuongCoban model)
+        public ActionResult Edit(LuongCoban luong)
         {
             if (ModelState.IsValid)
             {
-                string sql = "UPDATE LuongCoBan SET MaCV=@MaCV, MucLuong=@MucLuong WHERE MaLCB=@MaLCB";
-                using (SqlConnection con = new SqlConnection("Data Source=MSI;Initial Catalog=QL_LuongNV;User ID=sa;Password=123456"))
-                {
-                    con.Open();
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("@MaLCB", model.IDLuongCoBan);
-                    cmd.Parameters.AddWithValue("@MaCV", model.IDChucVu_LuongCB);
-                    cmd.Parameters.AddWithValue("@MucLuong", model.MucLuong);
-                    cmd.ExecuteNonQuery();
-                }
-                return RedirectToAction("Index");
+                var result = luongDao.ExecuteAction("Sửa", luong);
+                if (result.Success) return RedirectToAction("Index");
+                ModelState.AddModelError("", result.Message);
             }
-            ViewBag.DSChucVu = db.dsChucVu;
-
-            return View(model);
+            ViewBag.DSChucVu = cvDao.GetAll();
+            return View(luong);
         }
 
-        // GET: Xóa
         public ActionResult Delete(int id)
         {
-            string sql = "DELETE FROM LuongCoban WHERE MaLCB = @MaLCB";
-            using (SqlConnection con = new SqlConnection("Data Source=MSI;Initial Catalog=QL_LuongNV;User ID=sa;Password=123456"))
-            {
-                con.Open();
-                SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("@MaLCB", id); // hoặc model.IDLuongCoBan
+            var luong = luongDao.GetById(id);
+            if (luong == null) return HttpNotFound();
+            return View(luong);
+        }
 
-                cmd.ExecuteNonQuery();
+        [HttpPost, ActionName("DeleteConfirmed")]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            // Tạo object tạm chỉ cần ID và MaCV để xóa
+            // Lưu ý: SP yêu cầu MaCV, nhưng logic xóa thường theo ID.
+            // Ở đây ta cần lấy MaCV từ ID trước để truyền vào SP vì SP xóa theo MaCV
+            var luong = luongDao.GetById(id);
+            if (luong != null)
+            {
+                luongDao.ExecuteAction("Xóa", luong);
             }
             return RedirectToAction("Index");
         }

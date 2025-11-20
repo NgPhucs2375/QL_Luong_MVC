@@ -1,107 +1,47 @@
 ﻿@model QL_Luong_MVC.Models.LuongCoban
-
 @{
-    ViewBag.Title = "Xóa mức lương cơ bản";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Xóa mức lương";
 }
 
-<style>
-    /* CSS Tùy chỉnh cho Delete View */
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card card-plus shadow border-left-danger">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <div class="icon-circle bg-danger text-white mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <h4 class="font-weight-bold text-gray-800">Xác nhận xóa?</h4>
+                        <p class="text-muted">
+                            Bạn đang thực hiện xóa mức lương cơ bản của chức vụ có mã <strong>@Model.IDChucVu_LuongCB</strong>.
+                            <br>Hành động này không thể hoàn tác.
+                        </p>
+                    </div>
 
-    /* Card Header Tím đậm (Gradient 30% theme) */
-    .card-header-purple {
-        background: var(--color-sidebar-bg) !important;
-        border-radius: 15px 15px 0 0;
-    }
+                    <div class="bg-light p-3 rounded mb-4 text-left">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gray-600 small font-weight-bold">Mã lương:</span>
+                            <span class="text-dark font-weight-bold">#@Model.IDLuongCoBan</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-gray-600 small font-weight-bold">Mức lương:</span>
+                            <span class="text-danger font-weight-bold">@Model.MucLuong.ToString("N0") ₫</span>
+                        </div>
+                    </div>
 
-    /* Tiêu đề label màu tím đậm */
-    .dl-dt-purple {
-        color: var(--color-text-dark-purple);
-        font-weight: 600;
-        background-color: rgba(106, 13, 173, 0.05); /* Tím siêu nhạt cho nền cột tiêu đề */
-        padding: 0.5rem 1rem;
-        border-right: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    /* Dữ liệu nổi bật */
-    .dl-dd-highlight {
-        font-weight: 700;
-        color: #DC3545; /* Màu đỏ cảnh báo */
-        padding: 0.5rem 1rem;
-    }
-
-    /* Nút Xóa (Primary Action - Danger) */
-    .btn-delete-danger {
-        /* Nền đỏ đậm cảnh báo */
-        background-color: #DC3545 !important;
-        color: white;
-        /* Viền Vàng nhấn (Accent 10%) để đồng bộ thương hiệu */
-        border: 2px solid var(--color-accent) !important;
-        font-weight: 700;
-        transition: all 0.2s ease;
-    }
-
-        .btn-delete-danger:hover {
-            background-color: #C82333 !important;
-            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.4); /* Shadow Vàng nhấn */
-            transform: translateY(-2px);
-        }
-
-    /* Nút Quay Lại (Secondary Action) */
-    .btn-back-outline {
-        color: #6A0DAD;
-        border-color: #7B68EE;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-        .btn-back-outline:hover {
-            background-color: rgba(106, 13, 173, 0.1);
-            color: var(--color-text-dark-purple);
-        }
-</style>
-
-<div class="container py-5" style="max-width:700px;">
-    <div class="card shadow-lg mb-4" style="border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.5);">
-
-        <div class="card-header text-white card-header-purple">
-            <h4 class="mb-0 fw-bold">
-                <i class="fas fa-trash-alt me-2" style="color: var(--color-accent);"></i> @ViewBag.Title
-            </h4>
-        </div>
-
-        <div class="card-body p-4">
-
-            <p class="text-center fw-bold mb-4 p-3 rounded"
-               style="background-color: var(--color-main-bg); color: #DC3545; border: 1px solid #FFC107;">
-                <i class="fas fa-exclamation-triangle me-2"></i> BẠN CÓ CHẮC CHẮN MUỐN XÓA BẢN GHI NÀY KHÔNG?
-            </p>
-
-            <dl class="row border rounded p-3" style="background-color: rgba(255, 255, 255, 0.9);">
-                <dt class="col-sm-4 dl-dt-purple">Mã lương:</dt>
-                <dd class="col-sm-8 dl-dd-highlight">@Model.IDLuongCoBan</dd>
-
-                <dt class="col-sm-4 dl-dt-purple">Chức vụ:</dt>
-                <dd class="col-sm-8 dl-dd-highlight">@Model.IDChucVu_LuongCB</dd>
-
-                <dt class="col-sm-4 dl-dt-purple">Mức lương (VNĐ):</dt>
-                <dd class="col-sm-8 dl-dd-highlight">@Model.MucLuong.ToString("N0")</dd>
-            </dl>
-
-            @using (Html.BeginForm("DeleteConfirmed", "LuongCoBan", new { id = Model.IDLuongCoBan }, FormMethod.Post))
-            {
-                @Html.AntiForgeryToken()
-                <div class="d-flex justify-content-between mt-5 pt-3 border-top">
-
-                    <a href="@Url.Action("Index", "LuongCoBan")" class="btn btn-outline-primary btn-back-outline px-4">
-                        <i class="fas fa-arrow-left me-1"></i> Quay lại
-                    </a>
-
-                    <button type="submit" class="btn btn-delete-danger px-4">
-                        <i class="fas fa-trash-alt me-1"></i> XÓA NGAY
-                    </button>
+                    @using (Html.BeginForm("DeleteConfirmed", "LuongCoBan", new { id = Model.IDLuongCoBan }, FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="d-flex justify-content-center">
+                            <a href="@Url.Action("Index")" class="btn btn-light text-secondary font-weight-bold mr-3 px-4">Hủy</a>
+                            <button type="submit" class="btn btn-danger px-4 shadow-sm font-weight-bold">
+                                Xác nhận xóa
+                            </button>
+                        </div>
+                    }
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>

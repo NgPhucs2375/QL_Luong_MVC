@@ -1,0 +1,125 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng thông tin nhân viên - @ViewBag.Title</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <link href="~/Content/css/sb-admin-2.min.css" rel="stylesheet" />
+    <style>
+        /* Giao diện sáng (Light Theme) cho Nhân viên */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FC;
+            color: #4b5563;
+        }
+
+        .sidebar-user {
+            background: #FFFFFF !important;
+            border-right: 1px solid #e3e6f0;
+        }
+
+            .sidebar-user .nav-link {
+                color: #6b7280 !important;
+                font-weight: 500;
+            }
+
+                .sidebar-user .nav-link:hover {
+                    background: #eff6ff;
+                    color: #2563eb !important;
+                    border-radius: 8px;
+                }
+
+                .sidebar-user .nav-link i {
+                    color: #9ca3af;
+                }
+
+                .sidebar-user .nav-link:hover i {
+                    color: #2563eb;
+                }
+
+        .topbar-user {
+            background: #fff;
+            border-bottom: 1px solid #e3e6f0;
+            box-shadow: none !important;
+        }
+
+        .card-user {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: #fff;
+        }
+    </style>
+    @RenderSection("Styles", required: false)
+</head>
+<body id="page-top">
+    <div id="wrapper">
+        <ul class="navbar-nav sidebar-user sidebar accordion" id="accordionSidebar">
+            <li class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("InfoNV", "NhanVien")">
+                <div class="sidebar-brand-icon"><i class="fas fa-id-card text-primary"></i></div>
+                <div class="sidebar-brand-text mx-3 text-primary">My Portal</div>
+            </li>
+
+            <li class="sidebar-divider my-0">
+
+            <li class="nav-item mt-3">
+                <a class="nav-link" href="@Url.Action("InfoNV", "NhanVien")">
+                    <i class="fas fa-fw fa-user-circle"></i>
+                    <span>Hồ sơ cá nhân</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-file-signature"></i>
+                    <span>Hợp đồng lao động</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("TongPhuCap", "PhuCap", new { id = Session["MaNV"] })">
+                    <i class="fas fa-fw fa-coins"></i>
+                    <span>Phụ cấp & Đãi ngộ</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-money-check-alt"></i>
+                    <span>Phiếu lương hàng tháng</span>
+                </a>
+            </li>
+        </ul>
+
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <nav class="navbar navbar-expand topbar-user topbar mb-4 static-top">
+                    <h1 class="h5 mb-0 text-gray-800 ml-3 font-weight-bold">@ViewBag.Title</h1>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Xin chào, @Session["TenDangNhap"]</span>
+                                <img class="img-profile rounded-circle" src="~/Content/img/default-avatar.png">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+                                <a class="dropdown-item" href="@Url.Action("Logout", "Login")">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Đăng xuất
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Content/vendor/jquery/jquery.min.js"></script>
+    <script src="~/Content/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
