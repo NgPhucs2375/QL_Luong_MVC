@@ -107,14 +107,14 @@
             </li>
             <li class="sidebar-divider my-0">
 
-            <!-- Profile Mini (Mới) - ĐÃ SỬA LỖI TẠI ĐÂY -->
-            @if (Session["TenDangNhap"] != null)
-            {
-                <!-- Lấy tên từ Session để an toàn hơn -->
-                var currentUserName = Session["TenDangNhap"].ToString();
-                var firstLetter = !string.IsNullOrEmpty(currentUserName) ? currentUserName.Substring(0, 1).ToUpper() : "U";
+                <!-- Profile Mini (Mới) - ĐÃ SỬA LỖI TẠI ĐÂY -->
+                @if (Session["TenDangNhap"] != null)
+                {
+                    <!-- Lấy tên từ Session để an toàn hơn -->
+                    var currentUserName = Session["TenDangNhap"].ToString();
+                    var firstLetter = !string.IsNullOrEmpty(currentUserName) ? currentUserName.Substring(0, 1).ToUpper() : "U";
 
-                <div class="sidebar-heading mt-3">Xin chào,</div>
+                    <div class="sidebar-heading mt-3">Xin chào,</div>
                 <li class="nav-item">
                     <div class="nav-link pb-0 pt-1">
                         <div class="d-flex align-items-center">
@@ -128,43 +128,72 @@
                 <hr class="sidebar-divider mt-3">
             }
 
-            <!-- MENU CHÍNH -->
-            <li class="sidebar-heading">Quản trị</li>
+                <!-- MENU CHÍNH -->
+                <li class="sidebar-heading">Quản trị</li>
 
-            <li class="nav-item @(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")">
-                <a class="nav-link" href="@Url.Action("Index", "Home")">
-                    <i class="fas fa-fw fa-chart-pie"></i>
-                    <span>Tổng quan</span>
-                </a>
-            </li>
+                <li class="nav-item @(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")">
+                    <a class="nav-link" href="@Url.Action("Index", "Home")">
+                        <i class="fas fa-fw fa-chart-pie"></i>
+                        <span>Tổng quan</span>
+                    </a>
+                </li>
 
-            <li class="nav-item @(ViewContext.RouteData.Values["Controller"].ToString() == "NhanVien" && ViewContext.RouteData.Values["Action"].ToString() == "DanhSachNV" ? "active" : "")">
-                <a class="nav-link" href="@Url.Action("DanhSachNV", "NhanVien")">
-                    <i class="fas fa-fw fa-users"></i>
-                    <span>Nhân sự</span>
-                </a>
-            </li>
+                <li class="nav-item @(ViewContext.RouteData.Values["Controller"].ToString() == "NhanVien" && ViewContext.RouteData.Values["Action"].ToString() == "DanhSachNV" ? "active" : "")">
+                    <a class="nav-link" href="@Url.Action("DanhSachNV", "NhanVien")">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>Nhân sự</span>
+                    </a>
+                </li>
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLuong">
-                    <i class="fas fa-fw fa-coins"></i>
-                    <span>Lương & Chế độ</span>
-                </a>
-                <div id="collapseLuong" class="collapse" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="@Url.Action("Index","LuongCoban")">Lương cơ bản</a>
-                        <a class="collapse-item" href="@Url.Action("Index","HopDong")">Hợp đồng</a>
-                        <a class="collapse-item" href="@Url.Action("Index","PhuCap")">Phụ cấp</a>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLuong">
+                        <i class="fas fa-fw fa-coins"></i>
+                        <span>Lương & Chế độ</span>
+                    </a>
+                    <div id="collapseLuong" class="collapse" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" href="@Url.Action("Index","LuongCoban")">Lương cơ bản</a>
+                            <a class="collapse-item" href="@Url.Action("Index","HopDong")">Hợp đồng</a>
+                            <a class="collapse-item" href="@Url.Action("Index","PhuCap")">Phụ cấp</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
 
-            <!-- Divider -->
-            <li class="sidebar-divider d-none d-md-block">
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
-        </ul>
+                <!-- MENU CHẤM CÔNG (UC6, UC7, UC8) -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseChamCong">
+                        <i class="fas fa-fw fa-calendar-check"></i>
+                        <span>Chấm công</span>
+                    </a>
+                    <div id="collapseChamCong" class="collapse" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" href="@Url.Action("Index","ChamCong")">Danh sách chấm công</a>
+                            <a class="collapse-item" href="@Url.Action("Create","ChamCong")">Thêm chấm công</a>
+                            <a class="collapse-item" href="@Url.Action("XemGioTangCa","ChamCong")">Xem giờ tăng ca</a>
+                        </div>
+                    </div>
+                </li>
+                <!-- MENU BẢNG LƯƠNG (UC13, UC20) -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBangLuong">
+                        <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                        <span>Bảng lương</span>
+                    </a>
+                    <div id="collapseBangLuong" class="collapse" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" href="@Url.Action("Index","BangLuong")">Danh sách bảng lương</a>
+                            <a class="collapse-item" href="@Url.Action("TinhLuong","BangLuong")">Tính lương tháng</a>
+                            <a class="collapse-item" href="@Url.Action("BaoCao","BangLuong")">Báo cáo lương</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <li class="sidebar-divider d-none d-md-block">
+                    <div class="text-center d-none d-md-inline">
+                        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                    </div>
+            </ul>
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
