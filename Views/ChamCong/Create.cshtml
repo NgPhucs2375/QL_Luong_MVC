@@ -1,0 +1,114 @@
+@model QL_Luong_MVC.Models.BangChamCong
+
+@{
+    ViewBag.Title = "Thêm chấm công";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>
+                <i class="fa fa-plus-circle"></i> Thêm chấm công mới
+            </h2>
+            <hr />
+
+            @* Hiển thị lỗi *@
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Lỗi!</strong> @ViewBag.ErrorMessage
+                </div>
+            }
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Thông tin chấm công</h4>
+                </div>
+                <div class="panel-body">
+                    @using (Html.BeginForm("Create", "ChamCong", FormMethod.Post, new { @class = "form-horizontal" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        @* Chọn nhân viên *@
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">
+                                Nhân viên <span class="text-danger">*</span>
+                            </label>
+                            <div class="col-sm-9">
+                                @Html.DropDownList("IDNhanVien_ChamCong", (SelectList)ViewBag.DanhSachNhanVien, "-- Chọn nhân viên --", new { @class = "form-control", required = "required" })
+                                @Html.ValidationMessage("IDNhanVien_ChamCong", "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        @* Ngày chấm công *@
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">
+                                Ngày <span class="text-danger">*</span>
+                            </label>
+                            <div class="col-sm-9">
+                                @Html.TextBox("Day_ChamCong", (string)ViewBag.NgayMacDinh ?? DateTime.Now.ToString("yyyy-MM-dd"), new { @class = "form-control", type = "date", required = "required" })
+                                @Html.ValidationMessage("Day_ChamCong", "", new { @class = "text-danger" })
+                                <small class="help-block">Chọn ngày chấm công</small>
+                            </div>
+                        </div>
+
+                        @* Ngày công *@
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">
+                                Ngày công <span class="text-danger">*</span>
+                            </label>
+                            <div class="col-sm-9">
+                                @Html.TextBox("DayCong_ChamCong", "1.0", new { @class = "form-control", type = "number", step = "0.1", min = "0", max = "1", required = "required" })
+                                @Html.ValidationMessage("DayCong_ChamCong", "", new { @class = "text-danger" })
+                                <small class="help-block">
+                                    Nhập từ 0 đến 1 (VD: 1 = làm đủ ngày, 0.5 = làm nửa ngày)
+                                </small>
+                            </div>
+                        </div>
+
+                        @* Giờ tăng ca *@
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">
+                                Giờ tăng ca
+                            </label>
+                            <div class="col-sm-9">
+                                @Html.TextBox("GioTangCa", "0", new { @class = "form-control", type = "number", step = "0.5", min = "0" })
+                                @Html.ValidationMessage("GioTangCa", "", new { @class = "text-danger" })
+                                <small class="help-block">
+                                    Nhập số giờ làm thêm (VD: 2.5 giờ). Để 0 nếu không có tăng ca.
+                                </small>
+                            </div>
+                        </div>
+
+                        @* Nút submit *@
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fa fa-save"></i> Lưu chấm công
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-default btn-lg">
+                                    <i class="fa fa-arrow-left"></i> Quay lại
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @* Hướng dẫn *@
+            <div class="alert alert-info">
+                <h4><i class="fa fa-info-circle"></i> Lưu ý:</h4>
+                <ul>
+                    <li><strong>UC7:</strong> Hệ thống sẽ tự động kiểm tra và ngăn chặn chấm công trùng ngày cho cùng 1 nhân viên.</li>
+                    <li>Ngày công phải từ 0 đến 1 (0 = nghỉ, 0.5 = nửa ngày, 1 = đủ ngày).</li>
+                    <li>Giờ tăng ca được tính vào lương với mức 50,000 VNĐ/giờ.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,119 @@
+@model List<QL_Luong_MVC.Models.BangLuong>
+
+@{
+    ViewBag.Title = "Danh sách bảng lương";
+    int thang = ViewBag.Thang ?? DateTime.Now.Month;
+    int nam = ViewBag.Nam ?? DateTime.Now.Year;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>
+                <i class="fa fa-list"></i> Danh sách bảng lương
+            </h2>
+            <hr />
+
+            @* Form lọc *@
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Lọc theo tháng/năm</h4>
+                </div>
+                <div class="panel-body">
+                    <form method="get" action="@Url.Action("Index")" class="form-inline">
+                        <div class="form-group">
+                            <label>Tháng:</label>
+                            <select name="thang" class="form-control">
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i" @(i == thang ? "selected" : "")>Tháng @i</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Năm:</label>
+                            <select name="nam" class="form-control">
+                                @for (int y = DateTime.Now.Year; y >= 2020; y--)
+                                {
+                                    <option value="@y" @(y == nam ? "selected" : "")>@y</option>
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-filter"></i> Lọc
+                        </button>
+
+                        <a href="@Url.Action("TinhLuong")" class="btn btn-success">
+                            <i class="fa fa-calculator"></i> Tính lương
+                        </a>
+
+                        <a href="@Url.Action("BaoCao", new { thang = thang, nam = nam })" class="btn btn-info">
+                            <i class="fa fa-file-text-o"></i> Xem báo cáo
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            @* Bảng danh sách *@
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        Bảng lương tháng @thang/@nam
+                        <span class="badge">@(Model != null ? Model.Count : 0) bản ghi</span>
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover">
+                                <thead>
+                                    <tr class="bg-primary">
+                                        <th>STT</th>
+                                        <th>Mã BL</th>
+                                        <th>Mã NV</th>
+                                        <th>Tháng/Năm</th>
+                                        <th class="text-right">Lương CB</th>
+                                        <th class="text-right">Phụ cấp</th>
+                                        <th class="text-right">Thưởng/Phạt</th>
+                                        <th class="text-right">Giờ TC</th>
+                                        <th class="text-right">Thực nhận</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{int stt = 1;}
+                                    @foreach (var item in Model)
+                                    {
+                                        decimal luongThucNhan = item.LuongCoBan_BangLuong + item.TongPhuCap + item.TongThuongPhat + (item.TongGioTangCa * 50000);
+                                        <tr>
+                                            <td>@stt</td>
+                                            <td>@item.IDBangLuong</td>
+                                            <td>@item.IDNhanVien_BangLuong</td>
+                                            <td>@item.Month/@item.Nam</td>
+                                            <td class="text-right">@string.Format("{0:N0}", item.LuongCoBan_BangLuong)</td>
+                                            <td class="text-right">@string.Format("{0:N0}", item.TongPhuCap)</td>
+                                            <td class="text-right">@string.Format("{0:N0}", item.TongThuongPhat)</td>
+                                            <td class="text-right">@item.TongGioTangCa</td>
+                                            <td class="text-right bg-success">
+                                                <strong>@string.Format("{0:N0}", luongThucNhan)</strong>
+                                            </td>
+                                        </tr>
+                                        stt++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle"></i> Không có dữ liệu bảng lương trong tháng @thang/@nam
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

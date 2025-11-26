@@ -1,0 +1,134 @@
+@{
+    ViewBag.Title = "Tính lương tháng";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>
+                <i class="fa fa-calculator"></i> Tính bảng lương theo tháng (UC13)
+            </h2>
+            <hr />
+
+            @* Hiển thị thông báo *@
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Thành công!</strong> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Lỗi!</strong> @ViewBag.ErrorMessage
+                </div>
+            }
+
+            @* Form tính lương *@
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Chọn tháng/năm để tính lương</h4>
+                </div>
+                <div class="panel-body">
+                    @using (Html.BeginForm("TinhLuong", "BangLuong", FormMethod.Post, new { @class = "form-horizontal" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">
+                                Tháng <span class="text-danger">*</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <select name="thang" class="form-control" required>
+                                    @for (int i = 1; i <= 12; i++)
+                                    {
+                                        <option value="@i" @(i == ViewBag.ThangMacDinh ? "selected" : "")>
+                                            Tháng @i
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">
+                                Năm <span class="text-danger">*</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <select name="nam" class="form-control" required>
+                                    @for (int y = DateTime.Now.Year; y >= 2020; y--)
+                                    {
+                                        <option value="@y" @(y == ViewBag.NamMacDinh ? "selected" : "")>
+                                            @y
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('Bạn có chắc chắn muốn tính lương? Dữ liệu lương cũ (nếu có) sẽ bị xóa và tính lại.')">
+                                    <i class="fa fa-calculator"></i> Tính lương
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-default btn-lg">
+                                    <i class="fa fa-arrow-left"></i> Quay lại
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @* Hướng dẫn *@
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <i class="fa fa-info-circle"></i> Hướng dẫn sử dụng
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <h4><strong>UC13 - Tính bảng lương theo tháng:</strong></h4>
+                    <ol>
+                        <li>Chọn tháng và năm cần tính lương</li>
+                        <li>Click nút "Tính lương"</li>
+                        <li>Hệ thống sẽ gọi Stored Procedure <code>sp_TinhBangLuong_Thang</code></li>
+                        <li>SP sẽ tự động:
+                            <ul>
+                                <li>Xóa dữ liệu lương cũ (nếu đã tính trước đó)</li>
+                                <li>Tính lương mới cho tất cả nhân viên</li>
+                            </ul>
+                        </li>
+                        <li>Sau khi tính xong, hệ thống sẽ chuyển sang trang báo cáo</li>
+                    </ol>
+
+                    <hr />
+
+                    <h4><strong>Công thức tính lương:</strong></h4>
+                    <div class="well">
+                        <p><strong>Lương thực nhận = Lương cơ bản + Phụ cấp + Thưởng/Phạt + (Giờ tăng ca × 50,000)</strong></p>
+                        <ul>
+                            <li><strong>Lương cơ bản:</strong> Lấy từ Hợp đồng (ưu tiên) hoặc Chức vụ</li>
+                            <li><strong>Phụ cấp:</strong> Tổng tất cả phụ cấp (xăng xe, điện thoại, ăn trưa, v.v.)</li>
+                            <li><strong>Thưởng/Phạt:</strong> Thưởng (+), Phạt (-)</li>
+                            <li><strong>Giờ tăng ca:</strong> Tính bằng function <code>fn_TongGioTangCa_Thang</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            @* Cảnh báo *@
+            <div class="alert alert-warning">
+                <i class="fa fa-exclamation-triangle"></i> <strong>Lưu ý quan trọng:</strong>
+                <ul>
+                    <li>Nếu đã tính lương cho tháng này trước đó, dữ liệu cũ sẽ bị <strong>XÓA</strong> và tính lại.</li>
+                    <li>Nên backup dữ liệu trước khi tính lại lương.</li>
+                    <li>Đảm bảo đã nhập đầy đủ dữ liệu chấm công, phụ cấp, thưởng/phạt trước khi tính lương.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

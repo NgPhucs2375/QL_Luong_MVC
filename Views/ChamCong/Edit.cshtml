@@ -1,0 +1,100 @@
+@model QL_Luong_MVC.Models.BangChamCong
+
+@{
+    ViewBag.Title = "Sửa chấm công";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>
+                <i class="fa fa-edit"></i> Sửa thông tin chấm công
+            </h2>
+            <hr />
+
+            @* Hiển thị lỗi *@
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Lỗi!</strong> @ViewBag.ErrorMessage
+                </div>
+            }
+
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Chỉnh sửa chấm công #@Model.IDChamCong</h4>
+                </div>
+                <div class="panel-body">
+                    @using (Html.BeginForm("Edit", "ChamCong", FormMethod.Post, new { @class = "form-horizontal" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("IDChamCong", Model.IDChamCong)
+
+                        @* Hiển thị thông tin nhân viên (không cho sửa) *@
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Nhân viên</label>
+                            <div class="col-sm-9">
+                                @Html.DropDownList("IDNhanVien_ChamCong", (SelectList)ViewBag.DanhSachNhanVien, new { @class = "form-control", disabled = "disabled" })
+                                @Html.Hidden("IDNhanVien_ChamCong", Model.IDNhanVien_ChamCong)
+                                <small class="help-block text-muted">Không thể thay đổi nhân viên</small>
+                            </div>
+                        </div>
+
+                        @* Hiển thị ngày (không cho sửa) *@
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Ngày</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" value="@Model.Day_ChamCong.ToString("dd/MM/yyyy")" disabled />
+                                @Html.Hidden("Day_ChamCong", Model.Day_ChamCong)
+                                <small class="help-block text-muted">Không thể thay đổi ngày chấm công</small>
+                            </div>
+                        </div>
+
+                        @* Ngày công (cho phép sửa) *@
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">
+                                Ngày công <span class="text-danger">*</span>
+                            </label>
+                            <div class="col-sm-9">
+                                @Html.TextBox("DayCong_ChamCong", Model.DayCong_ChamCong, new { @class = "form-control", type = "number", step = "0.1", min = "0", max = "1", required = "required" })
+                                @Html.ValidationMessage("DayCong_ChamCong", "", new { @class = "text-danger" })
+                                <small class="help-block">Nhập từ 0 đến 1</small>
+                            </div>
+                        </div>
+
+                        @* Giờ tăng ca (cho phép sửa) *@
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Giờ tăng ca</label>
+                            <div class="col-sm-9">
+                                @Html.TextBox("GioTangCa", Model.GioTangCa, new { @class = "form-control", type = "number", step = "0.5", min = "0" })
+                                @Html.ValidationMessage("GioTangCa", "", new { @class = "text-danger" })
+                                <small class="help-block">Nhập số giờ làm thêm</small>
+                            </div>
+                        </div>
+
+                        @* Nút submit *@
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <button type="submit" class="btn btn-warning btn-lg">
+                                    <i class="fa fa-save"></i> Cập nhật
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-default btn-lg">
+                                    <i class="fa fa-arrow-left"></i> Quay lại
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <i class="fa fa-exclamation-triangle"></i> <strong>Lưu ý:</strong> Chỉ có thể sửa Ngày công và Giờ tăng ca. Không thể thay đổi Nhân viên và Ngày chấm công.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

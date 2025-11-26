@@ -1,0 +1,212 @@
+@model List<QL_Luong_MVC.ViewModel.BaoCaoLuongViewModel>
+
+@{
+    ViewBag.Title = "Báo cáo lương tháng";
+    int thang = ViewBag.Thang ?? DateTime.Now.Month;
+    int nam = ViewBag.Nam ?? DateTime.Now.Year;
+    int tongSoNhanVien = ViewBag.TongSoNhanVien ?? 0;
+    decimal tongLuongThang = ViewBag.TongLuongThang ?? 0;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>
+                <i class="fa fa-file-text-o"></i> Báo cáo bảng lương tháng (UC20)
+            </h2>
+            <hr />
+
+            @* Hiển thị thông báo *@
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Thành công!</strong> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Lỗi!</strong> @ViewBag.ErrorMessage
+                </div>
+            }
+
+            @* Form lọc theo tháng/năm *@
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Chọn tháng/năm xem báo cáo</h4>
+                </div>
+                <div class="panel-body">
+                    <form method="get" action="@Url.Action("BaoCao")" class="form-inline">
+                        <div class="form-group">
+                            <label>Tháng:</label>
+                            <select name="thang" class="form-control">
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i" @(i == thang ? "selected" : "")>Tháng @i</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Năm:</label>
+                            <select name="nam" class="form-control">
+                                @for (int y = DateTime.Now.Year; y >= 2020; y--)
+                                {
+                                    <option value="@y" @(y == nam ? "selected" : "")>@y</option>
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-search"></i> Xem báo cáo
+                        </button>
+
+                        <a href="@Url.Action("TinhLuong")" class="btn btn-success">
+                            <i class="fa fa-calculator"></i> Tính lương
+                        </a>
+
+                        <a href="@Url.Action("ExportExcel", new { thang = thang, nam = nam })" class="btn btn-warning">
+                            <i class="fa fa-file-excel-o"></i> Export Excel
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            @* Thống kê tổng quan *@
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-info">
+                        <div class="panel-body text-center">
+                            <h4>Tổng số nhân viên</h4>
+                            <h1 class="text-info"><strong>@tongSoNhanVien</strong></h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-success">
+                        <div class="panel-body text-center">
+                            <h4>Tổng lương phải trả</h4>
+                            <h1 class="text-success"><strong>@string.Format("{0:N0}", tongLuongThang) VNĐ</strong></h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Bảng báo cáo chi tiết *@
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        Báo cáo chi tiết lương tháng @thang/@nam
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover" id="tableBaoCao">
+                                <thead>
+                                    <tr class="bg-primary">
+                                        <th>STT</th>
+                                        <th>Mã NV</th>
+                                        <th>Họ tên</th>
+                                        <th>Chức vụ</th>
+                                        <th>Phòng ban</th>
+                                        <th class="text-right">Lương CB</th>
+                                        <th class="text-right">Phụ cấp</th>
+                                        <th class="text-right">Thưởng/Phạt</th>
+                                        <th class="text-right">Giờ TC</th>
+                                        <th class="text-right">Tiền TC</th>
+                                        <th class="text-right bg-success"><strong>Thực nhận</strong></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{int stt = 1;}
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@stt</td>
+                                            <td>@item.MaNhanVien_BaoCao</td>
+                                            <td><strong>@item.HoTenNhanVien_BaoCao</strong></td>
+                                            <td>@item.TenChucVu_BaoCao</td>
+                                            <td>@item.TenPhongBan_BaoCao</td>
+                                            <td class="text-right">@string.Format("{0:N0}", item.LuongCoBan_BaoCao)</td>
+                                            <td class="text-right">@string.Format("{0:N0}", item.TongPhuCap_BaoCao)</td>
+                                            <td class="text-right">
+                                                @if (item.TongThuongPhat_BaoCao >= 0)
+                                                {
+                                                    <span class="text-success">+@string.Format("{0:N0}", item.TongThuongPhat_BaoCao)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">@string.Format("{0:N0}", item.TongThuongPhat_BaoCao)</span>
+                                                }
+                                            </td>
+                                            <td class="text-right">@item.TongGioTangCa_BaoCao</td>
+                                            <td class="text-right">@string.Format("{0:N0}", item.TienTangCa_BaoCao)</td>
+                                            <td class="text-right bg-success">
+                                                <strong>@string.Format("{0:N0}", item.LuongThucNhan_BaoCao)</strong>
+                                            </td>
+                                        </tr>
+                                        stt++;
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-info">
+                                        <th colspan="5" class="text-right">TỔNG CỘNG:</th>
+                                        <th class="text-right">@string.Format("{0:N0}", Model.Sum(x => x.LuongCoBan_BaoCao))</th>
+                                        <th class="text-right">@string.Format("{0:N0}", Model.Sum(x => x.TongPhuCap_BaoCao))</th>
+                                        <th class="text-right">@string.Format("{0:N0}", Model.Sum(x => x.TongThuongPhat_BaoCao))</th>
+                                        <th class="text-right">@Model.Sum(x => x.TongGioTangCa_BaoCao)</th>
+                                        <th class="text-right">@string.Format("{0:N0}", Model.Sum(x => x.TienTangCa_BaoCao))</th>
+                                        <th class="text-right bg-success">
+                                            <strong>@string.Format("{0:N0}", Model.Sum(x => x.LuongThucNhan_BaoCao))</strong>
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fa fa-exclamation-triangle"></i> 
+                            <strong>Chưa có dữ liệu lương cho tháng @thang/@nam</strong>
+                            <p>Vui lòng <a href="@Url.Action("TinhLuong")">tính lương</a> trước khi xem báo cáo.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @* Chú thích *@
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <i class="fa fa-info-circle"></i> Chú thích
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <ul>
+                        <li><strong>Lương CB:</strong> Lương cơ bản (từ Hợp đồng hoặc Chức vụ)</li>
+                        <li><strong>Phụ cấp:</strong> Tổng phụ cấp (xăng xe, điện thoại, ăn trưa, v.v.)</li>
+                        <li><strong>Thưởng/Phạt:</strong> Tổng thưởng (+) và phạt (-)</li>
+                        <li><strong>Giờ TC:</strong> Tổng giờ tăng ca trong tháng</li>
+                        <li><strong>Tiền TC:</strong> Tiền tăng ca = Giờ TC × 50,000 VNĐ</li>
+                        <li><strong>Thực nhận:</strong> Lương CB + Phụ cấp + Thưởng/Phạt + Tiền TC</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Optional: Thêm DataTables để sort/search
+        // $(document).ready(function() {
+        //     $('#tableBaoCao').DataTable();
+        // });
+    </script>
+}

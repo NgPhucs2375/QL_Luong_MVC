@@ -1,0 +1,158 @@
+@{
+    ViewBag.Title = "Xem giờ tăng ca";
+    int thang = ViewBag.Thang ?? DateTime.Now.Month;
+    int nam = ViewBag.Nam ?? DateTime.Now.Year;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <h2>
+                <i class="fa fa-clock-o"></i> Xem tổng giờ tăng ca tháng (UC8)
+            </h2>
+            <hr />
+
+            @* Hiển thị lỗi *@
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Lỗi!</strong> @ViewBag.ErrorMessage
+                </div>
+            }
+
+            @* Form chọn nhân viên và tháng/năm *@
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Chọn nhân viên và tháng/năm</h4>
+                </div>
+                <div class="panel-body">
+                    <form method="get" action="@Url.Action("XemGioTangCa")" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Nhân viên:</label>
+                            <div class="col-sm-10">
+                                @Html.DropDownList("maNV", (SelectList)ViewBag.DanhSachNhanVien, "-- Chọn nhân viên --", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Tháng:</label>
+                            <div class="col-sm-4">
+                                <select name="thang" class="form-control">
+                                    @for (int i = 1; i <= 12; i++)
+                                    {
+                                        <option value="@i" @(i == thang ? "selected" : "")>Tháng @i</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <label class="col-sm-2 control-label">Năm:</label>
+                            <div class="col-sm-4">
+                                <select name="nam" class="form-control">
+                                    @for (int y = DateTime.Now.Year; y >= 2020; y--)
+                                    {
+                                        <option value="@y" @(y == nam ? "selected" : "")>@y</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fa fa-search"></i> Xem kết quả
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-default btn-lg">
+                                    <i class="fa fa-arrow-left"></i> Quay lại
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @* Hiển thị kết quả *@
+            @if (ViewBag.TongGioTangCa != null)
+            {
+                <div class="panel panel-success">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <i class="fa fa-check-circle"></i> Kết quả tính toán
+                        </h4>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="well well-lg text-center">
+                                    <h4>Nhân viên</h4>
+                                    <h3 class="text-primary">
+                                        <strong>@ViewBag.TenNhanVien</strong>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="well well-lg text-center">
+                                    <h4>Tháng/Năm</h4>
+                                    <h3 class="text-info">
+                                        <strong>@thang/@nam</strong>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="alert alert-success text-center" style="font-size: 18px;">
+                                    <i class="fa fa-clock-o fa-3x"></i>
+                                    <h3>Tổng giờ tăng ca</h3>
+                                    <h1 class="text-success">
+                                        <strong>@ViewBag.TongGioTangCa giờ</strong>
+                                    </h1>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info text-center" style="font-size: 18px;">
+                                    <i class="fa fa-money fa-3x"></i>
+                                    <h3>Tiền tăng ca</h3>
+                                    <h1 class="text-info">
+                                        <strong>@string.Format("{0:N0}", ViewBag.TienTangCa) VNĐ</strong>
+                                    </h1>
+                                    <small>(50,000 VNĐ/giờ)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle"></i> <strong>Công thức:</strong> Tiền tăng ca = Tổng giờ tăng ca × 50,000 VNĐ
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <i class="fa fa-info-circle"></i> Vui lòng chọn nhân viên và tháng/năm để xem kết quả.
+                </div>
+            }
+
+            @* Hướng dẫn sử dụng *@
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <i class="fa fa-question-circle"></i> Hướng dẫn sử dụng
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <p><strong>UC8 - Tính tổng giờ tăng ca tháng:</strong></p>
+                    <ol>
+                        <li>Chọn nhân viên cần xem từ danh sách dropdown</li>
+                        <li>Chọn tháng và năm cần xem</li>
+                        <li>Click nút "Xem kết quả"</li>
+                        <li>Hệ thống sẽ gọi function <code>fn_TongGioTangCa_Thang</code> để tính tổng giờ tăng ca</li>
+                        <li>Kết quả hiển thị tổng giờ và tiền tăng ca (50,000 VNĐ/giờ)</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,175 @@
+@model List<QL_Luong_MVC.Models.BangChamCong>
+
+@{
+    ViewBag.Title = "Quản lý Chấm công";
+    int thang = ViewBag.Thang ?? DateTime.Now.Month;
+    int nam = ViewBag.Nam ?? DateTime.Now.Year;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>
+                <i class="fa fa-calendar-check-o"></i> Quản lý Chấm công
+            </h2>
+            <hr />
+
+            @* Hiển thị thông báo thành công/lỗi *@
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Thành công!</strong> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Lỗi!</strong> @TempData["ErrorMessage"]
+                </div>
+            }
+
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Lỗi!</strong> @ViewBag.ErrorMessage
+                </div>
+            }
+
+            @* Form lọc theo tháng/năm *@
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Lọc theo tháng/năm</h4>
+                </div>
+                <div class="panel-body">
+                    <form method="get" action="@Url.Action("Index")" class="form-inline">
+                        <div class="form-group">
+                            <label>Tháng:</label>
+                            <select name="thang" class="form-control">
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i" @(i == thang ? "selected" : "")>Tháng @i</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Năm:</label>
+                            <select name="nam" class="form-control">
+                                @for (int y = DateTime.Now.Year; y >= 2020; y--)
+                                {
+                                    <option value="@y" @(y == nam ? "selected" : "")>@y</option>
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-filter"></i> Lọc
+                        </button>
+
+                        <a href="@Url.Action("Create")" class="btn btn-success">
+                            <i class="fa fa-plus"></i> Thêm chấm công
+                        </a>
+
+                        <a href="@Url.Action("XemGioTangCa")" class="btn btn-info">
+                            <i class="fa fa-clock-o"></i> Xem giờ tăng ca
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            @* Bảng danh sách chấm công *@
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        Danh sách chấm công - Tháng @thang/@nam
+                        <span class="badge">@(Model != null ? Model.Count : 0) bản ghi</span>
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover">
+                                <thead>
+                                    <tr class="bg-primary">
+                                        <th>STT</th>
+                                        <th>Mã CC</th>
+                                        <th>Mã NV</th>
+                                        <th>Ngày</th>
+                                        <th>Ngày công</th>
+                                        <th>Giờ tăng ca</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{int stt = 1;}
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@stt</td>
+                                            <td>@item.IDChamCong</td>
+                                            <td>@item.IDNhanVien_ChamCong</td>
+                                            <td>@item.Day_ChamCong.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <span class="label @(item.DayCong_ChamCong == 1 ? "label-success" : "label-warning")">
+                                                    @item.DayCong_ChamCong
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (item.GioTangCa > 0)
+                                                {
+                                                    <span class="label label-info">@item.GioTangCa giờ</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">0 giờ</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("Edit", new { id = item.IDChamCong })" class="btn btn-warning btn-sm">
+                                                    <i class="fa fa-edit"></i> Sửa
+                                                </a>
+
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(@item.IDChamCong)">
+                                                    <i class="fa fa-trash"></i> Xóa
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        stt++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle"></i> Không có dữ liệu chấm công trong tháng @thang/@nam
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Form ẩn để xóa *@
+<form id="deleteForm" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa bản ghi chấm công này?')) {
+                var form = document.getElementById('deleteForm');
+                form.action = '@Url.Action("Delete")/' + id;
+                form.submit();
+            }
+        }
+    </script>
+}
