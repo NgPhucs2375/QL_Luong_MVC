@@ -33,8 +33,8 @@ namespace QL_Luong_MVC.Models
             try
             {
                 // Thay "TenKetNoiCuaBan" bằng tên chuỗi kết nối trong Web.config
-                //conStr = ConfigurationManager.ConnectionStrings["Scu"].ConnectionString;
-                conStr = ConfigurationManager.ConnectionStrings["TenKetNoiCuaBan"].ConnectionString;
+                conStr = ConfigurationManager.ConnectionStrings["Scu"].ConnectionString;
+                //conStr = ConfigurationManager.ConnectionStrings["TenKetNoiCuaBan"].ConnectionString;
 
             }
             catch (Exception ex)
