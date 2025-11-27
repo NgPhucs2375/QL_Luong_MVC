@@ -1,4 +1,5 @@
 ﻿create database QL_LuongNV
+go
 use QL_LuongNV
 
 -- ================================================
@@ -95,6 +96,8 @@ create table ThuongPhat
 (
     MaTP int identity(1,1) not null primary key,
     MaNV int ,
+	Thangg int check(Thangg BETWEEN 1 AND 12),
+    Namm int check(Namm >=2000),
     Loai nvarchar(20) check (Loai in(N'Thưởng',N'Phạt')),
     SoTien decimal(18,2) check(SoTien>0),
     LyDo nvarchar(200),
@@ -214,18 +217,19 @@ GO
 select * from  PhuCap
 GO
 
-INSERT INTO ThuongPhat(MaNV, Loai, SoTien, LyDo)
+INSERT INTO ThuongPhat(MaNV, Thangg, Namm, Loai, SoTien, LyDo)
 VALUES
-(1, N'Thưởng', 1000000, N'Hoàn thành tốt công việc'),
-(2, N'Phạt', 300000, N'Đi muộn'),
-(3, N'Thưởng', 2000000, N'Dự án xuất sắc'),
-(4, N'Thưởng', 500000, N'Đạt chỉ tiêu tháng'),
-(5, N'Phạt', 200000, N'Nghỉ không phép'),
-(6, N'Thưởng', 1000000, N'Ý tưởng sáng tạo'),
-(7, N'Thưởng', 800000, N'Hỗ trợ nhóm tốt'),
-(8, N'Phạt', 300000, N'Đi muộn 2 lần'),
-(9, N'Thưởng', 1500000, N'Quản lý xuất sắc');
+(1, 10, 2024, N'Thưởng', 1000000, N'Hoàn thành tốt công việc'),
+(2, 10, 2024, N'Phạt', 300000, N'Đi muộn'),
+(3, 10, 2024, N'Thưởng', 2000000, N'Dự án xuất sắc'),
+(4, 10, 2024, N'Thưởng', 500000, N'Đạt chỉ tiêu tháng'),
+(5, 10, 2024, N'Phạt', 200000, N'Nghỉ không phép'),
+(6, 10, 2024, N'Thưởng', 1000000, N'Ý tưởng sáng tạo'),
+(7, 10, 2024, N'Thưởng', 800000, N'Hỗ trợ nhóm tốt'),
+(8, 10, 2024, N'Phạt', 300000, N'Đi muộn 2 lần'),
+(9, 10, 2024, N'Thưởng', 1500000, N'Quản lý xuất sắc');
 GO
+
 select * from ThuongPhat
 GO
 
@@ -1090,8 +1094,286 @@ EXEC xp_cmdshell 'forfiles /p "D:\code\DoAnHQT_SQL" /s /m *.bak /d -7 /c "cmd /c
 GO
 
 --Khôi phục csdl khi có sự cố 
-USE master;
-RESTORE DATABASE QL_LuongNV
-FROM DISK = 'D:\code\DoAnHQT_SQL\QL_LuongNV_Full.bak'
-WITH REPLACE;
+--USE master;
+--RESTORE DATABASE QL_LuongNV
+--FROM DISK = 'D:\code\DoAnHQT_SQL\QL_LuongNV_Full.bak'
+--WITH REPLACE;
+--GO
+---- bỏ đi dòng này (1 row(s) affected)
+----======================== Nguyễn Chí Tâm ========================
+---- Thêm thưởng/phạt và cập nhật bảng lương (sp_ThemThuongPhat_AndCapNhatBangLuong)
+CREATE OR ALTER PROCEDURE sp_ThemThuongPhat_AndCapNhatBangLuong
+    @MaNV   INT,
+    @Loai   NVARCHAR(20),   -- N'Thưởng' hoặc N'Phạt'
+    @SoTien DECIMAL(18,2),  -- > 0
+    @LyDo   NVARCHAR(200) = NULL,
+    @Thangg INT,
+    @Namm   INT
+AS
+BEGIN
+    SET NOCOUNT ON; 
+
+    -- Kiểm tra đầu vào
+    IF @MaNV IS NULL OR @MaNV <= 0
+    BEGIN
+        RAISERROR(N'MaNV không hợp lệ.', 16, 1);
+        RETURN;
+    END
+    IF @Loai NOT IN (N'Thưởng', N'Phạt')
+    BEGIN
+        RAISERROR(N'Loại phải là N''Thưởng'' hoặc N''Phạt''.', 16, 1);
+        RETURN;
+    END
+    IF @SoTien IS NULL OR @SoTien <= 0
+    BEGIN
+        RAISERROR(N'Số tiền phải > 0.', 16, 1);
+        RETURN;
+    END
+    IF @Thangg NOT BETWEEN 1 AND 12 OR @Namm < 2000
+    BEGIN
+        RAISERROR(N'Kỳ lương (Tháng/Năm) không hợp lệ.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRAN;
+
+        -- 1) Kiểm tra tồn tại nhân viên
+        IF NOT EXISTS (SELECT 1 FROM NhanVien WITH (NOLOCK) WHERE MaNV = @MaNV)
+        BEGIN
+            RAISERROR(N'Nhân viên không tồn tại.', 16, 1);
+        END
+
+        -- 2) Thêm vào ThuongPhat
+        INSERT INTO ThuongPhat (MaNV, Thangg, Namm, Loai, SoTien, LyDo)
+        VALUES (@MaNV, @Thangg, @Namm, @Loai, @SoTien, @LyDo);
+
+        -- 3) Đảm bảo có dòng BangLuong cho kỳ này (upsert)
+        IF NOT EXISTS (
+            SELECT 1 FROM BangLuong WITH (NOLOCK)
+            WHERE MaNV = @MaNV AND Thang = @Thangg AND Nam = @Namm
+        )
+        BEGIN
+            DECLARE @LuongCoBan DECIMAL(18,2) = NULL;
+
+            -- Lấy lương cơ bản từ HopDong "còn hiệu lực" trong kỳ
+            ;WITH Ky AS (
+                SELECT 
+                    CAST(CONCAT(@Namm, RIGHT(CONCAT('00', @Thangg), 2), '01') AS DATE) AS StartDate,
+                    EOMONTH(CAST(CONCAT(@Namm, RIGHT(CONCAT('00', @Thangg), 2), '01') AS DATE)) AS EndDate
+            )
+            SELECT TOP 1 @LuongCoBan = h.LuongCoBan
+            FROM HopDong h
+            CROSS JOIN Ky k
+            WHERE h.MaNV = @MaNV
+              AND h.NgayBatDau <= k.EndDate
+              AND (h.NgayKetThuc IS NULL OR h.NgayKetThuc >= k.StartDate)
+            ORDER BY h.NgayBatDau DESC;
+
+            INSERT INTO BangLuong (MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
+            VALUES (@MaNV, @Thangg, @Namm, @LuongCoBan, 0, 0, 0);
+        END
+
+        -- 4) Tính lại tổng thưởng/phạt cho kỳ: Thưởng cộng, Phạt trừ
+        DECLARE @TongThuongPhat DECIMAL(18,2) = 0;
+        SELECT @TongThuongPhat = ISNULL(SUM(CASE WHEN Loai = N'Thưởng' THEN SoTien
+                                                 WHEN Loai = N'Phạt'   THEN -SoTien
+                                                 ELSE 0 END), 0)
+        FROM ThuongPhat WITH (NOLOCK)
+        WHERE MaNV = @MaNV AND Thangg = @Thangg AND Namm = @Namm;
+
+        -- 5) Cập nhật BangLuong
+        UPDATE BangLuong
+        SET TongThuongPhat = @TongThuongPhat
+        WHERE MaNV = @MaNV AND Thang = @Thangg AND Nam = @Namm;
+
+        COMMIT TRAN;
+    END TRY
+    BEGIN CATCH
+        IF XACT_STATE() <> 0 ROLLBACK TRAN;
+
+        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE(),
+                @ErrSeverity INT = ERROR_SEVERITY(),
+                @ErrState INT = ERROR_STATE();
+        RAISERROR(@ErrMsg, @ErrSeverity, @ErrState);
+    END CATCH
+END
 GO
+
+-- Giả sử bạn muốn thêm một khoản thưởng cho nhân viên có MaNV = 1
+-- trong kỳ Tháng 11, Năm 2025, số tiền 2,000, lý do "Thưởng dự án"
+
+EXEC sp_ThemThuongPhat_AndCapNhatBangLuong
+    @MaNV   = 1,
+    @Loai   = N'Thưởng',
+    @SoTien = 2000,
+    @LyDo   = N'Thưởng dự án',
+    @Thangg = 11,
+    @Namm   = 2025;
+go
+
+SELECT * FROM ThuongPhat WHERE MaNV = 3;
+SELECT * FROM BangLuong WHERE MaNV = 3 
+go
+EXEC sp_ThemThuongPhat_AndCapNhatBangLuong
+    @MaNV   = 3,
+    @Loai   = N'Phạt',
+    @SoTien = 500,
+    @LyDo   = N'Đi trễ nhiều lần',
+    @Thangg = 11,
+    @Namm   = 2025;
+go
+
+SELECT * FROM ThuongPhat WHERE MaNV = 3;
+SELECT * FROM BangLuong WHERE MaNV = 3 
+
+
+--DROP PROCEDURE dbo.sp_ThemThuongPhat_AndCapNhatBangLuong;
+
+
+
+-- Tính tổng thưởng/phạt (fn_TongThuongPhat_NV)
+
+CREATE OR ALTER FUNCTION fn_TongThuongPhat_NV
+(
+    @MaNV   INT,
+    @Thangg INT,
+    @Namm   INT
+)
+RETURNS DECIMAL(18,2)
+AS
+BEGIN
+    DECLARE @Tong DECIMAL(18,2);
+
+    SELECT @Tong = ISNULL(SUM(
+        CASE 
+            WHEN Loai = N'Thưởng' THEN SoTien
+            WHEN Loai = N'Phạt'   THEN -SoTien
+            ELSE 0
+        END
+    ), 0)
+    FROM ThuongPhat
+    WHERE MaNV = @MaNV
+      AND Thangg = @Thangg
+      AND Namm = @Namm;
+
+    RETURN @Tong;
+END
+GO
+
+SELECT dbo.fn_TongThuongPhat_NV(1, 11, 2025) AS TongThuongPhat;
+
+-- Hàm lấy lương cơ bản hiện tại (fn_LayLuongCoBan_NV)
+CREATE OR ALTER FUNCTION fn_LayLuongCoBan_NV
+(
+    @MaNV INT
+)
+RETURNS DECIMAL(18,2)
+AS
+BEGIN
+    DECLARE @LuongCoBan DECIMAL(18,2);
+
+    -- Lấy hợp đồng còn hiệu lực tại thời điểm hiện tại
+    SELECT TOP 1 @LuongCoBan = h.LuongCoBan
+    FROM HopDong h
+    WHERE h.MaNV = @MaNV
+      AND h.NgayBatDau <= GETDATE()
+      AND (h.NgayKetThuc IS NULL OR h.NgayKetThuc >= GETDATE())
+    ORDER BY h.NgayBatDau DESC;  -- lấy hợp đồng mới nhất
+
+    RETURN ISNULL(@LuongCoBan, 0);
+END
+GO
+
+SELECT dbo.fn_LayLuongCoBan_NV(2) AS LuongCoBanHienTai;
+
+
+-- Hàm tính lương thực nhận (fn_TinhLuongThucNhan)
+CREATE OR ALTER FUNCTION fn_TinhLuongThucNhan
+(
+    @MaNV   INT,
+    @Thang  INT,
+    @Nam    INT
+)
+RETURNS DECIMAL(18,2)
+AS
+BEGIN
+    DECLARE @LuongThucNhan DECIMAL(18,2);
+
+    SELECT @LuongThucNhan =
+        ISNULL(LuongCoBan,0)
+        + ISNULL(TongPhuCap,0)
+        + ISNULL(TongThuongPhat,0)
+        + ISNULL(TongGioTangCa,0) * 50000
+    FROM BangLuong
+    WHERE MaNV = @MaNV
+      AND Thang = @Thang
+      AND Nam   = @Nam;
+
+    RETURN ISNULL(@LuongThucNhan,0);
+END
+GO
+
+SELECT dbo.fn_TinhLuongThucNhan(1, 11, 2025) AS LuongThucNhan;
+
+-- Trigger cộng thưởng/phạt vào bảng lương (trg_AfterInsert_ThuongPhat)
+CREATE OR ALTER TRIGGER trg_AfterInsert_ThuongPhat
+ON ThuongPhat
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Cập nhật bảng lương cho từng nhân viên vừa được thêm thưởng/phạt
+    UPDATE bl
+    SET bl.TongThuongPhat = bl.TongThuongPhat 
+                            + ISNULL(tp.TongCong,0)
+    FROM BangLuong bl
+    INNER JOIN (
+        -- Gom tổng thưởng/phạt từ các bản ghi mới thêm
+        SELECT i.MaNV, i.Thangg, i.Namm,
+               SUM(CASE WHEN i.Loai = N'Thưởng' THEN i.SoTien
+                        WHEN i.Loai = N'Phạt'   THEN -i.SoTien
+                        ELSE 0 END) AS TongCong
+        FROM inserted i
+        GROUP BY i.MaNV, i.Thangg, i.Namm
+    ) tp
+      ON bl.MaNV = tp.MaNV
+     AND bl.Thang = tp.Thangg
+     AND bl.Nam   = tp.Namm;
+
+    -- Nếu chưa có dòng BangLuong cho kỳ này thì thêm mới
+    INSERT INTO BangLuong (MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa)
+    SELECT i.MaNV, i.Thangg, i.Namm,
+           -- Lấy lương cơ bản từ hợp đồng còn hiệu lực
+           (
+               SELECT TOP 1 h.LuongCoBan
+               FROM HopDong h
+               WHERE h.MaNV = i.MaNV
+                 AND h.NgayBatDau <= EOMONTH(CAST(CONCAT(i.Namm, RIGHT(CONCAT('00', i.Thangg), 2), '01') AS DATE))
+                 AND (h.NgayKetThuc IS NULL OR h.NgayKetThuc >= CAST(CONCAT(i.Namm, RIGHT(CONCAT('00', i.Thangg), 2), '01') AS DATE))
+               ORDER BY h.NgayBatDau DESC
+           ) AS LuongCoBan,
+           0 AS TongPhuCap,
+           SUM(CASE WHEN i.Loai = N'Thưởng' THEN i.SoTien
+                    WHEN i.Loai = N'Phạt'   THEN -i.SoTien
+                    ELSE 0 END) AS TongThuongPhat,
+           0 AS TongGioTangCa
+    FROM inserted i
+    WHERE NOT EXISTS (
+        SELECT 1 FROM BangLuong bl
+        WHERE bl.MaNV = i.MaNV AND bl.Thang = i.Thangg AND bl.Nam = i.Namm
+    )
+    GROUP BY i.MaNV, i.Thangg, i.Namm;
+END
+GO
+
+SELECT * FROM BangLuong WHERE MaNV = 1 
+
+INSERT INTO ThuongPhat (MaNV, Thangg, Namm, Loai, SoTien, LyDo)
+VALUES (1, 11, 2025, N'Thưởng', 2000, N'Thưởng dự án');
+
+SELECT * FROM BangLuong WHERE MaNV = 1 
+
+--ALTER DATABASE QL_LuongNV SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+--DROP DATABASE QL_LuongNV;

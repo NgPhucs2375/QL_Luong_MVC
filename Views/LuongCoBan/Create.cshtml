@@ -13,7 +13,7 @@
         </div>
 
         <div class="card-body p-4">
-            @using (Html.BeginForm())
+            @using (Html.BeginForm("Create", "LuongCoBan", FormMethod.Post))
             {
                 <div class="mb-3">
                     <label class="form-label fw-bold">Chức vụ</label>
