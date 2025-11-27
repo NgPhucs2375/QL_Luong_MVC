@@ -1,113 +1,103 @@
 ﻿@{
-    ViewBag.Title = "Đăng ký tài khoản";
+    ViewBag.Title = "Đăng ký nhân viên mới";
+    Layout = null;
 }
 
-<style>
-    /* CSS Tùy chỉnh cho Register View (Tái sử dụng style Login) */
-    .register-container {
-        /* Nền chính là màu tím siêu nhạt (var(--color-main-bg)) */
-        background: var(--color-main-bg) !important;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .register-card {
-        /* Nền Card theo kiểu Kính mờ của theme (30%) */
-        background-color: var(--color-content-bg) !important;
-        backdrop-filter: blur(10px);
-        border-radius: 20px !important;
-        box-shadow: 0 8px 30px rgba(106, 13, 173, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        padding: 40px;
-    }
-
-    /* Tiêu đề màu Tím đậm */
-    .register-title {
-        color: var(--color-text-dark-purple); /* #4B0082 */
-        font-weight: 700;
-        font-size: 1.8rem;
-    }
-
-    /* Nút Đăng ký (Màu nhấn 10% - Vàng Cam) */
-    .btn-register-accent {
-        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
-        border-color: var(--color-accent) !important;
-        color: var(--color-text-dark-purple) !important;
-        font-weight: 700;
-        transition: all 0.2s ease;
-    }
-
-        .btn-register-accent:hover {
-            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
-            border-color: var(--color-accent-hover) !important;
-            transform: translateY(-2px);
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="~/Content/css/sb-admin-2.min.css" rel="stylesheet" />
+    <style>
+        /* Sử dụng chung theme tím/gradient với Login */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
         }
 
-    /* Nút Đăng nhập (Màu Tím đậm/Thứ cấp) */
-    .btn-login-secondary {
-        background-color: #6A0DAD !important; /* Tím đậm */
-        color: white !important;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-        .btn-login-secondary:hover {
-            background-color: #7B68EE !important; /* Tím nhạt hơn khi hover */
-            transform: translateY(-2px);
+        .register-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            width: 450px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         }
-</style>
 
-<div class="register-container">
-    <div class="card register-card" style="width: 420px;">
+        .form-control {
+            border-radius: 50px;
+            padding-left: 2.5rem;
+            height: 45px;
+        }
 
-        <h3 class="text-center mb-5 register-title">
-            <i class="fas fa-user-plus mr-2"></i> Đăng ký Tài khoản
-        </h3>
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 13px;
+            color: #aaa;
+        }
+
+        .btn-register {
+            background: #FFC107;
+            color: #333;
+            font-weight: 800;
+            border-radius: 50px;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .btn-register:hover {
+                background: #FFB74D;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+            }
+    </style>
+</head>
+<body>
+    <div class="register-card">
+        <div class="text-center mb-4">
+            <h3 class="font-weight-bold text-dark">Tạo tài khoản</h3>
+            <p class="text-muted small">Dành cho nhân viên nội bộ</p>
+        </div>
 
         <form method="post" action="/Login/Register">
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);"><i class="fas fa-user-tag mr-2"></i> Tên đăng nhập</label>
-                <input type="text" name="TenDangNhap" class="form-control" placeholder="Tên đăng nhập (Email)" required />
+            <div class="form-group position-relative">
+                <i class="fas fa-id-badge input-icon"></i>
+                <input type="number" name="MaNV" class="form-control" placeholder="Mã Nhân Viên của bạn" required />
+                <small class="form-text text-muted ml-3">Nhập mã NV được cấp bởi HR.</small>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);"><i class="fas fa-lock mr-2"></i> Mật khẩu</label>
-                <input type="password" name="MatKhau" class="form-control" placeholder="Mật khẩu" required />
+            <div class="form-group position-relative">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" name="TenDangNhap" class="form-control" placeholder="Tên đăng nhập mong muốn" required />
             </div>
 
-            <div class="mb-4">
-                <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);"><i class="fas fa-id-badge mr-2"></i> Mã nhân viên</label>
-                <input type="number" name="MaNV" class="form-control" placeholder="Mã NV của bạn" required />
+            <div class="form-group position-relative mb-4">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" name="MatKhau" class="form-control" placeholder="Mật khẩu bảo mật" required />
             </div>
 
-            <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-register mb-3">ĐĂNG KÝ NGAY</button>
 
-                <button type="submit" class="btn btn-register-accent w-50 me-2">
-                    <i class="fas fa-user-plus"></i> Đăng ký
-                </button>
-
-                <a href="@Url.Action("Login", "Login")"
-                   class="btn btn-login-secondary w-50">
-                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
-                </a>
+            <div class="text-center">
+                <a href="@Url.Action("Login", "Login")" class="small font-weight-bold text-secondary">Đã có tài khoản? Đăng nhập</a>
             </div>
 
             @if (ViewBag.Error != null)
-            {
-                <div class="alert alert-danger mt-3 text-center" style="background-color: #f4f1fa; color: #DC3545; border-radius: 8px; border: 1px solid #DC3545;">
-                    <i class="fas fa-times-circle mr-2"></i> @ViewBag.Error
-                </div>
-            }
-
+            {<div class="alert alert-danger mt-3 small text-center">@ViewBag.Error</div>}
             @if (ViewBag.Success != null)
-            {
-                <div class="alert alert-success mt-3 text-center" style="background-color: #f4f1fa; color: #198754; border-radius: 8px; border: 1px solid #198754;">
-                    <i class="fas fa-check-circle mr-2"></i> @ViewBag.Success
-                </div>
-            }
+            {<div class="alert alert-success mt-3 small text-center">@ViewBag.Success</div>}
         </form>
     </div>
-</div>
+</body>
+</html>

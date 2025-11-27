@@ -1,32 +1,33 @@
 ﻿@model QL_Luong_MVC.Models.LuongCoban
 @{
     ViewBag.Title = "Xóa mức lương";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-5 fade-in-content">
     <div class="row justify-content-center">
         <div class="col-md-5">
-            <div class="card card-plus shadow border-left-danger">
-                <div class="card-body p-5 text-center">
+            <div class="card border-0 shadow-lg text-center" style="border-radius: 20px; overflow: hidden;">
+                <div class="card-body p-5">
                     <div class="mb-4">
-                        <div class="icon-circle bg-danger text-white mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
-                            <i class="fas fa-trash-alt"></i>
+                        <div class="icon-circle bg-danger-soft text-danger mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%; background: #fce8e6;">
+                            <i class="fas fa-trash-alt fa-3x"></i>
                         </div>
-                        <h4 class="font-weight-bold text-gray-800">Xác nhận xóa?</h4>
-                        <p class="text-muted">
-                            Bạn đang thực hiện xóa mức lương cơ bản của chức vụ có mã <strong>@Model.IDChucVu_LuongCB</strong>.
-                            <br>Hành động này không thể hoàn tác.
+                        <h3 class="font-weight-bold text-dark">Xác nhận xóa?</h3>
+                        <p class="text-muted px-3">
+                            Bạn đang yêu cầu xóa cấu hình lương cơ bản của chức vụ mã <strong>@Model.IDChucVu_LuongCB</strong>.
+                            <br><span class="text-danger font-weight-bold">Hành động này không thể hoàn tác!</span>
                         </p>
                     </div>
 
-                    <div class="bg-light p-3 rounded mb-4 text-left">
+                    <div class="card bg-light border-0 p-3 mb-4 text-left rounded">
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-gray-600 small font-weight-bold">Mã lương:</span>
-                            <span class="text-dark font-weight-bold">#@Model.IDLuongCoBan</span>
+                            <span class="text-secondary font-weight-bold">ID Lương:</span>
+                            <span class="text-dark">#@Model.IDLuongCoBan</span>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <span class="text-gray-600 small font-weight-bold">Mức lương:</span>
-                            <span class="text-danger font-weight-bold">@Model.MucLuong.ToString("N0") ₫</span>
+                            <span class="text-secondary font-weight-bold">Mức tiền:</span>
+                            <span class="text-danger font-weight-bold" style="font-size:1.1rem">@Model.MucLuong.ToString("N0") ₫</span>
                         </div>
                     </div>
 
@@ -34,9 +35,9 @@
                     {
                         @Html.AntiForgeryToken()
                         <div class="d-flex justify-content-center">
-                            <a href="@Url.Action("Index")" class="btn btn-light text-secondary font-weight-bold mr-3 px-4">Hủy</a>
-                            <button type="submit" class="btn btn-danger px-4 shadow-sm font-weight-bold">
-                                Xác nhận xóa
+                            <a href="@Url.Action("Index")" class="btn btn-light text-dark font-weight-bold mr-3 px-4 rounded-pill">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-danger px-5 rounded-pill shadow-sm font-weight-bold">
+                                <i class="fas fa-trash mr-2"></i> Xóa vĩnh viễn
                             </button>
                         </div>
                     }

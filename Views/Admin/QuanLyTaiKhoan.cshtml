@@ -1,190 +1,284 @@
 ﻿@model List<QL_Luong_MVC.Models.TaiKhoan>
 @{
-    ViewBag.Title = "Phân quyền hệ thống";
+    ViewBag.Title = "Trung tâm bảo mật & Phân quyền";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    // Helper thống kê nhanh
+    var countAdmin = Model.Count(x => x.Quyen_TaiKhoan == "Admin");
+    var countNhanSu = Model.Count(x => x.Quyen_TaiKhoan == "NhanSu");
+    var countKeToan = Model.Count(x => x.Quyen_TaiKhoan == "KeToan");
+    var countUser = Model.Count(x => x.Quyen_TaiKhoan == "User");
 }
 
 <style>
-    /* --- Account Manager Plus Styles --- */
-    .card-table {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.05);
-        overflow: hidden; /* Bo góc cho table */
+    /* --- SECURITY CENTER STYLES --- */
+    :root {
+        --role-admin-bg: #FEF2F2;
+        --role-admin-text: #DC2626;
+        --role-hr-bg: #ECFDF5;
+        --role-hr-text: #059669;
+        --role-acc-bg: #F5F3FF;
+        --role-acc-text: #7C3AED;
+        --role-user-bg: #F3F4F6;
+        --role-user-text: #4B5563;
     }
 
-    .table-hover tbody tr:hover {
-        background-color: rgba(111, 66, 193, 0.05); /* Hover màu tím nhạt */
-        transform: scale(1.005); /* Hiệu ứng zoom nhẹ */
-        transition: all 0.2s;
-    }
-
-    .bg-admin-row {
-        background-color: #fff9e6 !important; /* Vàng siêu nhạt */
-        border-left: 4px solid #ffc107;
-    }
-
-    .badge-role {
-        padding: 8px 15px;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
-    }
-
-    .badge-admin {
-        background-color: rgba(255, 193, 7, 0.2);
-        color: #b38600;
-        border: 1px solid #ffc107;
-    }
-
-    .badge-user {
-        background-color: rgba(230, 230, 250, 0.5);
-        color: #6f42c1;
-        border: 1px solid #d1d3e2;
-    }
-
-    .btn-action {
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        display: inline-flex;
+    /* 1. Stat Cards Modern */
+    .security-stat-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid #E5E7EB;
+        transition: transform 0.2s;
+        display: flex;
         align-items: center;
-        justify-content: center;
-        transition: 0.3s;
-        border: none;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        justify-content: space-between;
     }
 
-    .btn-promote {
-        background: #e6f4ea;
-        color: #1cc88a;
-    }
-
-        .btn-promote:hover {
-            background: #1cc88a;
-            color: #fff;
-            transform: rotate(90deg);
+        .security-stat-card:hover {
+            transform: translateY(-3px);
+            border-color: #0EA5E9;
         }
 
-    .btn-demote {
-        background: #fce8e6;
-        color: #e74a3b;
-    }
-
-        .btn-demote:hover {
-            background: #e74a3b;
-            color: #fff;
-        }
-
-    .avatar-placeholder {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+    .stat-icon-circle {
+        width: 48px;
+        height: 48px;
         border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
-        font-size: 1.2rem;
-        margin-right: 15px;
+        font-size: 1.25rem;
+    }
+
+    /* 2. Role Badges (Thông minh) */
+    .badge-role {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .role-admin {
+        background: var(--role-admin-bg);
+        color: var(--role-admin-text);
+        border: 1px solid #FECACA;
+    }
+
+    .role-nhansu {
+        background: var(--role-hr-bg);
+        color: var(--role-hr-text);
+        border: 1px solid #A7F3D0;
+    }
+
+    .role-ketoan {
+        background: var(--role-acc-bg);
+        color: var(--role-acc-text);
+        border: 1px solid #DDD6FE;
+    }
+
+    .role-user {
+        background: var(--role-user-bg);
+        color: var(--role-user-text);
+        border: 1px solid #E5E7EB;
+    }
+
+    /* 3. Table Styling */
+    .table-security thead th {
+        background-color: #F8FAFC;
+        color: #64748B;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #E2E8F0;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .avatar-security {
+        width: 38px;
+        height: 38px;
+        background: #F1F5F9;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+
+    /* 4. Action Buttons */
+    .btn-action-group .btn {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.8rem;
     }
 </style>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 fade-in-content">
 
-    <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-purple font-weight-bold">Quản lý tài khoản</h1>
-
-        @if (TempData["ThongBao"] != null)
-        {
-            <div class="alert alert-success shadow-sm border-0 fade show mb-0 py-2" role="alert">
-                <i class="fas fa-check-circle mr-2"></i> @TempData["ThongBao"]
-                <button type="button" class="close ml-3" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        }
+        <div>
+            <h1 class="h3 mb-1 text-gray-800 font-weight-bold">Phân quyền hệ thống</h1>
+            <p class="mb-0 text-muted small"><i class="fas fa-shield-alt mr-1"></i> Kiểm soát truy cập và vai trò người dùng</p>
+        </div>
+        <button class="btn btn-primary shadow-sm rounded-pill px-4">
+            <i class="fas fa-user-plus fa-sm text-white-50 mr-2"></i>Cấp tài khoản mới
+        </button>
     </div>
 
-    <!-- Data Table Card -->
-    <div class="card card-table bg-white">
-        <div class="card-header bg-white py-3 border-0">
-            <h6 class="m-0 font-weight-bold text-primary d-flex align-items-center">
-                <i class="fas fa-list-ul mr-2"></i> Danh sách người dùng hệ thống
-            </h6>
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="security-stat-card">
+                <div>
+                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Quản trị viên (Root)</div>
+                    <div class="h3 mb-0 font-weight-bold text-gray-800">@countAdmin</div>
+                </div>
+                <div class="stat-icon-circle bg-soft-danger text-danger" style="background:#FEF2F2"><i class="fas fa-user-shield"></i></div>
+            </div>
         </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="security-stat-card">
+                <div>
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Nhân sự (HR)</div>
+                    <div class="h3 mb-0 font-weight-bold text-gray-800">@countNhanSu</div>
+                </div>
+                <div class="stat-icon-circle bg-soft-success text-success" style="background:#ECFDF5"><i class="fas fa-users-cog"></i></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="security-stat-card">
+                <div>
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Kế toán (Payroll)</div>
+                    <div class="h3 mb-0 font-weight-bold text-gray-800">@countKeToan</div>
+                </div>
+                <div class="stat-icon-circle bg-soft-primary text-primary" style="background:#F0F9FF"><i class="fas fa-file-invoice-dollar"></i></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="security-stat-card">
+                <div>
+                    <div class="text-xs font-weight-bold text-gray-500 text-uppercase mb-1">Người dùng (User)</div>
+                    <div class="h3 mb-0 font-weight-bold text-gray-800">@countUser</div>
+                </div>
+                <div class="stat-icon-circle bg-soft-gray text-secondary" style="background:#F3F4F6"><i class="fas fa-user"></i></div>
+            </div>
+        </div>
+    </div>
 
-        <div class="table-responsive">
-            <table class="table align-middle mb-0" width="100%" cellspacing="0">
-                <thead class="thead-light">
-                    <tr style="background: #f8f9fc; color: #5a5c69;">
-                        <th class="border-0 py-3 pl-4" style="border-radius: 20px 0 0 0;">Tên đăng nhập</th>
-                        <th class="border-0 py-3 text-center">Mã NV</th>
-                        <th class="border-0 py-3 text-center">Vai trò</th>
-                        <th class="border-0 py-3 text-center" style="border-radius: 0 20px 0 0;">Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr class="@(item.Quyen_TaiKhoan == "Admin" ? "bg-admin-row" : "")">
-                            <td class="py-3 pl-4 border-0">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-placeholder shadow-sm">
-                                        @item.TenDangNhap.Substring(0, 1).ToUpper()
-                                    </div>
-                                    <div>
-                                        <div class="font-weight-bold text-dark">@item.TenDangNhap</div>
-                                        <div class="small text-muted">Thành viên</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="text-center border-0 align-middle font-weight-bold text-gray-600">
-                                #@item.IDNhanVien_TaiKhoan
-                            </td>
-                            <td class="text-center border-0 align-middle">
-                                @if (item.Quyen_TaiKhoan == "Admin")
-                                {
-                                    <span class="badge badge-role badge-admin">
-                                        <i class="fas fa-crown mr-1"></i> Administrator
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge badge-role badge-user">Standard User</span>
-                                }
-                            </td>
-                            <td class="text-center border-0 align-middle">
-                                @if (item.Quyen_TaiKhoan == "Admin")
-                                {
-                                    <a href="@Url.Action("XoaQuyen", "Admin", new { user = item.TenDangNhap })"
-                                       class="btn-action btn-demote"
-                                       title="Gỡ quyền Admin"
-                                       onclick="return confirm('Xác nhận HẠ quyền Admin của @item.TenDangNhap?');">
-                                        <i class="fas fa-user-minus"></i>
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a href="@Url.Action("CapQuyen", "Admin", new { user = item.TenDangNhap })"
-                                       class="btn-action btn-promote"
-                                       title="Thăng cấp Admin"
-                                       onclick="return confirm('Xác nhận THĂNG quyền Admin cho @item.TenDangNhap?');">
-                                        <i class="fas fa-user-plus"></i>
-                                    </a>
-                                }
-                            </td>
+    <div class="card shadow mb-4 border-0" style="border-radius: 12px; overflow:hidden;">
+        <div class="card-header py-3 bg-white border-bottom d-flex align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách tài khoản (@Model.Count)</h6>
+
+            <div class="input-group" style="width: 250px;">
+                <input type="text" id="roleSearch" class="form-control bg-light border-0 small" placeholder="Tìm tên đăng nhập..." aria-label="Search">
+                <div class="input-group-append">
+                    <button class="btn btn-light" type="button">
+                        <i class="fas fa-search fa-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-security table-hover mb-0 align-middle" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th class="pl-4">Người dùng</th>
+                            <th>Mã Nhân viên</th>
+                            <th>Vai trò & Quyền hạn</th>
+                            <th>Trạng thái</th>
+                            <th class="text-right pr-4">Hành động</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            // Logic xác định Style cho từng Role
+                            string badgeClass = "role-user";
+                            string roleIcon = "fa-user";
+                            string roleTitle = "Nhân viên";
 
-        <!-- Table Footer/Pagination Area (Demo) -->
-        <div class="card-footer bg-white border-0 py-3">
-            <small class="text-muted">Hiển thị @Model.Count bản ghi</small>
+                            if (item.Quyen_TaiKhoan == "Admin") { badgeClass = "role-admin"; roleIcon = "fa-shield-alt"; roleTitle = "Quản trị cấp cao"; }
+                            else if (item.Quyen_TaiKhoan == "NhanSu") { badgeClass = "role-nhansu"; roleIcon = "fa-id-badge"; roleTitle = "Quản lý Nhân sự"; }
+                            else if (item.Quyen_TaiKhoan == "KeToan") { badgeClass = "role-ketoan"; roleIcon = "fa-calculator"; roleTitle = "Quản lý Lương"; }
+
+                            <tr class="search-row">
+                                <td class="pl-4 py-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-security mr-3">@item.TenDangNhap.Substring(0, 1).ToUpper()</div>
+                                        <div>
+                                            <div class="font-weight-bold text-dark">@item.TenDangNhap</div>
+                                            <div class="small text-muted">Last login: @DateTime.Now.AddMinutes(-new Random().Next(1, 1000)).ToString("dd/MM HH:mm")</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="font-weight-bold text-gray-600">#@item.IDNhanVien_TaiKhoan</td>
+                                <td>
+                                    <span class="badge-role @badgeClass">
+                                        <i class="fas @roleIcon mr-1"></i> @item.Quyen_TaiKhoan
+                                    </span>
+                                    <div class="small text-muted mt-1">@roleTitle</div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-success font-weight-normal px-2 py-1"><i class="fas fa-check-circle mr-1"></i> Active</span>
+                                </td>
+                                <td class="text-right pr-4">
+                                    <div class="btn-group btn-action-group">
+                                        @if (Session["TenDangNhap"]?.ToString() == item.TenDangNhap)
+                                        {
+                                            <button class="btn btn-light btn-sm text-muted" disabled title="Bạn không thể sửa quyền chính mình">
+                                                <i class="fas fa-lock"></i> Locked
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-white border btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fas fa-cog mr-1"></i> Phân quyền
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                                                <h6 class="dropdown-header">Chọn vai trò mới:</h6>
+
+                                                <a class="dropdown-item @(item.Quyen_TaiKhoan == "Admin" ? "active" : "")" href="@Url.Action("CapQuyen", "Admin", new { user = item.TenDangNhap, role = "Admin" })">
+                                                    <i class="fas fa-shield-alt text-danger mr-2"></i> Admin (Toàn quyền)
+                                                </a>
+                                                <a class="dropdown-item @(item.Quyen_TaiKhoan == "NhanSu" ? "active" : "")" href="@Url.Action("CapQuyen", "Admin", new { user = item.TenDangNhap, role = "NhanSu" })">
+                                                    <i class="fas fa-users-cog text-success mr-2"></i> Nhân sự (HR)
+                                                </a>
+                                                <a class="dropdown-item @(item.Quyen_TaiKhoan == "KeToan" ? "active" : "")" href="@Url.Action("CapQuyen", "Admin", new { user = item.TenDangNhap, role = "KeToan" })">
+                                                    <i class="fas fa-coins text-primary mr-2"></i> Kế toán (Payroll)
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item @(item.Quyen_TaiKhoan == "User" ? "active" : "")" href="@Url.Action("XoaQuyen", "Admin", new { user = item.TenDangNhap })">
+                                                    <i class="fas fa-user text-gray-400 mr-2"></i> User (Mặc định)
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#roleSearch").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $(".search-row").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

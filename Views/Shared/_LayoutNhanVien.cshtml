@@ -1,125 +1,305 @@
-﻿
-<!DOCTYPE html>
-<html>
+﻿<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cổng thông tin nhân viên - @ViewBag.Title</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>@ViewBag.Title - Portal Nhân Viên</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
     <link href="~/Content/css/sb-admin-2.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
     <style>
-        /* Giao diện sáng (Light Theme) cho Nhân viên */
+        :root {
+            --primary-color: #3B82F6;       /* Xanh dương hiện đại */
+            --primary-light: #EFF6FF;       /* Xanh nền nhạt */
+            --text-dark: #1F2937;
+            --text-gray: #6B7280;
+            --bg-body: #F3F4F6;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.3);
+            --shadow-soft: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8F9FC;
-            color: #4b5563;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
         }
 
+        /* --- 1. SIDEBAR NÂNG CẤP --- */
         .sidebar-user {
             background: #FFFFFF !important;
-            border-right: 1px solid #e3e6f0;
+            border-right: 1px solid #E5E7EB;
+            transition: all 0.3s ease;
+            z-index: 100;
         }
 
-            .sidebar-user .nav-link {
-                color: #6b7280 !important;
-                font-weight: 500;
-            }
+        .sidebar-brand-text {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
 
-                .sidebar-user .nav-link:hover {
-                    background: #eff6ff;
-                    color: #2563eb !important;
-                    border-radius: 8px;
-                }
+        .sidebar-user .nav-item {
+            padding: 0 12px;
+            margin-bottom: 4px;
+        }
 
-                .sidebar-user .nav-link i {
-                    color: #9ca3af;
-                }
+        .sidebar-user .nav-link {
+            color: var(--text-gray) !important;
+            font-weight: 500;
+            border-radius: 10px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
 
-                .sidebar-user .nav-link:hover i {
-                    color: #2563eb;
-                }
+        .sidebar-user .nav-link i {
+            width: 24px;
+            text-align: center;
+            margin-right: 8px;
+            font-size: 1.1rem;
+            color: #9CA3AF;
+            transition: color 0.2s;
+        }
 
+        /* Hover Effect */
+        .sidebar-user .nav-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color) !important;
+            transform: translateX(4px);
+        }
+        .sidebar-user .nav-link:hover i {
+            color: var(--primary-color);
+        }
+
+        /* Active State (Được chọn) */
+        .sidebar-user .nav-item.active .nav-link {
+            background: linear-gradient(90deg, var(--primary-light) 0%, #FFFFFF 100%);
+            color: var(--primary-color) !important;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px 10px 10px 4px;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+        .sidebar-user .nav-item.active .nav-link i {
+            color: var(--primary-color);
+        }
+
+        /* --- 2. TOPBAR GLASSMORPHISM (Kính mờ) --- */
         .topbar-user {
-            background: #fff;
-            border-bottom: 1px solid #e3e6f0;
-            box-shadow: none !important;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: var(--glass-border);
+            box-shadow: var(--shadow-soft) !important;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            height: 70px;
         }
 
-        .card-user {
+        /* --- 3. PAGE TRANSITION & CARDS --- */
+        #content-wrapper {
+            background: transparent;
+        }
+
+        /* Animation khi load trang */
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        @@keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Style mặc định cho các trang con */
+        .card-user, .card {
             border: none;
             border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             background: #fff;
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
+
+        .card-user:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Avatar & User Dropdown */
+        .img-profile {
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .img-profile:hover { transform: scale(1.1); }
+
+        /* Nút thông báo (Giả lập) */
+        .btn-icon-split .icon { background: rgba(0,0,0,0.05); }
+        .badge-counter { background-color: #EF4444; }
     </style>
+
     @RenderSection("Styles", required: false)
 </head>
+
 <body id="page-top">
+
+    @helper IsActive(string controller, string action)
+    {
+        var routeData = ViewContext.RouteData;
+        var currentAction = routeData.Values["action"].ToString();
+        var currentController = routeData.Values["controller"].ToString();
+
+        if (string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase))
+        {
+            @Html.Raw("active")
+        }
+    }
+
     <div id="wrapper">
         <ul class="navbar-nav sidebar-user sidebar accordion" id="accordionSidebar">
-            <li class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("InfoNV", "NhanVien")">
-                <div class="sidebar-brand-icon"><i class="fas fa-id-card text-primary"></i></div>
-                <div class="sidebar-brand-text mx-3 text-primary">My Portal</div>
+            <li class="sidebar-brand d-flex align-items-center justify-content-center py-3" href="@Url.Action("InfoNV", "NhanVien")">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-layer-group text-primary"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3 text-primary">Portal <span style="font-weight:300">NV</span></div>
             </li>
 
             <li class="sidebar-divider my-0">
 
-            <li class="nav-item mt-3">
+            <li class="sidebar-heading mt-3 mb-2" style="font-size: 0.75rem; color: #9CA3AF; padding-left: 1rem; text-transform: uppercase; font-weight: 700;">
+                Thông tin cá nhân
+            </>
+
+            <li class="nav-item @IsActive("NhanVien", "InfoNV")">
                 <a class="nav-link" href="@Url.Action("InfoNV", "NhanVien")">
                     <i class="fas fa-fw fa-user-circle"></i>
-                    <span>Hồ sơ cá nhân</span>
+                    <span>Hồ sơ của tôi</span>
                 </a>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item @IsActive("HopDong", "Details")">
                 <a class="nav-link" href="#">
-                    <i class="fas fa-fw fa-file-signature"></i>
+                    <i class="fas fa-fw fa-file-contract"></i>
                     <span>Hợp đồng lao động</span>
                 </a>
             </li>
-            <li class="nav-item">
+
+            <li class="sidebar-heading mt-3 mb-2" style="font-size: 0.75rem; color: #9CA3AF; padding-left: 1rem; text-transform: uppercase; font-weight: 700;">
+                Thu nhập & Phúc lợi
+            </li>
+
+            <li class="nav-item @IsActive("PhuCap", "TongPhuCap")">
                 <a class="nav-link" href="@Url.Action("TongPhuCap", "PhuCap", new { id = Session["MaNV"] })">
-                    <i class="fas fa-fw fa-coins"></i>
+                    <i class="fas fa-fw fa-wallet"></i>
                     <span>Phụ cấp & Đãi ngộ</span>
                 </a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="#">
-                    <i class="fas fa-fw fa-money-check-alt"></i>
-                    <span>Phiếu lương hàng tháng</span>
+                    <i class="fas fa-fw fa-receipt"></i>
+                    <span>Phiếu lương</span>
                 </a>
             </li>
-        </ul>
 
+            <li class="text-center d-none d-md-inline mt-4">
+                <button class="rounded-circle border-0 bg-light text-primary" id="sidebarToggle" style="width: 30px; height: 30px;">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </>
+        </ul>
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-                <nav class="navbar navbar-expand topbar-user topbar mb-4 static-top">
-                    <h1 class="h5 mb-0 text-gray-800 ml-3 font-weight-bold">@ViewBag.Title</h1>
+
+                <nav class="navbar navbar-expand navbar-light topbar-user topbar mb-4 static-top">
+
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars text-primary"></i>
+                    </button>
+
+                    <div class="d-none d-sm-block ml-3">
+                        <h1 class="h5 mb-0 text-gray-800 font-weight-bold animate__animated animate__fadeInLeft">@ViewBag.Title</h1>
+                        <span class="text-xs text-gray-500">Cập nhật lần cuối: @DateTime.Now.ToString("dd/MM/yyyy")</span>
+                    </div>
+
                     <ul class="navbar-nav ml-auto">
+
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown">
+                                <i class="fas fa-bell fa-fw text-primary"></i>
+                                <span class="badge badge-danger badge-counter">1</span>
+                            </a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in">
+                                <h6 class="dropdown-header bg-primary border-0">Thông báo mới</h6>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-success">
+                                            <i class="fas fa-file-invoice-dollar text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">Hôm nay</div>
+                                        <span class="font-weight-bold">Bảng lương tháng @DateTime.Now.Month đã sẵn sàng!</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </li>
+
+                        <li class="topbar-divider d-none d-sm-block"></li>
+
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Xin chào, @Session["TenDangNhap"]</span>
+                                <div class="mr-2 d-none d-lg-inline text-right">
+                                    <div class="text-gray-600 small font-weight-bold">@Session["TenDangNhap"]</div>
+                                    <div class="text-xs text-success">Online</div>
+                                </div>
                                 <img class="img-profile rounded-circle" src="~/Content/img/default-avatar.png">
                             </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
-                                <a class="dropdown-item" href="@Url.Action("Logout", "Login")">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Đăng xuất
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in p-2" style="border-radius: 12px; border:none;">
+                                <a class="dropdown-item rounded mb-1" href="@Url.Action("InfoNV", "NhanVien")">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> Hồ sơ
+                                </a>
+                                <a class="dropdown-item rounded mb-1" href="#">
+                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> Cài đặt
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item rounded text-danger" href="@Url.Action("Logout", "Login")">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i> Đăng xuất
                                 </a>
                             </div>
                         </li>
                     </ul>
                 </nav>
-
-                <div class="container-fluid">
+                <div class="container-fluid fade-in-up">
                     @RenderBody()
                 </div>
             </div>
+            <footer class="sticky-footer bg-white mt-4" style="border-top: 1px solid #E5E7EB;">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>&copy; @DateTime.Now.Year - Hệ thống Quản lý Nhân sự</span>
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
 
     <script src="~/Content/vendor/jquery/jquery.min.js"></script>
     <script src="~/Content/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Content/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="~/Scripts/js/sb-admin-2.min.js"></script>
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

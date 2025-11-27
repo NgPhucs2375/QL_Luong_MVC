@@ -1,111 +1,115 @@
 ﻿@{
-    ViewBag.Title = "Đăng nhập";
-    // *** THAY ĐỔI LAYOUT ĐỂ TRỎ VỀ LAYOUT TRỐNG ***
+    ViewBag.Title = "Đăng nhập hệ thống";
+    Layout = null; // Không dùng Layout chung
 }
 
-@* Kéo TOÀN BỘ style (CSS) từ Login View xuống khối @section Styles *@
-@section Styles {
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="~/Content/css/sb-admin-2.min.css" rel="stylesheet" />
+
     <style>
-        /* * Sử dụng Glassmorphism và màu Tím/Vàng nhấn của theme ... */
-        .login-container {
-            /* Nền chính đã được định nghĩa trong Empty Layout, chỉ cần căn giữa */
-            min-height: 100vh;
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
         }
 
         .login-card {
-            /* Nền Card theo kiểu Kính mờ của theme (30%) */
-            background-color: var(--color-content-bg) !important;
-            backdrop-filter: blur(10px);
-            border-radius: 20px !important;
-            box-shadow: 0 8px 30px rgba(106, 13, 173, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            padding: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            width: 400px;
+            padding: 2rem;
+            transform: translateY(0);
+            transition: transform 0.3s;
         }
 
-        /* Tiêu đề màu Tím đậm */
-        .login-title {
-            color: var(--color-text-dark-purple);
-            font-weight: 700;
-            font-size: 1.8rem;
-        }
-
-        /* Nút Đăng nhập (Màu nhấn 10% - Vàng Cam) */
-        .btn-login-accent {
-            background-color: var(--color-accent) !important;
-            border-color: var(--color-accent) !important;
-            color: var(--color-text-dark-purple) !important;
-            font-weight: 700;
-            transition: all 0.2s ease;
-        }
-
-            .btn-login-accent:hover {
-                background-color: var(--color-accent-hover) !important;
-                border-color: var(--color-accent-hover) !important;
-                transform: translateY(-2px);
+            .login-card:hover {
+                transform: translateY(-5px);
             }
 
-        /* Link Đăng ký (Màu tím đậm) */
-        .register-link {
-            color: #6A0DAD !important;
-            font-weight: 600;
-            transition: color 0.2s;
+        .form-control {
+            border-radius: 50px;
+            padding: 1.2rem 1.2rem 1.2rem 2.5rem;
+            border: 1px solid #ddd;
         }
 
-            .register-link:hover {
-                color: var(--color-text-dark-purple) !important;
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            z-index: 10;
+        }
+
+        .btn-login {
+            background: #6A0DAD;
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            width: 100%;
+            color: #fff;
+            transition: 0.3s;
+        }
+
+            .btn-login:hover {
+                background: #4B0082;
+                box-shadow: 0 5px 15px rgba(75, 0, 130, 0.4);
+                color: #fff;
+                text-decoration: none;
             }
-
-        /* Dùng font awesome thay cho bi (Bootstrap Icons) vì layout gốc chỉ dùng fas */
-        .fas-icon-style {
-            margin-right: 5px;
-        }
     </style>
-}
-
-<div class="login-container">
-    <div class="card login-card" style="width: 420px;">
-        <div class="card-body p-4">
-
-            <h3 class="text-center mb-5 login-title">
-                <i class="fas fa-sign-in-alt fas-icon-style"></i> Đăng nhập Hệ thống
-            </h3>
-
-            @if (ViewBag.Error != null)
-            {
-                <div class="alert alert-danger text-center" style="background-color: #f4f1fa; color: #DC3545; border-radius: 8px; border: 1px solid #DC3545;">
-                    <i class="fas fa-exclamation-circle mr-2"></i> @ViewBag.Error
-                </div>
-            }
-
-            @using (Html.BeginForm("Login", "Login", FormMethod.Post))
-            {
-                <div class="mb-3">
-                    <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);">
-                        <i class="fas fa-user fas-icon-style"></i> Tên đăng nhập (Email)
-                    </label>
-                    <input type="text" name="username" class="form-control" placeholder="Nhập tên đăng nhập" required />
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);">
-                        <i class="fas fa-lock fas-icon-style"></i> Mật khẩu
-                    </label>
-                    <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required />
-                </div>
-
-                <button type="submit" class="btn btn-login-accent w-100 fw-semibold mt-3">
-                    <i class="fas fa-door-open fas-icon-style"></i> Đăng nhập
-                </button>
-            }
-
-            <div class="text-center mt-4">
-                <a href="@Url.Action("Register", "Login")" class="text-decoration-none register-link">
-                    <i class="fas fa-user-plus fas-icon-style"></i> Chưa có tài khoản? Đăng ký
-                </a>
+</head>
+<body>
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                <i class="fas fa-user-shield"></i>
             </div>
+            <h4 class="font-weight-bold text-dark">HRM System</h4>
+            <p class="text-muted small">Đăng nhập để tiếp tục</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger small rounded-pill text-center"><i class="fas fa-exclamation-circle mr-1"></i> @ViewBag.Error</div>
+        }
+
+        @using (Html.BeginForm("Login", "Login", FormMethod.Post))
+        {
+            <div class="form-group position-relative mb-3">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" name="username" class="form-control" placeholder="Tên đăng nhập" required autofocus />
+            </div>
+            <div class="form-group position-relative mb-4">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" name="password" class="form-control" placeholder="Mật khẩu" required />
+            </div>
+            <button type="submit" class="btn btn-login mb-3">ĐĂNG NHẬP</button>
+        }
+
+        <div class="text-center border-top pt-3">
+            <a href="@Url.Action("Register", "Login")" class="small font-weight-bold" style="color: #6A0DAD;">Đăng ký tài khoản mới</a>
         </div>
     </div>
-</div>
+</body>
+</html>

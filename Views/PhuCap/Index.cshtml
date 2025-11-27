@@ -1,95 +1,271 @@
 ﻿@model IEnumerable<QL_Luong_MVC.Models.PhuCap>
 @{
-    ViewBag.Title = "Quản lý Phụ cấp";
+    ViewBag.Title = "Quản lý quỹ phụ cấp";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml"; // Sử dụng Layout Admin cao cấp
+
+    // Helper tính toán nhanh tổng quan (Presentation Logic)
+    var totalAllowance = Model != null ? Model.Sum(x => x.SoTien_PhuCap) : 0;
+    var totalCount = Model != null ? Model.Count() : 0;
+    var uniqueEmployees = Model != null ? Model.Select(x => x.IDNhanVien_PhuCap).Distinct().Count() : 0;
 }
 
 <style>
-    /* Slate Theme Styles cho trang Phụ cấp */
-    .border-l-indigo {
-        border-left: 4px solid #6366F1 !important;
+    /* --- ALLOWANCE DASHBOARD STYLES --- */
+    :root {
+        --card-bg: #FFFFFF;
+        --text-main: #1E293B;
+        --text-sub: #64748B;
     }
 
-    .text-indigo-slate {
-        color: #6366F1 !important;
+    /* 1. Stats Cards (Thẻ thống kê trên cùng) */
+    .stat-box {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255,255,255,0.1);
     }
 
-    /* Button link tinh tế */
-    .btn-link-slate {
-        color: #475569;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.2s;
+        .stat-box::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(14,165,233,0.2) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+        }
+
+    /* 2. Item Cards (Thẻ phụ cấp) */
+    .allowance-card {
+        background: var(--card-bg);
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 4px solid transparent; /* Sẽ được tô màu bằng JS/C# */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+        .allowance-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+    /* 3. Typography & Icons */
+    .money-text {
+        font-family: 'JetBrains Mono', monospace; /* Font số liệu */
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .icon-box {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
-        padding: 4px 0;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-right: 15px;
     }
 
-        .btn-link-slate:hover {
-            color: #6366F1;
-            text-decoration: none;
-            transform: translateX(5px); /* Hiệu ứng trượt nhẹ sang phải */
+    /* 4. Search Bar */
+    .search-input-group {
+        position: relative;
+        max-width: 400px;
+    }
+
+        .search-input-group input {
+            padding-left: 45px;
+            border-radius: 50px;
+            border: 1px solid #E2E8F0;
+            background: #F8FAFC;
+            height: 45px;
         }
 
-        .btn-link-slate i {
-            font-size: 0.75rem;
-            margin-left: auto; /* Đẩy mũi tên sang phải cùng */
-        }
+            .search-input-group input:focus {
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+                border-color: #0EA5E9;
+            }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94A3B8;
+    }
+
+    /* Color Helpers */
+    .bg-soft-blue {
+        background: #E0F2FE;
+        color: #0284C7;
+        border-color: #0284C7;
+    }
+
+    .bg-soft-green {
+        background: #DCFCE7;
+        color: #16A34A;
+        border-color: #16A34A;
+    }
+
+    .bg-soft-purple {
+        background: #F3E8FF;
+        color: #9333EA;
+        border-color: #9333EA;
+    }
+
+    .bg-soft-orange {
+        background: #FFEDD5;
+        color: #EA580C;
+        border-color: #EA580C;
+    }
+
+    .bg-soft-gray {
+        background: #F1F5F9;
+        color: #475569;
+        border-color: #475569;
+    }
 </style>
 
-<div class="container-fluid py-4">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800 font-weight-bold" style="color: #1E293B !important;">Danh mục Phụ cấp</h1>
-            <p class="mb-0 text-muted small">Quản lý các khoản trợ cấp cho nhân viên</p>
+<div class="container-fluid py-4 fade-in-content">
+
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
+        <div class="mb-3 mb-md-0">
+            <h1 class="h3 mb-1 text-gray-800 font-weight-bold">Quản lý Phụ cấp</h1>
+            <p class="mb-0 text-muted small"><i class="fas fa-layer-group mr-1"></i> Danh mục các khoản trợ cấp & phúc lợi nhân viên</p>
         </div>
-        <a href="@Url.Action("Create", "PhuCap")" class="btn btn-accent shadow-sm">
-            <i class="fas fa-plus fa-sm text-white-50 mr-2"></i>Thêm phụ cấp
-        </a>
+
+        <div class="d-flex align-items-center">
+            <div class="search-input-group mr-3 d-none d-sm-block">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm loại phụ cấp, mã NV...">
+            </div>
+
+            <a href="@Url.Action("Create", "PhuCap")" class="btn btn-primary shadow-sm rounded-pill px-4">
+                <i class="fas fa-plus fa-sm text-white-50 mr-2"></i>Cấp mới
+            </a>
+        </div>
     </div>
 
-    <div class="row">
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="stat-box">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-white-50 small text-uppercase font-weight-bold mb-1">Tổng quỹ phụ cấp/tháng</div>
+                        <div class="h2 font-weight-bold text-white money-text">@totalAllowance.ToString("N0")</div>
+                    </div>
+                    <i class="fas fa-wallet fa-2x text-white-50"></i>
+                </div>
+                <div class="mt-3 small">
+                    <span class="text-success mr-2"><i class="fas fa-arrow-up"></i> Ổn định</span>
+                    <span class="text-white-50">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-8 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                <div class="card-body d-flex align-items-center justify-content-around">
+                    <div class="text-center">
+                        <h4 class="font-weight-bold text-gray-800 mb-0">@totalCount</h4>
+                        <div class="small text-muted">Khoản phụ cấp</div>
+                    </div>
+                    <div style="width: 1px; height: 40px; background: #E2E8F0;"></div>
+                    <div class="text-center">
+                        <h4 class="font-weight-bold text-primary mb-0">@uniqueEmployees</h4>
+                        <div class="small text-muted">Nhân viên thụ hưởng</div>
+                    </div>
+                    <div style="width: 1px; height: 40px; background: #E2E8F0;"></div>
+                    <div class="text-center">
+                        <h4 class="font-weight-bold text-success mb-0">100%</h4>
+                        <div class="small text-muted">Đã duyệt chi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="allowanceGrid">
         @if (Model != null && Model.Any())
         {
             foreach (var item in Model)
             {
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card card-plus border-l-indigo shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <!-- Loại phụ cấp -->
-                                    <div class="text-xs font-weight-bold text-indigo-slate text-uppercase mb-1">
-                                        @item.Loai_PhuCap
-                                    </div>
+                // LOGIC THÔNG MINH: Tự động chọn màu và icon dựa trên tên phụ cấp
+                string themeClass = "bg-soft-gray";
+                string iconClass = "fas fa-coins";
+                string typeName = item.Loai_PhuCap?.ToLower() ?? "";
 
-                                    <!-- Số tiền -->
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                        @item.SoTien_PhuCap.ToString("N0") <small class="text-muted">đ</small>
-                                    </div>
+                if (typeName.Contains("xăng") || typeName.Contains("xe"))
+                {
+                    themeClass = "bg-soft-blue";
+                    iconClass = "fas fa-gas-pump";
+                }
+                else if (typeName.Contains("ăn") || typeName.Contains("cơm") || typeName.Contains("trưa"))
+                {
+                    themeClass = "bg-soft-green";
+                    iconClass = "fas fa-utensils";
+                }
+                else if (typeName.Contains("điện thoại") || typeName.Contains("liên lạc"))
+                {
+                    themeClass = "bg-soft-purple";
+                    iconClass = "fas fa-mobile-alt";
+                }
+                else if (typeName.Contains("trách nhiệm") || typeName.Contains("chức vụ"))
+                {
+                    themeClass = "bg-soft-orange";
+                    iconClass = "fas fa-medal";
+                }
 
-                                    <!-- Mã NV -->
-                                    <div class="small text-gray-500 mt-2 mb-3">
-                                        <i class="fas fa-user-tag mr-1"></i> NV ID: <b>@item.IDNhanVien_PhuCap</b>
-                                    </div>
-
-                                    <!-- Đường kẻ mờ ngăn cách -->
-                                    <hr class="my-2" style="border-top: 1px dashed #e2e8f0;">
-
-                                    <!-- Nút liên kết xem tổng (ĐIỀU CHỈNH MỚI) -->
-                                    <a href="@Url.Action("TongPhuCap", "PhuCap", new { id = item.IDNhanVien_PhuCap })"
-                                       class="btn-link-slate"
-                                       title="Xem tất cả phụ cấp của nhân viên này">
-                                        <span>Xem tổng hợp</span>
-                                        <i class="fas fa-chevron-right"></i>
-                                    </a>
+                <div class="col-xl-3 col-md-6 mb-4 search-item" data-search="@item.Loai_PhuCap @item.IDNhanVien_PhuCap">
+                    <div class="allowance-card p-3" style="border-left-color: inherit;">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box @themeClass">
+                                    <i class="@iconClass"></i>
                                 </div>
-
-                                <!-- Icon nền mờ -->
-                                <div class="col-auto">
-                                    <i class="fas fa-coins fa-2x text-gray-300" style="opacity: 0.3;"></i>
+                                <div>
+                                    <div class="text-xs font-weight-bold text-uppercase text-muted">Loại khoản</div>
+                                    <div class="font-weight-bold text-gray-800">@item.Loai_PhuCap</div>
                                 </div>
                             </div>
+                            <div class="dropdown no-arrow">
+                                <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                                    <div class="dropdown-header">Thao tác:</div>
+                                    <a class="dropdown-item" href="#">Sửa mức tiền</a>
+                                    <a class="dropdown-item text-danger" href="#">Xóa khoản này</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <h3 class="money-text mb-0" style="color: #1E293B;">@item.SoTien_PhuCap.ToString("N0") <small style="font-size: 0.5em; vertical-align: middle;">VNĐ</small></h3>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between pt-3 border-top" style="border-color: #F1F5F9 !important;">
+                            <div class="d-flex align-items-center" title="Mã nhân viên">
+                                <div class="rounded-circle bg-gray-200 d-flex align-items-center justify-content-center mr-2 text-xs font-weight-bold text-gray-600" style="width: 25px; height: 25px;">
+                                    ID
+                                </div>
+                                <span class="small font-weight-bold text-gray-600">@item.IDNhanVien_PhuCap</span>
+                            </div>
+
+                            <a href="@Url.Action("TongPhuCap", "PhuCap", new { id = item.IDNhanVien_PhuCap })" class="btn btn-sm btn-light text-primary font-weight-bold rounded-pill px-3" style="background: #F0F9FF;">
+                                Chi tiết <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -97,13 +273,28 @@
         }
         else
         {
-            <div class="col-12">
-                <div class="alert alert-light text-center border-0 shadow-sm py-5">
-                    <i class="fas fa-box-open fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500 mb-0 font-weight-bold">Chưa có dữ liệu phụ cấp nào.</p>
-                    <p class="small text-muted">Hãy nhấn nút "Thêm phụ cấp" để bắt đầu.</p>
+            <div class="col-12 text-center py-5">
+                <div class="d-inline-block p-4 rounded-circle bg-light mb-3">
+                    <i class="fas fa-box-open fa-3x text-gray-300"></i>
                 </div>
+                <h5 class="text-gray-500 font-weight-bold">Chưa có dữ liệu</h5>
+                <p class="text-muted">Hệ thống chưa ghi nhận khoản phụ cấp nào.</p>
+                <a href="@Url.Action("Create", "PhuCap")" class="btn btn-primary mt-2">Thêm mới ngay</a>
             </div>
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Live Search Script
+            $("#searchInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#allowanceGrid .search-item").filter(function () {
+                    $(this).toggle($(this).attr("data-search").toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

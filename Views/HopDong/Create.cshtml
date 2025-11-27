@@ -1,91 +1,85 @@
 ﻿@model QL_Luong_MVC.Models.HopDong
 @{
-    ViewBag.Title = "Tạo hợp đồng mới";
+    ViewBag.Title = "Soạn thảo hợp đồng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container-fluid py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card card-plus shadow-lg border-0">
-                <div class="card-header bg-gradient-primary text-white py-3">
-                    <h6 class="m-0 font-weight-bold"><i class="fas fa-pen-nib mr-2"></i>Soạn thảo hợp đồng</h6>
+<div class="container-fluid py-4 fade-in-content">
+    <div class="card shadow-lg border-0" style="border-radius: 16px;">
+        <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
+            <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center mr-3" style="width:40px;height:40px;">
+                <i class="fas fa-file-signature"></i>
+            </div>
+            <h5 class="m-0 font-weight-bold text-primary">Soạn thảo Hợp đồng Lao động</h5>
+        </div>
+        <div class="card-body p-5">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group mb-4">
+                    <label class="font-weight-bold text-dark">1. Chọn Nhân viên thụ hưởng <span class="text-danger">*</span></label>
+                    <select name="IDNhanVIen_HopDong" class="form-control form-control-lg bg-light border-0" required>
+                        <option value="">-- Tìm kiếm nhân viên --</option>
+                        @foreach (var nv in ViewBag.DSNhanVien)
+                        {
+                            <option value="@nv.IDNhanVien">@nv.FullNameNhanVien (MNV: @nv.IDNhanVien) - @nv.Email_NhanVien</option>
+                        }
+                    </select>
+                    <small class="text-muted">Chỉ hiển thị các nhân viên chưa có hợp đồng hiệu lực.</small>
                 </div>
-                <div class="card-body p-5">
 
-                    @if (ViewBag.ThongBao != null)
-                    {
-                        <div class="alert alert-warning border-left-warning shadow-sm" role="alert">
-                            <i class="fas fa-exclamation-triangle mr-2"></i> @ViewBag.ThongBao
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="font-weight-bold text-dark">2. Loại hợp đồng</label>
+                            <select name="Loai_HopDong" class="form-control bg-light border-0" id="loaiHD">
+                                <option value="Có thời hạn">Có thời hạn (12/24 tháng)</option>
+                                <option value="Không thời hạn">Không xác định thời hạn</option>
+                                <option value="Thử việc">Hợp đồng Thử việc</option>
+                            </select>
                         </div>
-                    }
-
-                    @using (Html.BeginForm())
-                    {
-                        @Html.AntiForgeryToken()
 
                         <div class="form-group mb-4">
-                            <label class="small font-weight-bold text-gray-600">Nhân viên thụ hưởng</label>
+                            <label class="font-weight-bold text-dark">3. Mức lương ký kết (VNĐ) <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-light border-0"><i class="fas fa-user"></i></span>
-                                </div>
-                                <select name="IDNhanVIen_HopDong" class="form-control bg-light border-0 shadow-inner h-auto py-2">
-                                    @foreach (var nv in ViewBag.DSNhanVien)
-                                    {
-                                        <option value="@nv.IDNhanVien">@nv.FullNameNhanVien (ID: @nv.IDNhanVien)</option>
-                                    }
-                                </select>
+                                <input type="number" name="LuongCoBan_HopDong" class="form-control bg-light border-0 font-weight-bold text-success" placeholder="VD: 15000000" required />
+                                <div class="input-group-append"><span class="input-group-text bg-light border-0">VNĐ</span></div>
                             </div>
                         </div>
+                    </div>
 
+                    <div class="col-md-6">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-6">
                                 <div class="form-group mb-4">
-                                    <label class="small font-weight-bold text-gray-600">Loại hợp đồng</label>
-                                    <select name="Loai_HopDong" class="form-control bg-light border-0 h-auto py-2">
-                                        <option value="Có thời hạn">Có thời hạn</option>
-                                        <option value="Không thời hạn">Không thời hạn</option>
-                                        <option value="Thử việc">Thử việc</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-4">
-                                    <label class="small font-weight-bold text-gray-600">Mức lương cơ bản (VNĐ)</label>
-                                    <input type="number" name="LuongCoBan_HopDong" class="form-control bg-light border-0" placeholder="Ví dụ: 10000000" required />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-4">
-                                    <label class="small font-weight-bold text-gray-600">Ngày bắt đầu</label>
+                                    <label class="font-weight-bold text-dark">Ngày bắt đầu <span class="text-danger">*</span></label>
                                     <input type="date" name="DayToStart" class="form-control bg-light border-0" required />
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-6">
                                 <div class="form-group mb-4">
-                                    <label class="small font-weight-bold text-gray-600">Ngày kết thúc (Nếu có)</label>
+                                    <label class="font-weight-bold text-dark">Ngày kết thúc</label>
                                     <input type="date" name="DayToEnd" class="form-control bg-light border-0" />
+                                    <small class="text-muted font-italic">Để trống nếu là Không thời hạn</small>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group mb-4">
-                            <label class="small font-weight-bold text-gray-600">Ghi chú thêm</label>
-                            <textarea name="Note_HopDong" class="form-control bg-light border-0" rows="3"></textarea>
+                            <label class="font-weight-bold text-dark">Ghi chú/Điều khoản thêm</label>
+                            <textarea name="Note_HopDong" class="form-control bg-light border-0" rows="2" placeholder="Ghi chú đặc biệt..."></textarea>
                         </div>
-
-                        <div class="text-right mt-5">
-                            <a href="@Url.Action("Index")" class="btn btn-link text-secondary mr-3">Hủy bỏ</a>
-                            <button type="submit" class="btn btn-accent px-5 shadow-sm">
-                                <i class="fas fa-save mr-2"></i> Lưu hợp đồng
-                            </button>
-                        </div>
-                    }
+                    </div>
                 </div>
-            </div>
+
+                <div class="text-right mt-4 pt-3 border-top">
+                    <a href="@Url.Action("Index")" class="btn btn-light text-secondary font-weight-bold mr-3">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill shadow-lg font-weight-bold">
+                        <i class="fas fa-check-circle mr-2"></i> Hoàn tất & Ký
+                    </button>
+                </div>
+            }
         </div>
     </div>
 </div>
