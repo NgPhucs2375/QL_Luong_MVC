@@ -1,9 +1,9 @@
 ﻿@model QL_Luong_MVC.Models.LuongCoban
 @{
     ViewBag.Title = "Thêm mức lương mới";
-    Layout = "~/Views/Shared/_Layout.cshtml";
     var dsCV = ViewBag.DSChucVu as List<QL_Luong_MVC.Models.ChucVu>;
 }
+
 
 <div class="container py-5" style="max-width:700px;">
     <div class="card shadow-lg border-0" style="border-radius: 15px; background-color: #ffffffcc; backdrop-filter: blur(6px);">
@@ -15,61 +15,43 @@
         <div class="card-body p-4">
             @using (Html.BeginForm("Create", "LuongCoBan", FormMethod.Post))
             {
-                <div class="mb-3">
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+                <div class="form-group mb-4">
                     <label class="form-label fw-bold">Chức vụ</label>
                     <select class="form-select" name="IDChucVu_LuongCB" required>
                         <option value="">-- Chọn chức vụ --</option>
-                        @foreach (var cv in dsCV)
+                        @if (dsCV != null)
                         {
-                            <option value="@cv.IDChucVu">@cv.NameChucVu</option>
+                            foreach (var cv in dsCV)
+                            {
+                                <option value="@cv.IDChucVu">@cv.NameChucVu</option>
+                            }
                         }
                     </select>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Mức lương (VNĐ)</label>
-                    @Html.TextBoxFor(m => m.MucLuong, new { @class = "form-control", @type = "number", @min = "0", @step = "1000", @placeholder = "Nhập mức lương..." })
+                <div class="form-group mb-4">
+                    <label class="small font-weight-bold text-secondary text-uppercase">Mức lương quy định</label>
+                    <div class="input-group">
+                        <input type="number" name="MucLuong" class="form-control bg-light border-0" min="0" step="1000" placeholder="VD: 5000000" required />
+                        <div class="input-group-append">
+                            <span class="input-group-text border-0 bg-light text-muted font-weight-bold">VNĐ</span>
+                        </div>
+                    </div>
+                    @Html.ValidationMessageFor(m => m.MucLuong, "", new { @class = "text-danger small mt-1" })
                 </div>
 
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary px-4">
-                        <i class="fas fa-arrow-left me-1"></i> Quay lại
+                <div class="d-flex justify-content-between align-items-center mt-5">
+                    <a href="@Url.Action("Index")" class="btn btn-link text-secondary pl-0">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
                     </a>
-                    <button type="submit" class="btn btn-gradient px-4 fw-bold">
-                        <i class="fas fa-save me-1"></i> Lưu
+                    <button type="submit" class="btn btn-accent px-4 shadow-sm">
+                        <i class="fas fa-save mr-2"></i> Lưu thiết lập
                     </button>
                 </div>
             }
         </div>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        body {
-            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
-            background-attachment: fixed;
-            font-family: "Segoe UI", sans-serif;
-        }
-
-        .btn-gradient {
-            background: linear-gradient(90deg, #7c4dff, #b388ff);
-            color: white;
-            border: none;
-            transition: 0.3s;
-        }
-
-        .btn-gradient:hover {
-            opacity: 0.9;
-        }
-
-        .card {
-            animation: fadeIn 0.4s ease-in-out;
-        }
-
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-}

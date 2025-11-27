@@ -1,0 +1,158 @@
+﻿@{
+    ViewBag.Title = "Xem giờ tăng ca";
+    int thang = ViewBag.Thang ?? DateTime.Now.Month;
+    int nam = ViewBag.Nam ?? DateTime.Now.Year;
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-business-time text-primary mr-2"></i>Tra cứu giờ tăng ca (UC8)
+    </h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        @* Hiển thị lỗi *@
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-exclamation-triangle mr-2"></i> @ViewBag.ErrorMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        <div class="card card-plus shadow mb-4 border-top-primary">
+            <div class="card-header py-3 bg-white border-bottom-0">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-filter"></i> Chọn thông tin tra cứu
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="get" action="@Url.Action("XemGioTangCa")">
+                    <div class="form-row align-items-end">
+                        <div class="form-group col-md-5">
+                            <label class="font-weight-bold text-gray-700 small">Nhân viên:</label>
+                            @Html.DropDownList("maNV", (SelectList)ViewBag.DanhSachNhanVien, "-- Chọn nhân viên --", new { @class = "form-control custom-select" })
+                        </div>
+
+                        <div class="form-group col-md-3">
+                            <label class="font-weight-bold text-gray-700 small">Tháng:</label>
+                            <select name="thang" class="form-control custom-select">
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i" @(i == thang ? "selected" : "")>Tháng @i</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-2">
+                            <label class="font-weight-bold text-gray-700 small">Năm:</label>
+                            <select name="nam" class="form-control custom-select">
+                                @for (int y = DateTime.Now.Year; y >= 2020; y--)
+                                {
+                                    <option value="@y" @(y == nam ? "selected" : "")>@y</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-2">
+                            <button type="submit" class="btn btn-primary btn-block shadow-sm">
+                                <i class="fas fa-search"></i> Xem
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (ViewBag.TongGioTangCa != null)
+        {
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-clipboard-check"></i> Kết quả: @ViewBag.TenNhanVien (Tháng @thang/@nam)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Tổng giờ tăng ca
+                                            </div>
+                                            <div class="h3 mb-0 font-weight-bold text-gray-800">
+                                                @ViewBag.TongGioTangCa <small class="text-muted" style="font-size: 0.6em">giờ</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Thành tiền dự kiến
+                                            </div>
+                                            <div class="h3 mb-0 font-weight-bold text-gray-800">
+                                                @string.Format("{0:N0}", ViewBag.TienTangCa) <small class="text-muted" style="font-size: 0.6em">VNĐ</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info bg-gray-100 border-0 text-dark small mb-0">
+                        <i class="fas fa-info-circle text-info mr-1"></i>
+                        <strong>Công thức:</strong> Tiền tăng ca = (Tổng giờ tăng ca) × <strong>50,000 VNĐ</strong>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (Request.QueryString["maNV"] != null)
+        {
+            <div class="text-center py-4">
+                <i class="fas fa-search-minus fa-3x text-gray-300 mb-3"></i>
+                <h6 class="text-gray-500">Không tìm thấy dữ liệu tăng ca phù hợp.</h6>
+            </div>
+        }
+
+        <div class="card shadow mb-4">
+            <a href="#collapseGuide" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                <h6 class="m-0 font-weight-bold text-secondary">
+                    <i class="fas fa-question-circle"></i> Quy trình tính toán
+                </h6>
+            </a>
+            <div class="collapse show" id="collapseGuide">
+                <div class="card-body">
+                    <p class="mb-2"><strong>Quy trình hệ thống xử lý (UC8):</strong></p>
+                    <ol class="text-sm text-gray-700 pl-3">
+                        <li class="mb-1">Tiếp nhận ID nhân viên và Tháng/Năm từ người dùng.</li>
+                        <li class="mb-1">Hệ thống gọi hàm SQL <code>fn_TongGioTangCa_Thang</code>.</li>
+                        <li class="mb-1">Hàm SQL quét toàn bộ bảng <code>ChamCong</code>, lọc theo nhân viên và tháng.</li>
+                        <li class="mb-1">Cộng dồn cột <code>GioTangCa</code> và trả về kết quả.</li>
+                        <li>Hiển thị kết quả lên màn hình và tính toán số tiền tương ứng.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

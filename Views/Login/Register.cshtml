@@ -1,41 +1,113 @@
-﻿<form method="post" action="/Login/Register" class="p-3 rounded shadow-sm">
-    <div class="mb-3">
-        <label class="form-label fw-semibold">Tên đăng nhập</label>
-        <input type="text" name="TenDangNhap" class="form-control" required />
-    </div>
+﻿@{
+    ViewBag.Title = "Đăng ký tài khoản";
+}
 
-    <div class="mb-3">
-        <label class="form-label fw-semibold">Mật khẩu</label>
-        <input type="password" name="MatKhau" class="form-control" required />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label fw-semibold">Mã nhân viên</label>
-        <input type="number" name="MaNV" class="form-control" required />
-    </div>
-
-    <div class="d-flex justify-content-between">
-        <!-- Nút đăng ký -->
-        <button type="submit" class="btn w-50 me-2"
-                style="background-color:#007bff; color:white; border:none;">
-            Đăng ký
-        </button>
-
-        <!-- Nút đăng nhập -->
-        <a href="@Url.Action("Login", "Login")"
-           class="btn w-50"
-           style="background-color:#28a745; color:white; border:none; text-align:center;">
-            Bạn đã có tài khoản? Đăng nhập
-        </a>
-    </div>
-
-    @if (ViewBag.Error != null)
-    {
-        <p class="text-danger mt-3">@ViewBag.Error</p>
+<style>
+    /* CSS Tùy chỉnh cho Register View (Tái sử dụng style Login) */
+    .register-container {
+        /* Nền chính là màu tím siêu nhạt (var(--color-main-bg)) */
+        background: var(--color-main-bg) !important;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    @if (ViewBag.Success != null)
-    {
-        <p class="text-success mt-3">@ViewBag.Success</p>
+    .register-card {
+        /* Nền Card theo kiểu Kính mờ của theme (30%) */
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        border-radius: 20px !important;
+        box-shadow: 0 8px 30px rgba(106, 13, 173, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        padding: 40px;
     }
-</form>
+
+    /* Tiêu đề màu Tím đậm */
+    .register-title {
+        color: var(--color-text-dark-purple); /* #4B0082 */
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+
+    /* Nút Đăng ký (Màu nhấn 10% - Vàng Cam) */
+    .btn-register-accent {
+        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
+        border-color: var(--color-accent) !important;
+        color: var(--color-text-dark-purple) !important;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+        .btn-register-accent:hover {
+            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
+            border-color: var(--color-accent-hover) !important;
+            transform: translateY(-2px);
+        }
+
+    /* Nút Đăng nhập (Màu Tím đậm/Thứ cấp) */
+    .btn-login-secondary {
+        background-color: #6A0DAD !important; /* Tím đậm */
+        color: white !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn-login-secondary:hover {
+            background-color: #7B68EE !important; /* Tím nhạt hơn khi hover */
+            transform: translateY(-2px);
+        }
+</style>
+
+<div class="register-container">
+    <div class="card register-card" style="width: 420px;">
+
+        <h3 class="text-center mb-5 register-title">
+            <i class="fas fa-user-plus mr-2"></i> Đăng ký Tài khoản
+        </h3>
+
+        <form method="post" action="/Login/Register">
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);"><i class="fas fa-user-tag mr-2"></i> Tên đăng nhập</label>
+                <input type="text" name="TenDangNhap" class="form-control" placeholder="Tên đăng nhập (Email)" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);"><i class="fas fa-lock mr-2"></i> Mật khẩu</label>
+                <input type="password" name="MatKhau" class="form-control" placeholder="Mật khẩu" required />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold" style="color: var(--color-text-dark-purple);"><i class="fas fa-id-badge mr-2"></i> Mã nhân viên</label>
+                <input type="number" name="MaNV" class="form-control" placeholder="Mã NV của bạn" required />
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+
+                <button type="submit" class="btn btn-register-accent w-50 me-2">
+                    <i class="fas fa-user-plus"></i> Đăng ký
+                </button>
+
+                <a href="@Url.Action("Login", "Login")"
+                   class="btn btn-login-secondary w-50">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                </a>
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger mt-3 text-center" style="background-color: #f4f1fa; color: #DC3545; border-radius: 8px; border: 1px solid #DC3545;">
+                    <i class="fas fa-times-circle mr-2"></i> @ViewBag.Error
+                </div>
+            }
+
+            @if (ViewBag.Success != null)
+            {
+                <div class="alert alert-success mt-3 text-center" style="background-color: #f4f1fa; color: #198754; border-radius: 8px; border: 1px solid #198754;">
+                    <i class="fas fa-check-circle mr-2"></i> @ViewBag.Success
+                </div>
+            }
+        </form>
+    </div>
+</div>

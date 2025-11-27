@@ -123,8 +123,11 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Collections.Immutable.10.0.0\lib\net462\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Composition.AttributedModel, Version=1.0.31.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -189,7 +192,13 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Reflection, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Reflection.4.3.0\lib\net462\System.Reflection.dll</HintPath>
       <Private>True</Private>
@@ -202,6 +211,9 @@
       <HintPath>packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Extensions, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Runtime.Extensions.4.3.0\lib\net462\System.Runtime.Extensions.dll</HintPath>
@@ -315,12 +327,24 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\BangLuongController.cs" />
+    <Compile Include="Controllers\ChamCongController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HopDongController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\LuongCoBanController.cs" />
     <Compile Include="Controllers\NhanVienController.cs" />
     <Compile Include="Controllers\PhuCapController.cs" />
+    <Compile Include="DAO\BangChamCongDAO.cs" />
+    <Compile Include="DAO\BangLuongDAO.cs" />
+    <Compile Include="DAO\BaseDAO.cs" />
+    <Compile Include="DAO\ChucVuDAO.cs" />
+    <Compile Include="DAO\HopDongDAO.cs" />
+    <Compile Include="DAO\LuongCoBanDAO.cs" />
+    <Compile Include="DAO\NhanVienDAO.cs" />
+    <Compile Include="DAO\PhongBanDAO.cs" />
+    <Compile Include="DAO\PhuCapDAO.cs" />
+    <Compile Include="DAO\TaiKhoanDAO.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -338,6 +362,7 @@
     <Compile Include="Models\TaiKhoan.cs" />
     <Compile Include="Models\ThuongPhat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\BaoCaoLuongViewModel.cs" />
     <Compile Include="ViewModel\DashBoardViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -2242,13 +2267,12 @@
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
-    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\_LayoutAdmin.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\HopDong\Create.cshtml" />
     <Content Include="Views\HopDong\Index.cshtml" />
-    <Content Include="Views\Login\InfoNV.cshtml" />
     <Content Include="Views\Login\Login.cshtml" />
     <Content Include="Views\Login\Register.cshtml" />
     <Content Include="Views\LuongCoBan\Create.cshtml" />
@@ -2261,18 +2285,26 @@
     <Content Include="Views\Admin\QuanLyTaiKhoan.cshtml" />
     <Content Include="Views\Login\Login.cshtml" />
     <Content Include="Views\Login\Register.cshtml" />
-    <Content Include="Views\Login\InfoNV.cshtml" />
     <Content Include="Views\NhanVien\InfoNV.cshtml" />
     <Content Include="Views\NhanVien\DanhSachNV.cshtml" />
     <Content Include="Views\NhanVien\ThemNV.cshtml" />
     <Content Include="Views\NhanVien\SuaNV.cshtml" />
     <Content Include="Views\NhanVien\XoaNV.cshtml" />
-    <Content Include="Views\NhanVien\DanhSachPB.cshtml" />
     <Content Include="Views\NhanVien\ThemPB.cshtml" />
     <Content Include="Views\NhanVien\SuaPB.cshtml" />
     <Content Include="Views\NhanVien\XoaPB.cshtml" />
     <Content Include="Views\NhanVien\ChiTietNV.cshtml" />
     <Content Include="Views\LuongCoBan\Delete.cshtml" />
+    <Content Include="Views\NhanVien\DanhSachPB.cshtml" />
+    <Content Include="Views\Login\InfoNV.cshtml" />
+    <Content Include="Views\Shared\_LayoutNhanVien.cshtml" />
+    <Content Include="Views\BangLuong\BaoCao.cshtml" />
+    <Content Include="Views\BangLuong\Index.cshtml" />
+    <Content Include="Views\BangLuong\TinhLuong.cshtml" />
+    <Content Include="Views\ChamCong\Create.cshtml" />
+    <Content Include="Views\ChamCong\Edit.cshtml" />
+    <Content Include="Views\ChamCong\Index.cshtml" />
+    <Content Include="Views\ChamCong\XemGioTangCa.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

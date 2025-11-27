@@ -1,83 +1,47 @@
 ﻿@model QL_Luong_MVC.Models.LuongCoban
-
 @{
-    ViewBag.Title = "Xóa mức lương cơ bản";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Xóa mức lương";
 }
 
-<div class="container py-5" style="max-width:700px;">
-    <div class="card shadow-lg border-0" style="border-radius: 15px; background-color: #ffffffcc; backdrop-filter: blur(6px);">
-        <div class="card-header text-white"
-             style="background: linear-gradient(90deg, #7c4dff, #b388ff); border-radius:15px 15px 0 0;">
-            <h4 class="mb-0"><i class="fas fa-trash-alt me-2"></i>Xóa mức lương cơ bản</h4>
-        </div>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card card-plus shadow border-left-danger">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <div class="icon-circle bg-danger text-white mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <h4 class="font-weight-bold text-gray-800">Xác nhận xóa?</h4>
+                        <p class="text-muted">
+                            Bạn đang thực hiện xóa mức lương cơ bản của chức vụ có mã <strong>@Model.IDChucVu_LuongCB</strong>.
+                            <br>Hành động này không thể hoàn tác.
+                        </p>
+                    </div>
 
-        <div class="card-body p-4">
-            <p class="text-danger fw-bold mb-4">
-                <i class="fas fa-exclamation-triangle me-2"></i>Bạn có chắc chắn muốn xóa bản ghi này không?
-            </p>
+                    <div class="bg-light p-3 rounded mb-4 text-left">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gray-600 small font-weight-bold">Mã lương:</span>
+                            <span class="text-dark font-weight-bold">#@Model.IDLuongCoBan</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-gray-600 small font-weight-bold">Mức lương:</span>
+                            <span class="text-danger font-weight-bold">@Model.MucLuong.ToString("N0") ₫</span>
+                        </div>
+                    </div>
 
-            <dl class="row">
-                <dt class="col-sm-4">Mã lương:</dt>
-                <dd class="col-sm-8">@Model.IDLuongCoBan</dd>
-
-                <dt class="col-sm-4">Chức vụ:</dt>
-                <dd class="col-sm-8">@Model.IDChucVu_LuongCB</dd>
-
-                <dt class="col-sm-4">Mức lương (VNĐ):</dt>
-                <dd class="col-sm-8">@Model.MucLuong.ToString("N0")</dd>
-            </dl>
-
-            @using (Html.BeginForm("DeleteConfirmed", "LuongCoBan", new { id = Model.IDLuongCoBan }, FormMethod.Post))
-            {
-                @Html.AntiForgeryToken()
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="@Url.Action("Index", "LuongCoBan")" class="btn btn-outline-secondary px-4">
-                        <i class="fas fa-arrow-left me-1"></i> Quay lại
-                    </a>
-                    <button type="submit" class="btn btn-gradient px-4 fw-bold">
-                        <i class="fas fa-trash-alt me-1"></i> Xóa ngay
-                    </button>
+                    @using (Html.BeginForm("DeleteConfirmed", "LuongCoBan", new { id = Model.IDLuongCoBan }, FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="d-flex justify-content-center">
+                            <a href="@Url.Action("Index")" class="btn btn-light text-secondary font-weight-bold mr-3 px-4">Hủy</a>
+                            <button type="submit" class="btn btn-danger px-4 shadow-sm font-weight-bold">
+                                Xác nhận xóa
+                            </button>
+                        </div>
+                    }
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        body {
-            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
-            background-attachment: fixed;
-            font-family: "Segoe UI", sans-serif;
-        }
-
-        .btn-gradient {
-            background: linear-gradient(90deg, #d32f2f, #ef5350);
-            color: white;
-            border: none;
-            transition: 0.3s;
-        }
-
-            .btn-gradient:hover {
-                opacity: 0.9;
-                transform: translateY(-2px);
-            }
-
-        .card {
-            animation: fadeIn 0.4s ease-in-out;
-        }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-}

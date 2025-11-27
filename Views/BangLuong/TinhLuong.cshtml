@@ -1,0 +1,152 @@
+﻿@{
+    ViewBag.Title = "Tính lương tháng";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-calculator text-primary mr-2"></i>Tính bảng lương (UC13)
+    </h1>
+</div>
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6 col-md-8 mb-4">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle fa-2x mr-3"></i>
+                    <div>
+                        <strong>Thành công!</strong><br />
+                        @TempData["SuccessMessage"]
+                    </div>
+                </div>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mr-3"></i>
+                    <div>
+                        <strong>Đã xảy ra lỗi!</strong><br />
+                        @ViewBag.ErrorMessage
+                    </div>
+                </div>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        <div class="card card-plus shadow mb-4 border-top-primary">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-cog"></i> Thiết lập kỳ lương
+                </h6>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("TinhLuong", "BangLuong", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold text-gray-700">
+                                Tháng <span class="text-danger">*</span>
+                            </label>
+                            <select name="thang" class="form-control custom-select" required>
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i" @(i == (int)ViewBag.ThangMacDinh ? "selected" : "")>
+                                        Tháng @i
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold text-gray-700">
+                                Năm <span class="text-danger">*</span>
+                            </label>
+                            <select name="nam" class="form-control custom-select" required>
+                                @for (int y = DateTime.Now.Year; y >= 2020; y--)
+                                {
+                                    <option value="@y" @(y == (int)ViewBag.NamMacDinh ? "selected" : "")>
+                                        @y
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning border-left-warning bg-warning-light text-dark small mb-4">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        <strong>Lưu ý:</strong> Dữ liệu lương cũ của tháng này (nếu có) sẽ bị xóa và tính lại hoàn toàn.
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-arrow-left"></i>
+                            </span>
+                            <span class="text">Quay lại</span>
+                        </a>
+
+                        <button type="submit" class="btn btn-accent btn-lg shadow-sm" onclick="return confirm('XÁC NHẬN: Bạn có chắc chắn muốn tính lương cho kỳ này không? Dữ liệu cũ sẽ bị ghi đè.')">
+                            <i class="fas fa-calculator mr-2"></i> Tính lương ngay
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5 col-md-8 mb-4">
+        <div class="card card-plus shadow border-left-info h-100">
+            <div class="card-header py-3 bg-white border-bottom-0">
+                <h6 class="m-0 font-weight-bold text-info">
+                    <i class="fas fa-info-circle"></i> Quy trình & Công thức
+                </h6>
+            </div>
+            <div class="card-body pt-0">
+                <div class="mb-4">
+                    <p class="mb-2 font-weight-bold text-gray-800">Các bước xử lý hệ thống:</p>
+                    <ul class="list-unstyled text-sm ml-2">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success mr-2"></i>Gọi SP <code>sp_TinhBangLuong_Thang</code>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-trash-alt text-danger mr-2"></i>Xóa sạch dữ liệu lương cũ của tháng chọn.
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-sync-alt text-primary mr-2"></i>Tổng hợp công, phụ cấp, thưởng phạt mới nhất.
+                        </li>
+                        <li>
+                            <i class="fas fa-file-invoice-dollar text-warning mr-2"></i>Lưu kết quả vào bảng <code>BangLuong</code>.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="p-3 bg-gray-100 rounded border-left-primary">
+                    <h6 class="font-weight-bold text-primary mb-2">Công thức lương:</h6>
+                    <code class="d-block text-dark mb-2 font-weight-bold" style="font-size: 1.1em;">
+                        Thực nhận = Lương CB + Phụ cấp + (Thưởng - Phạt) + (Giờ TC × 50,000)
+                    </code>
+                    <hr class="my-2 border-gray-300" />
+                    <small class="text-muted d-block">
+                        * <strong>Lương CB:</strong> Theo Hợp đồng hoặc Chức vụ.<br />
+                        * <strong>Giờ TC:</strong> Lấy từ hàm <code>fn_TongGioTangCa_Thang</code>.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

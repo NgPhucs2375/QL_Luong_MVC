@@ -1,89 +1,58 @@
-﻿@{
+﻿@model QL_Luong_MVC.Models.PhuCap
+@{
     ViewBag.Title = "Thêm phụ cấp";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@model QL_Luong_MVC.Models.PhuCap
-
-<div class="container py-5" style="min-height:100vh;">
-    <div class="card shadow-lg border-0 mx-auto" style="max-width:600px; border-radius:20px; background-color:#ffffffcc; backdrop-filter:blur(8px);">
-        <div class="card-header text-center"
-             style="background:linear-gradient(90deg,#7e57c2,#b388ff); color:white; border-radius:20px 20px 0 0;">
-            <h4 class="mb-0"><i class="fas fa-hand-holding-usd me-2"></i>Thêm phụ cấp mới</h4>
-        </div>
-
-        <div class="card-body px-5 py-4">
-            <form method="post">
-                <div class="form-group mb-3">
-                    <label class="fw-semibold">Nhân viên</label>
-                    <select name="IDNhanVien_PhuCap" class="form-control shadow-sm" required>
-                        @foreach (var nv in ViewBag.DSNhanVien)
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-plus shadow-sm">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                    <h5 class="font-weight-bold text-gray-800">Cấp phát phụ cấp</h5>
+                </div>
+                <div class="card-body p-4">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        if (ViewBag.ThongBao != null)
                         {
-                            <option value="@nv.IDNhanVien">@nv.FullNameNhanVien</option>
+                            <div class="alert alert-info">@ViewBag.ThongBao</div>
                         }
-                    </select>
-                </div>
 
-                <div class="form-group mb-3">
-                    <label class="fw-semibold">Loại phụ cấp</label>
-                    <input type="text" name="Loai_PhuCap" class="form-control shadow-sm" placeholder="Ví dụ: Xăng xe, Ăn trưa..." required />
-                </div>
+                        <div class="form-group">
+                            <label class="font-weight-bold">Nhân viên</label>
+                            <select name="IDNhanVien_PhuCap" class="form-control bg-light border-0">
+                                @foreach (var nv in ViewBag.DSNhanVien)
+                                {
+                                    <option value="@nv.IDNhanVien">@nv.FullNameNhanVien - @nv.IDNhanVien</option>
+                                }
+                            </select>
+                        </div>
 
-                <div class="form-group mb-4">
-                    <label class="fw-semibold">Số tiền (VNĐ)</label>
-                    <input type="number" name="SoTien_PhuCap" step="1000" class="form-control shadow-sm" placeholder="Nhập số tiền..." required />
-                </div>
+                        <div class="form-group">
+                            <label class="font-weight-bold">Loại phụ cấp</label>
+                            <input type="text" name="Loai_PhuCap" class="form-control bg-light border-0" placeholder="VD: Xăng xe, Ăn trưa..." required />
+                        </div>
 
-                <div class="text-center">
-                    <button type="submit" class="btn btn-gradient px-4">
-                        <i class="fas fa-save me-2"></i>Lưu phụ cấp
-                    </button>
-                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary px-4 ms-2">Hủy</a>
+                        <div class="form-group">
+                            <label class="font-weight-bold">Số tiền</label>
+                            <div class="input-group">
+                                <input type="number" name="SoTien_PhuCap" class="form-control bg-light border-0" required />
+                                <div class="input-group-append">
+                                    <span class="input-group-text border-0 bg-light">VNĐ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-accent btn-block mt-4">
+                            Xác nhận thêm
+                        </button>
+                        <div class="text-center mt-3">
+                            <a href="@Url.Action("Index")" class="small text-secondary">Quay lại danh sách</a>
+                        </div>
+                    }
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        body {
-            background: linear-gradient(135deg, #ede7f6, #d1c4e9, #c5cae9);
-            background-attachment: fixed;
-            font-family: "Segoe UI", sans-serif;
-        }
-
-        .btn-gradient {
-            background: linear-gradient(90deg, #7c4dff, #b388ff);
-            border: none;
-            color: white;
-            font-weight: 500;
-            transition: 0.3s;
-            border-radius: 8px;
-        }
-
-        .btn-gradient:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .form-control {
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-
-        .form-control:focus {
-            border-color: #a678e3;
-            box-shadow: 0 0 0 0.25rem rgba(166, 120, 227, 0.25);
-        }
-
-        .card {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-}

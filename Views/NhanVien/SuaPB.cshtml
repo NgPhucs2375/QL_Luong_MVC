@@ -1,24 +1,108 @@
 ﻿@model QL_Luong_MVC.Models.PhongBan
 @{
     ViewBag.Title = "Sửa Phòng Ban";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2 class="text-center mb-4">✏️ Sửa Phòng Ban</h2>
+<style>
+    /* CSS Tùy chỉnh cho Edit Form (Đồng bộ với các View sửa khác) */
+    .edit-card {
+        /* Kế thừa từ theme glassmorphism */
+        border: none;
+        padding: 2.5rem;
+        border-radius: 18px;
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(106, 13, 173, 0.15);
+    }
 
-@using (Html.BeginForm())
-{
-    @Html.HiddenFor(m => m.IDPhongBan)
+    .edit-header {
+        color: var(--color-text-dark-purple);
+        font-weight: 700;
+        border-bottom: 3px solid rgba(106, 13, 173, 0.2);
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }
 
-    <div class="form-group mb-3">
-        @Html.LabelFor(m => m.NamePhongBan)
-        @Html.TextBoxFor(m => m.NamePhongBan, new { @class = "form-control", placeholder = "Tên phòng ban" })
+    /* Label và Input */
+    .form-group label {
+        color: #6A0DAD; /* Tím đậm cho label */
+        font-weight: 700 !important;
+        margin-bottom: 0.3rem;
+    }
+
+    .form-control-themed {
+        border-radius: 8px;
+        border: 1px solid rgba(106, 13, 173, 0.3); /* Viền tím mờ */
+        transition: 0.2s;
+    }
+
+        .form-control-themed:focus {
+            border-color: #7B68EE;
+            box-shadow: 0 0 5px rgba(155, 120, 255, 0.5);
+        }
+
+    /* Nút Cập nhật (Primary Action - Vàng Nhấn 10%) */
+    .btn-save-accent {
+        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
+        border-color: var(--color-accent) !important;
+        color: var(--color-text-dark-purple) !important; /* Chữ Tím đậm */
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+        .btn-save-accent:hover {
+            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
+            border-color: var(--color-accent-hover) !important;
+            transform: translateY(-2px);
+        }
+
+    /* Nút Hủy (Secondary Action - Tím) */
+    .btn-cancel-secondary {
+        background-color: #9370DB !important; /* Tím trung bình */
+        color: white !important;
+        border-color: #9370DB !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn-cancel-secondary:hover {
+            background-color: #7B68EE !important;
+        }
+</style>
+
+<div class="container-fluid py-5">
+
+    <h2 class="text-center mb-5 edit-header">
+        <i class="fas fa-edit mr-2"></i> Sửa Phòng Ban
+    </h2>
+
+    <div class="card edit-card shadow-lg mx-auto" style="max-width: 600px;">
+
+        @using (Html.BeginForm("SuaPB", "NhanVien", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.IDPhongBan)
+
+            <div class="form-group mb-4">
+                <i class="fas fa-tag me-2"></i> @Html.LabelFor(m => m.NamePhongBan)
+                @Html.TextBoxFor(m => m.NamePhongBan, new { @class = "form-control form-control-themed", placeholder = "Tên phòng ban" })
+                @Html.ValidationMessageFor(m => m.NamePhongBan, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group mb-4">
+                <i class="fas fa-calendar-alt me-2"></i> @Html.LabelFor(m => m.DateOf_Establishment)
+                @Html.TextBoxFor(m => m.DateOf_Establishment, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control form-control-themed" })
+                @Html.ValidationMessageFor(m => m.DateOf_Establishment, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="d-flex justify-content-center pt-4 border-top">
+                <button type="submit" class="btn btn-save-accent btn-lg px-5">
+                    <i class="fas fa-save me-2"></i> Cập nhật
+                </button>
+                <a href="@Url.Action("DanhSachPB")" class="btn btn-cancel-secondary btn-lg px-5 ms-3">
+                    <i class="fas fa-times me-2"></i> Hủy
+                </a>
+            </div>
+        }
     </div>
-    <div class="form-group mb-3">
-        @Html.LabelFor(m => m.DateOf_Establishment)
-        @Html.TextBoxFor(m => m.DateOf_Establishment, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control" })
-    </div>
-
-    <button type="submit" class="btn btn-primary">Cập nhật</button>
-    <a href="@Url.Action("DanhSachPB")" class="btn btn-secondary">Hủy</a>
-}
+</div>

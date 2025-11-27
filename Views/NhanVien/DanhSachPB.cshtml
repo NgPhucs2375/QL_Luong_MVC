@@ -1,40 +1,135 @@
-@model List<QL_Luong_MVC.Models.PhongBan>
+﻿@model List<QL_Luong_MVC.Models.PhongBan>
 @{
     ViewBag.Title = "Danh Sách Phòng Ban";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+
 }
 
-<h2 class="text-center mb-4">📋 Danh Sách Phòng Ban</h2>
+<style>
+    /* CSS Tùy chỉnh (Giữ nguyên các định nghĩa để đảm bảo các nút hiển thị đúng) */
 
-@if (TempData["ThongBao"] != null)
-{
-    <div class="alert alert-info">@TempData["ThongBao"]</div>
-}
+    .theme-card {
+        border: none;
+        padding: 1.5rem;
+        border-radius: 15px;
+        /* Kính Mờ: Lấy từ Layout gốc */
+        background-color: var(--color-content-bg) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(106, 13, 173, 0.15);
+    }
 
-<table class="table table-bordered table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>Mã PB</th>
-            <th>Tên Phòng Ban</th>
-            <th>Ngày Thành Lập</th>
-            <th>Hành Động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var pb in Model)
-        {
-            <tr>
-                <td>@pb.IDPhongBan</td>
-                <td>@pb.NamePhongBan</td>
-                <td>@pb.DateOf_Establishment.ToString("dd/MM/yyyy")</td>
-                <td>
-                    <a href="@Url.Action("ChiTietNV", "NhanVien", new { id = pb.IDPhongBan })" class="btn btn-info btn-sm">Xem NV</a>
-                    <a href="@Url.Action("SuaPB", "NhanVien", new { id = pb.IDPhongBan })" class="btn btn-warning btn-sm">Sửa</a>
-                    <a href="@Url.Action("XoaPB", "NhanVien", new { id = pb.IDPhongBan })" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa phòng ban này không?');">Xóa</a>
-                </td>
-            </tr>
+    /* Header Bảng Tím đậm */
+    .table-purple-head {
+        background-color: #6A0DAD !important; /* Tím đậm (30%) */
+        color: white;
+    }
+
+    /* Hover Bảng Tím nhạt */
+    .table-hover tbody tr:hover {
+        background-color: rgba(106, 13, 173, 0.1) !important;
+    }
+
+    /* Nút Thêm PB (Vàng/Cam Nhấn - Primary Action) */
+    .btn-add-primary {
+        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
+        border-color: var(--color-accent) !important;
+        color: var(--color-text-dark-purple) !important;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+        .btn-add-primary:hover {
+            background-color: var(--color-accent-hover) !important; /* Cam #FFB74D */
+            border-color: var(--color-accent-hover) !important;
+            transform: translateY(-2px);
         }
-    </tbody>
-</table>
 
-<a href="@Url.Action("ThemPB", "NhanVien")" class="btn btn-success mt-3">➕ Thêm Phòng Ban</a>
+    /* Nút Xem NV (Tím trung bình - Secondary Action) */
+    .btn-view-secondary {
+        background-color: #9370DB !important; /* Tím trung bình */
+        color: white !important;
+        border-color: #9370DB !important;
+        transition: all 0.2s ease;
+    }
+
+    /* Nút Sửa (Vàng Nhấn) */
+    .btn-edit-accent {
+        background-color: var(--color-accent) !important; /* Vàng #FFC107 */
+        border-color: var(--color-accent) !important;
+        color: var(--color-text-dark-purple) !important;
+        font-weight: 600;
+    }
+
+    /* Nút Xóa (Đỏ Cảnh báo) */
+    .btn-delete-danger-themed {
+        background-color: #DC3545 !important;
+        color: white !important;
+        border-color: #DC3545 !important;
+    }
+
+    /* Alert Tím nhạt */
+    .alert-themed-info {
+        background-color: #e3e0f9 !important; /* Tím siêu nhạt */
+        color: #4a148c !important; /* Tím đậm */
+        border: 1px solid #cbb2ff !important;
+        font-weight: 600;
+        border-radius: 10px;
+    }
+</style>
+
+<div class="container-fluid">
+    <h2 class="text-center mb-4" style="color: var(--color-text-dark-purple); font-weight: 700;">
+        <i class="fas fa-building mr-2"></i> Danh Sách Phòng Ban
+    </h2>
+
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-themed-info">
+            <i class="fas fa-check-circle me-2"></i> @TempData["ThongBao"]
+        </div>
+    }
+
+    <a href="@Url.Action("ThemPB", "NhanVien")" class="btn btn-add-primary mt-3 mb-4 shadow-sm">
+        <i class="fas fa-plus-circle me-1"></i> Thêm Phòng Ban
+    </a>
+
+    <div class="card theme-card mb-4">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-purple-head">
+                    <tr>
+                        <th>Mã PB</th>
+                        <th>Tên Phòng Ban</th>
+                        <th>Ngày Thành Lập</th>
+                        <th style="width: 250px;">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pb in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span style="font-weight: 600; color: #6A0DAD;">@pb.IDPhongBan</span>
+                            </td>
+                            <td>@pb.NamePhongBan</td>
+                            <td>@pb.DateOf_Establishment.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a href="@Url.Action("ChiTietNV", "NhanVien", new { id = pb.IDPhongBan })" class="btn btn-view-secondary btn-sm" title="Xem danh sách nhân viên">
+                                    <i class="fas fa-users"></i> Xem NV
+                                </a>
+                                <a href="@Url.Action("SuaPB", "NhanVien", new { id = pb.IDPhongBan })" class="btn btn-edit-accent btn-sm" title="Sửa tên phòng ban">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <a href="@Url.Action("XoaPB", "NhanVien", new { id = pb.IDPhongBan })"
+                                   class="btn btn-delete-danger-themed btn-sm"
+                                   title="Xóa phòng ban"
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa phòng ban @pb.NamePhongBan không?');">
+                                    <i class="fas fa-trash-alt"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
