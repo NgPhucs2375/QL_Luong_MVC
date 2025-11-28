@@ -1,6 +1,9 @@
 ﻿using QL_Luong_MVC.DAO;
 using QL_Luong_MVC.Models;
 using System.Web.Mvc;
+using System.Data;
+using System.Data.SqlClient;
+
 
 namespace QL_Luong_MVC.Controllers
 {
@@ -21,58 +24,86 @@ namespace QL_Luong_MVC.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(LuongCoban luong)
+        public ActionResult Create(LuongCoban luongCoBan)
         {
             if (ModelState.IsValid)
             {
-                var result = luongDao.ExecuteAction("Thêm", luong);
-                if (result.Success) return RedirectToAction("Index");
-                ModelState.AddModelError("", result.Message);
+
+                string sql = "Insert into LuongCoban (MaCV, MucLuong) VALUES(@MaCV, @MucLuong)" ;
+                using (SqlConnection con = new SqlConnection("Data Source=admindA;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;"))
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("@MaCV", luongCoBan.IDChucVu_LuongCB);
+                    cmd.Parameters.AddWithValue("@MucLuong", luongCoBan.MucLuong);
+                    cmd.ExecuteNonQuery();
+                }
+                return RedirectToAction("Index");
             }
             ViewBag.DSChucVu = cvDao.GetAll();
-            return View(luong);
+            return View(luongCoBan);
         }
 
         public ActionResult Edit(int? id)
         {
             if (id == null) return HttpNotFound();
-            var luong = luongDao.GetById(id.Value);
-            if (luong == null) return HttpNotFound();
+            var luongCoBan = luongDao.GetById(id.Value);
+            if (luongCoBan == null) return HttpNotFound();
 
             ViewBag.DSChucVu = cvDao.GetAll();
-            return View(luong);
+            return View(luongCoBan);
         }
 
         [HttpPost]
-        public ActionResult Edit(LuongCoban luong)
+        public ActionResult Edit(LuongCoban luongCoBan)
         {
             if (ModelState.IsValid)
             {
-                var result = luongDao.ExecuteAction("Sửa", luong);
-                if (result.Success) return RedirectToAction("Index");
-                ModelState.AddModelError("", result.Message);
+
+                string sql = "UPDATE LuongCoBan SET MaCV=@MaCV, MucLuong=@MucLuong WHERE MaLCB=@MaLCB";
+                using (SqlConnection con = new SqlConnection("Data Source=admindA;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;"))
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("@MaLCB", luongCoBan.IDLuongCoBan);
+                    cmd.Parameters.AddWithValue("@MaCV", luongCoBan.IDChucVu_LuongCB);
+                    cmd.Parameters.AddWithValue("@MucLuong", luongCoBan.MucLuong);
+                    cmd.ExecuteNonQuery();
+                }
+                return RedirectToAction("Index");
             }
             ViewBag.DSChucVu = cvDao.GetAll();
-            return View(luong);
+            return View(luongCoBan);
         }
 
+        // GET: Xóa
         public ActionResult Delete(int id)
         {
-            var luong = luongDao.GetById(id);
-            if (luong == null) return HttpNotFound();
-            return View(luong);
+            string sql = "DELETE FROM LuongCoban WHERE MaLCB = @MaLCB";
+            using (SqlConnection con = new SqlConnection("Data Source=admindA;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;"))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@MaLCB", id);
+                cmd.ExecuteNonQuery();
+            }
+            return RedirectToAction("Index");
         }
+
+        //public ActionResult Delete(int id)
+        //{
+        //    var luongCoBan = luongDao.GetById(id);
+        //    if (luongCoBan == null) return HttpNotFound();
+        //    return View(luongCoBan);
+        //}
 
         [HttpPost, ActionName("DeleteConfirmed")]
         public ActionResult DeleteConfirmed(int id)
         {
-            // Tạo object tạm chỉ cần ID và MaCV để xóa
-            // Lưu ý: SP yêu cầu MaCV, nhưng logic xóa thường theo ID.
-            // Ở đây ta cần lấy MaCV từ ID trước để truyền vào SP vì SP xóa theo MaCV
-            var luong = luongDao.GetById(id);
-            if (luong != null)
+            var luongCoBan = luongDao.GetById(id);
+            if (luongCoBan != null)
             {
-                luongDao.ExecuteAction("Xóa", luong);
+                luongDao.ExecuteAction("Xóa", luongCoBan);
             }
             return RedirectToAction("Index");
         }

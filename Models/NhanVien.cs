@@ -18,6 +18,7 @@ namespace QL_Luong_MVC.Models
         public string State_NhanVien { get; set; }
         public int IDCV_NhanVien { get; set; }
         public int IDPB_NhanVien { get; set; }
+        public decimal LuongHienTai { get; set; }
 
     }
 }

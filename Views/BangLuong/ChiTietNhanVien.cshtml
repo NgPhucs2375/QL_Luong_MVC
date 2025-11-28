@@ -1,0 +1,52 @@
+﻿
+@model List<QL_Luong_MVC.Models.BangLuong>
+@{
+    ViewBag.Title = "Lịch sử Lương";
+    Layout = "~/Views/Shared/_LayoutNhanVien.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 bg-white border-bottom-0">
+        <h6 class="m-0 font-weight-bold" style="color: #722F37;">Danh sách phiếu lương đã nhận</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead style="background-color: #722F37; color: white;">
+                    <tr>
+                        <th>Tháng/Năm</th>
+                        <th class="text-right">Lương Cơ bản</th>
+                        <th class="text-right">Phụ cấp</th>
+                        <th class="text-right">Tăng ca</th>
+                        <th class="text-right">Thưởng/Phạt</th>
+                        <th class="text-right font-weight-bold">Thực nhận</th>
+                        <th class="text-center">Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="font-weight-bold">@item.Month/@item.Nam</td>
+                            <td class="text-right">@item.LuongCoBan_BangLuong.ToString("N0")</td>
+                            <td class="text-right">@item.TongPhuCap.ToString("N0")</td>
+                            <td class="text-right">@((item.TongGioTangCa * 50000).ToString("N0")) <small class="text-muted">(@item.TongGioTangCa h)</small></td>
+                            <td class="text-right">
+                                @if (item.TongThuongPhat >= 0)
+                                {<span class="text-success">+@item.TongThuongPhat.ToString("N0")</span> }
+                            else
+                            { <span class="text-danger">@item.TongThuongPhat.ToString("N0")</span>}
+                            </td>
+                            <td class="text-right font-weight-bold text-success" style="font-size: 1.1em;">
+                                @((item.LuongCoBan_BangLuong + item.TongPhuCap + item.TongThuongPhat + (item.TongGioTangCa * 50000)).ToString("N0")) ₫
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-success rounded-pill px-3">Đã thanh toán</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

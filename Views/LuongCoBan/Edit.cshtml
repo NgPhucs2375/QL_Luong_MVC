@@ -21,8 +21,8 @@
                     </div>
                 </div>
 
-                <div class="card-body p-5 bg-white">
-                    @using (Html.BeginForm())
+
+                    @using (Html.BeginForm("Edit", "LuongCoBan", FormMethod.Post))
                     {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(m => m.IDLuongCoBan)
@@ -79,5 +79,5 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
+

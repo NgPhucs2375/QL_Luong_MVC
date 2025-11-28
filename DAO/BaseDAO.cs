@@ -12,7 +12,10 @@ namespace QL_Luong_MVC.DAO
         public BaseDAO()
         {
             // Đảm bảo tên "TenKetNoiCuaBan" khớp với Web.config của bạn
-            connectionString = ConfigurationManager.ConnectionStrings["TenKetNoiCuaBan"].ConnectionString;
+            //connectionString = ConfigurationManager.ConnectionStrings["LAPCUATWSN"].ConnectionString;
+            //connectionString = ConfigurationManager.ConnectionStrings["Scu"].ConnectionString;
+            connectionString = ConfigurationManager.ConnectionStrings["Phuc"].ConnectionString;
+
         }
 
         // Hàm hỗ trợ lấy Connection nhanh

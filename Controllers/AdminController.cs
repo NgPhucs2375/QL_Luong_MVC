@@ -1,11 +1,19 @@
 ﻿using QL_Luong_MVC.DAO;
 using System.Web.Mvc;
+using QL_Luong_MVC.Models;
 
 namespace QL_Luong_MVC.Controllers
 {
+    [CustomAuthorize(Roles = "Admin")]
     public class AdminController : Controller
     {
+
+        DB db = new DB();
+        private readonly string strcon = "Data Source = MSI; database = QL_LuongNV; User ID = sa;Password = 123456";
+        //private readonly string strcon = "Data Source=admindA;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;";
+
         private TaiKhoanDAO tkDao = new TaiKhoanDAO();
+
 
         public ActionResult Index()
         {

@@ -14,121 +14,60 @@
 
     <style>
         :root {
-            --bg-body: #F1F5F9;
-            --sidebar-start: #0F172A;
-            --sidebar-end: #1E293B;
-            --accent-color: #0EA5E9; /* Sky Blue */
-            --accent-glow: rgba(14, 165, 233, 0.35);
-            --text-nav: #94A3B8;
-            --text-nav-hover: #F8FAFC;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --glass-header: rgba(255, 255, 255, 0.95);
+            /* MÀU RƯỢU VANG & JAZZ */
+            --wine-primary: #722F37; /* Màu rượu vang đỏ thẫm */
+            --wine-dark: #4A192C; /* Màu vang tối */
+            --jazz-gold: #D4AF37; /* Màu vàng kim loại (Kèn Saxophone) */
+            --jazz-gold-hover: #AA8C2C;
+            --night-black: #1A1A1A; /* Màu nền tối */
+            --piano-white: #F9F9F9; /* Màu phím đàn trắng ngà */
+            --text-main: #2C2C2C;
+            /* CẤU TRÚC */
+            --sidebar-width: 250px;
+            --card-radius: 12px;
+            --glass-effect: rgba(255, 255, 255, 0.9); /* Kính mờ nhưng sang trọng */
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body) !important;
-            color: #334155;
+            font-family: 'Playfair Display', serif; /* Font tiêu đề sang trọng */
+            background-color: #F4F1EA; /* Màu giấy cũ */
+            color: var(--text-main);
         }
 
-        /* --- 1. SIDEBAR COMMAND CENTER --- */
+        /* Sidebar đổi màu */
         .bg-slate-theme {
-            background: linear-gradient(180deg, var(--sidebar-start) 0%, var(--sidebar-end) 100%);
-            border-right: 1px solid rgba(255,255,255,0.05);
+            background: linear-gradient(180deg, var(--wine-dark) 0%, var(--wine-primary) 100%) !important;
+            border-right: 1px solid var(--jazz-gold);
         }
 
-        .sidebar-brand-text {
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        /* Hiệu ứng Logo xoay nhẹ */
-        .sidebar-brand:hover .rotate-n-15 i {
-            animation: swing 1s ease;
-        }
-        @@keyframes swing { 20% { transform: rotate(15deg); } 40% { transform: rotate(-10deg); } 60% { transform: rotate(5deg); } 80% { transform: rotate(-5deg); } 100% { transform: rotate(0deg); } }
-
-        /* Menu Item Style */
-        .sidebar .nav-item .nav-link {
-            color: var(--text-nav) !important;
-            font-weight: 500;
-            border-radius: 8px;
-            margin: 0 10px;
-            width: auto;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .sidebar .nav-item .nav-link:hover {
-            color: var(--text-nav-hover) !important;
-            background-color: rgba(255,255,255,0.08);
-            transform: translateX(3px);
-        }
-
-        .sidebar .nav-item .nav-link i {
-            width: 20px;
-            text-align: center;
-            transition: transform 0.2s;
-        }
-
-        .sidebar .nav-item .nav-link:hover i {
-            transform: scale(1.2);
-            color: var(--accent-color);
-        }
-
-        /* ACTIVE STATE - NEON GLOW */
-        .sidebar .nav-item.active .nav-link {
-            color: #fff !important;
-            background: linear-gradient(90deg, rgba(14, 165, 233, 0.2) 0%, rgba(14, 165, 233, 0) 100%);
-            border-left: 3px solid var(--accent-color);
-            box-shadow: -5px 0 15px var(--accent-glow); /* Hiệu ứng phát sáng */
+        /* Các nút bấm (Buttons) */
+        .btn-primary, .btn-add-accent {
+            background-color: var(--wine-primary) !important;
+            border-color: var(--wine-primary) !important;
+            color: var(--jazz-gold) !important; /* Chữ vàng trên nền đỏ */
+            font-family: 'Inter', sans-serif; /* Font nội dung hiện đại */
             font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Hiệu ứng nảy */
         }
 
-        .sidebar .nav-item.active .nav-link i {
-            color: var(--accent-color);
+            .btn-primary:hover {
+                background-color: var(--wine-dark) !important;
+                box-shadow: 0 5px 15px rgba(114, 47, 55, 0.4);
+                transform: translateY(-2px);
+            }
+
+        /* Card - Hiệu ứng nổi và viền vàng mỏng */
+        .card, .theme-card {
+            background: var(--piano-white) !important;
+            border: 1px solid rgba(212, 175, 55, 0.2); /* Viền vàng mờ */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        /* --- 2. HEADER HIỆN ĐẠI --- */
-        .topbar.glass-nav {
-            background-color: var(--glass-header);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #E2E8F0;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 999;
-            height: 70px;
-        }
-
-        /* --- 3. DASHBOARD WIDGETS --- */
-        /* Card hiệu ứng nổi */
-        .card, .card-plus {
-            border: none;
-            border-radius: 12px;
-            background: #fff;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .card:hover, .card-plus:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
-
-        /* Animation Loading */
-        .fade-in-content { animation: fadeIn 0.6s ease-out; }
-
-        /* Font số liệu */
-        .h3, .h4, .text-xs.font-weight-bold {
-            font-family: 'Inter', sans-serif; /* Hoặc 'JetBrains Mono' nếu muốn số kiểu code */
+        /* Tiêu đề trang */
+        h1, h2, h3, .sidebar-brand-text {
+            font-family: 'Playfair Display', serif;
+            color: var(--wine-primary) !important;
         }
     </style>
     @RenderSection("Styles", required: false)
@@ -154,88 +93,92 @@
 
             <li class="sidebar-brand d-flex align-items-center justify-content-center py-4" href="@Url.Action("Index", "Home")">
                 <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-cube fa-2x text-white"></i>
+                    <i class="fas fa-wine-glass-alt fa-2x text-warning"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">HRM <span style="color:var(--accent-color)">Admin</span></div>
+                <div class="sidebar-brand-text mx-3" style="font-family: 'Playfair Display', serif;">HRM <span class="text-warning">JAZZ</span></div>
             </li>
 
             <li class="sidebar-divider my-0">
 
-            @if (Session["TenDangNhap"] != null)
-            {
-                var username = Session["TenDangNhap"].ToString();
-                var firstLetter = !string.IsNullOrEmpty(username) ? username.Substring(0, 1).ToUpper() : "A";
-
-                <li class="text-center mt-4 mb-3">
-                    <div class="sidebar-card d-none d-lg-flex flex-column align-items-center p-3 mx-2 bg-dark rounded border-0" style="background: rgba(0,0,0,0.2) !important;">
-                        <div class="rounded-circle bg-white text-dark d-flex justify-content-center align-items-center font-weight-bold mb-2 shadow-sm" style="width:40px; height:40px;">
-                            @firstLetter
-                        </div>
-                        <p class="text-center mb-0 small text-gray-400">Đang online</p>
-                        <div class="font-weight-bold text-white text-truncate" style="max-width: 100%;">@username</div>
-                    </div>
-                </li>
-            }
-
-            <li class="sidebar-heading mt-2">Tổng quan</li>
-
             <li class="nav-item @IsActive("Home", "Index")">
                 <a class="nav-link" href="@Url.Action("Index", "Home")">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
+                    <span>Tổng quan (Dashboard)</span>
                 </a>
             </li>
 
-            <li class="sidebar-heading mt-3">Nghiệp vụ</li>
-
-            <li class="nav-item @IsActive("NhanVien", "DanhSachNV")">
-                <a class="nav-link" href="@Url.Action("DanhSachNV", "NhanVien")">
-                    <i class="fas fa-fw fa-users"></i>
-                    <span>Nhân sự</span>
-                </a>
-            </li>
-
-            <li class="nav-item @IsActive("HopDong", "Index")">
-                <a class="nav-link" href="@Url.Action("Index", "HopDong")">
-                    <i class="fas fa-fw fa-file-contract"></i>
-                    <span>Hợp đồng</span>
-                </a>
-            </li>
+            <li class="sidebar-divider">
+            <li class="sidebar-heading text-warning">Nghiệp vụ Chính</li>
 
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLuong" aria-expanded="true">
-                    <i class="fas fa-fw fa-wallet"></i>
-                    <span>Lương & Chế độ</span>
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHR">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Quản lý Hồ sơ</span>
                 </a>
-                <div id="collapseLuong" class="collapse" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded mx-2 shadow-lg">
-                        <h6 class="collapse-header">Thành phần lương:</h6>
-                        <a class="collapse-item" href="@Url.Action("Index","LuongCoban")">Lương cơ bản</a>
-                        <a class="collapse-item" href="@Url.Action("Index","PhuCap")">Phụ cấp & Thưởng</a>
+                <div id="collapseHR" class="collapse" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Nhân sự:</h6>
+                        <a class="collapse-item" href="@Url.Action("DanhSachNV", "NhanVien")">Danh sách nhân viên</a>
+                        <a class="collapse-item" href="@Url.Action("ThemNV", "NhanVien")">Thêm nhân viên mới</a>
                         <div class="collapse-divider"></div>
-                        <h6 class="collapse-header">Tính toán:</h6>
-                        <a class="collapse-item" href="#">Bảng chấm công</a>
-                        <a class="collapse-item" href="#">Tính lương tháng</a>
+                        <h6 class="collapse-header">Pháp lý:</h6>
+                        <a class="collapse-item" href="@Url.Action("Index", "HopDong")">Hợp đồng lao động</a>
                     </div>
                 </div>
             </li>
 
-            @if (Session["Quyen"] != null && Session["Quyen"].ToString() == "Admin")
-            {
-                <li class="sidebar-heading mt-3">Hệ thống</li>
-                <li class="nav-item @IsActive("Admin", "QuanLyTaiKhoan")">
-                    <a class="nav-link" href="@Url.Action("QuanLyTaiKhoan", "Admin")">
-                        <i class="fas fa-fw fa-user-shield"></i>
-                        <span>Phân quyền</span>
-                    </a>
-                </li>
-            }
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTime">
+                    <i class="fas fa-fw fa-clock"></i>
+                    <span>Quản lý Thời gian</span>
+                </a>
+                <div id="collapseTime" class="collapse" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="@Url.Action("Index", "ChamCong")">Bảng chấm công ngày</a>
+                        <a class="collapse-item" href="@Url.Action("Create", "ChamCong")">Chấm công mới</a>
+                        <a class="collapse-item" href="@Url.Action("XemGioTangCa", "ChamCong")">Duyệt tăng ca (OT)</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSalary">
+                    <i class="fas fa-fw fa-money-check-alt"></i>
+                    <span>Lương & Phúc lợi</span>
+                </a>
+                <div id="collapseSalary" class="collapse" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Nghiệp vụ lương:</h6>
+                        <a class="collapse-item font-weight-bold text-primary" href="@Url.Action("TinhLuong", "BangLuong")">▶ Tính lương tháng</a>
+                        <a class="collapse-item" href="@Url.Action("BaoCao", "BangLuong")">Báo cáo & Phiếu lương</a>
+                        <div class="collapse-divider"></div>
+                        <h6 class="collapse-header">Cấu hình:</h6>
+                        <a class="collapse-item" href="@Url.Action("Index", "LuongCoban")">Thang bảng lương</a>
+                        <a class="collapse-item" href="@Url.Action("Index", "PhuCap")">Định mức phụ cấp</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="sidebar-divider">
+            <li class="sidebar-heading text-warning">Hệ thống</li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSys">
+                    <i class="fas fa-fw fa-cogs"></i>
+                    <span>Cấu hình Hệ thống</span>
+                </a>
+                <div id="collapseSys" class="collapse" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="@Url.Action("QuanLyTaiKhoan", "Admin")">Phân quyền tài khoản</a>
+                        <a class="collapse-item" href="@Url.Action("DanhSachPB", "NhanVien")">Danh mục Phòng ban</a>
+                    </div>
+                </div>
+            </li>
 
             <li class="text-center d-none d-md-inline mt-4">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </li>
-        </ul>
-        <div id="content-wrapper" class="d-flex flex-column">
+        </ul>        <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
 
                 <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top glass-nav">
@@ -252,12 +195,6 @@
                     </div>
 
                     <ul class="navbar-nav ml-auto">
-                        <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown">
-                                <i class="fas fa-search fa-fw"></i>
-                            </a>
-                        </li>
-
                         <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown">
                                 <i class="fas fa-bell fa-fw text-primary"></i>
@@ -284,7 +221,7 @@
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> Cài đặt
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="@Url.Action("Logout", "Login")" data-toggle="modal" data-target="#logoutModal">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Đăng xuất
                                 </a>
                             </div>
@@ -328,6 +265,82 @@
     <script src="~/Content/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/Content/vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="~/Scripts/js/sb-admin-2.min.js"></script>
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    $(document).ready(function () {
+        // --- A. Kích hoạt DataTables cho tất cả bảng ---
+        $('.table').DataTable({
+            "language": {
+                "sProcessing":   "Đang xử lý...",
+                "sLengthMenu":   "Xem _MENU_ mục",
+                "sZeroRecords":  "Không tìm thấy dòng nào phù hợp",
+                "sInfo":         "Đang xem _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                "sSearch":       "Tìm kiếm:",
+                "oPaginate": {
+                    "sFirst":    "Đầu",
+                    "sLast":     "Cuối",
+                    "sNext":     "Sau",
+                    "sPrevious": "Trước"
+                }
+            },
+            "pageLength": 10,
+            "lengthChange": false // Tắt chọn số dòng nếu muốn giao diện gọn
+        });
+
+        // --- B. Hiển thị thông báo SweetAlert2 tự động ---
+        // Lấy dữ liệu từ TempData hoặc ViewBag server-side đẩy xuống
+        var msgSuccess = '@TempData["SuccessMessage"]' || '@TempData["ThongBao"]';
+        var msgError = '@ViewBag.ErrorMessage' || '@TempData["Error"]';
+
+        if (msgSuccess && msgSuccess.trim() !== "") {
+            Swal.fire({
+                title: 'Thành công!',
+                text: msgSuccess,
+                icon: 'success',
+                confirmButtonColor: '#722F37', // Màu rượu vang
+                background: '#fff url(/Content/img/texture-paper.png)', // Texture giấy (nếu có)
+                backdrop: `rgba(114,47,55,0.1)`
+            });
+        }
+
+        if (msgError && msgError.trim() !== "") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra...',
+                text: msgError,
+                confirmButtonColor: '#722F37'
+            });
+        }
+
+        // --- C. Hiệu ứng xác nhận xóa (Thay thế confirm mặc định) ---
+        // Gán class .btn-delete-confirm cho các nút xóa
+        $('.btn-delete-confirm').on('click', function(e) {
+            e.preventDefault();
+            var form = $(this).closest('form'); // Hoặc lấy link href
+            var link = $(this).attr('href');
+
+            Swal.fire({
+                title: 'Bạn chắc chắn chứ?',
+                text: "Dữ liệu này sẽ không thể khôi phục!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Vâng, xóa nó!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if(link) window.location.href = link;
+                    else form.submit();
+                }
+            });
+        });
+    });
+    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -1,11 +1,14 @@
 ﻿using QL_Luong_MVC.DAO;
 using QL_Luong_MVC.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 
 namespace QL_Luong_MVC.Controllers
 {
+    // LƯU Ý: KHÔNG đặt [CustomAuthorize] ở cấp độ Class để tránh xung đột quyền User
     public class NhanVienController : Controller
     {
         // Khởi tạo các lớp truy cập dữ liệu (DAO)
@@ -13,9 +16,12 @@ namespace QL_Luong_MVC.Controllers
         private PhongBanDAO pbDao = new PhongBanDAO();
         private ChucVuDAO cvDao = new ChucVuDAO();
 
-        // --------------------- QUẢN LÝ NHÂN VIÊN ---------------------
+        // ==================================================================================
+        // PHẦN 1: DÀNH CHO TẤT CẢ NGƯỜI DÙNG (USER, ADMIN, HR...)
+        // ==================================================================================
 
-        // 1. Xem thông tin cá nhân (Dành cho User)
+        // 1. Xem thông tin cá nhân (Profile)
+        [CustomAuthorize] // Ai đăng nhập rồi cũng vào được
         public ActionResult InfoNV()
         {
             if (Session["MaNV"] == null)
@@ -28,106 +34,193 @@ namespace QL_Luong_MVC.Controllers
             return View(nv);
         }
 
-        // 2. Danh sách nhân viên (Dành cho Admin)
+        // 2. [GET] Nhân viên tự sửa hồ sơ (Chỉ sửa thông tin liên hệ)
+        [CustomAuthorize]
+        [HttpGet]
+        public ActionResult EditProfile()
+        {
+            if (Session["MaNV"] == null)
+                return RedirectToAction("Login", "Login");
+
+            int id = Convert.ToInt32(Session["MaNV"]);
+            var nv = nvDao.GetById(id);
+
+            if (nv == null) return HttpNotFound();
+            return View(nv);
+        }
+
+        // 3. [POST] Xử lý lưu hồ sơ cá nhân
+        [HttpPost]
+        [CustomAuthorize]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditProfile(NhanVien nvInput)
+        {
+            try
+            {
+                // Lấy ID từ Session để đảm bảo an toàn (không tin tưởng ID từ Form gửi lên)
+                int currentUserId = Convert.ToInt32(Session["MaNV"]);
+
+                // Lấy dữ liệu gốc từ Database
+                var originalNV = nvDao.GetById(currentUserId);
+
+                if (originalNV != null)
+                {
+                    // Chỉ cập nhật các trường cho phép (Thông tin liên hệ)
+                    originalNV.Address_NhanVien = nvInput.Address_NhanVien;
+                    originalNV.SDT_NhanVien = nvInput.SDT_NhanVien;
+                    originalNV.Email_NhanVien = nvInput.Email_NhanVien;
+                    originalNV.DayOfBirth_NhanVien = nvInput.DayOfBirth_NhanVien;
+                    originalNV.Sex_NhanVien = nvInput.Sex_NhanVien;
+
+                    // Các trường sau GIỮ NGUYÊN (User không được phép sửa):
+                    // - Chức vụ (IDCV)
+                    // - Phòng ban (IDPB)
+                    // - Lương
+                    // - Trạng thái
+
+                    var result = nvDao.Update(originalNV);
+
+                    if (result.Success)
+                    {
+                        TempData["SuccessMessage"] = "✅ Cập nhật hồ sơ thành công!";
+                        return RedirectToAction("InfoNV");
+                    }
+                    else
+                    {
+                        TempData["Error"] = result.Message;
+                    }
+                }
+                else
+                {
+                    TempData["Error"] = "Không tìm thấy thông tin nhân viên.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi hệ thống: " + ex.Message;
+            }
+
+            return View(nvInput);
+        }
+
+        // ==================================================================================
+        // PHẦN 2: QUẢN TRỊ NHÂN SỰ (DÀNH CHO ADMIN & NHÂN SỰ)
+        // ==================================================================================
+
+        // 4. Danh sách toàn bộ nhân viên
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
         public ActionResult DanhSachNV()
         {
             var list = nvDao.GetAll();
             return View(list);
         }
 
-        // 3. Thêm nhân viên
+        // 5. [GET] Thêm nhân viên mới
         [HttpGet]
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
         public ActionResult ThemNV()
         {
-            // Nạp dữ liệu cho Dropdownlist ở View
-            ViewBag.DSPhongBan = pbDao.GetAll();
-            ViewBag.DSChucVu = cvDao.GetAll();
+            // Nạp dữ liệu cho Dropdownlist
+            LoadDropdownData();
             return View();
         }
 
+        // 6. [POST] Xử lý thêm nhân viên
         [HttpPost]
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
+        [ValidateAntiForgeryToken]
         public ActionResult ThemNV(NhanVien nv)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.ThongBao = "Vui lòng kiểm tra lại thông tin.";
-                // Load lại dropdown nếu validate fail
-                ViewBag.DSPhongBan = pbDao.GetAll();
-                ViewBag.DSChucVu = cvDao.GetAll();
+                ViewBag.ThongBao = "Vui lòng kiểm tra lại thông tin nhập vào.";
+                LoadDropdownData();
                 return View(nv);
             }
 
             var result = nvDao.Insert(nv);
-            ViewBag.ThongBao = result.Message;
 
             if (result.Success)
             {
+                TempData["SuccessMessage"] = result.Message;
+                // Reset form để thêm người tiếp theo
                 ModelState.Clear();
-                // Load lại dropdown để thêm người tiếp theo
-                ViewBag.DSPhongBan = pbDao.GetAll();
-                ViewBag.DSChucVu = cvDao.GetAll();
-                return View(); // Trả về form trống
+                LoadDropdownData();
+                return View();
             }
             else
             {
-                // Nếu lỗi, giữ nguyên dữ liệu cũ để sửa
-                ViewBag.DSPhongBan = pbDao.GetAll();
-                ViewBag.DSChucVu = cvDao.GetAll();
+                ViewBag.ThongBao = result.Message; // Hiển thị lỗi (ví dụ trùng Email)
+                LoadDropdownData();
                 return View(nv);
             }
         }
 
-        // 4. Sửa nhân viên
+        // 7. [GET] Sửa nhân viên (Quyền Admin/HR sửa full thông tin)
         [HttpGet]
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
         public ActionResult SuaNV(int id)
         {
             var nv = nvDao.GetById(id);
             if (nv == null)
             {
-                TempData["ThongBao"] = "⚠️ Không tìm thấy nhân viên!";
+                TempData["Error"] = "⚠️ Không tìm thấy nhân viên!";
                 return RedirectToAction("DanhSachNV");
             }
-            // Load Dropdown cho View Sửa
-            ViewBag.DSPhongBan = pbDao.GetAll();
-            ViewBag.DSChucVu = cvDao.GetAll();
+            LoadDropdownData();
             return View(nv);
         }
 
+        // 8. [POST] Xử lý sửa nhân viên
         [HttpPost]
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
+        [ValidateAntiForgeryToken]
         public ActionResult SuaNV(NhanVien nv)
         {
             var result = nvDao.Update(nv);
-            TempData["ThongBao"] = result.Message;
 
             if (result.Success)
+            {
+                TempData["SuccessMessage"] = result.Message;
                 return RedirectToAction("DanhSachNV");
+            }
 
-            // Nếu lỗi, load lại dropdown và hiển thị lại form
-            ViewBag.DSPhongBan = pbDao.GetAll();
-            ViewBag.DSChucVu = cvDao.GetAll();
+            ViewBag.ThongBao = result.Message;
+            LoadDropdownData();
             return View(nv);
         }
 
-        // 5. Xóa nhân viên
+        // 9. [GET] Xác nhận xóa nhân viên
+        [CustomAuthorize(Roles = "Admin")] // Chỉ Admin cao nhất mới được xóa
         public ActionResult XoaNV(int id)
         {
-            // Hiển thị trang xác nhận xóa
             var nv = nvDao.GetById(id);
             if (nv == null) return HttpNotFound();
             return View(nv);
         }
 
+        // 10. [POST] Thực hiện xóa
         [HttpPost, ActionName("DeleteConfirmed")]
-        public ActionResult XoaNVConfirm(int id)
+        [CustomAuthorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public ActionResult XoaNVConfirm(int id) // Tham số id nhận từ Route hoặc Form
         {
+            // id ở đây map với IDNhanVien
             var result = nvDao.Delete(id);
-            TempData["ThongBao"] = result.Message;
+
+            if (result.Success)
+                TempData["SuccessMessage"] = result.Message;
+            else
+                TempData["Error"] = result.Message;
+
             return RedirectToAction("DanhSachNV");
         }
 
+        // ==================================================================================
+        // PHẦN 3: QUẢN LÝ PHÒNG BAN
+        // ==================================================================================
 
-        // --------------------- QUẢN LÝ PHÒNG BAN ---------------------
-
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
         public ActionResult DanhSachPB()
         {
             var list = pbDao.GetAll();
@@ -135,21 +228,29 @@ namespace QL_Luong_MVC.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
         public ActionResult ThemPB()
         {
             return View();
         }
 
         [HttpPost]
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
         public ActionResult ThemPB(PhongBan pb)
         {
             var result = pbDao.Insert(pb);
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = result.Message;
+                return RedirectToAction("DanhSachPB");
+            }
+
             ViewBag.ThongBao = result.Message;
-            if (result.Success) ModelState.Clear();
-            return View();
+            return View(pb);
         }
 
         [HttpGet]
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
         public ActionResult SuaPB(int id)
         {
             var pb = pbDao.GetById(id);
@@ -158,22 +259,35 @@ namespace QL_Luong_MVC.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(Roles = "Admin,NhanSu")]
         public ActionResult SuaPB(PhongBan pb)
         {
             var result = pbDao.Update(pb);
-            TempData["ThongBao"] = result.Message;
-            return RedirectToAction("DanhSachPB");
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = result.Message;
+                return RedirectToAction("DanhSachPB");
+            }
+
+            ViewBag.ThongBao = result.Message;
+            return View(pb);
         }
 
         [HttpPost]
-        public ActionResult XoaPB(int id) // id = MaPB
+        [CustomAuthorize(Roles = "Admin")]
+        public ActionResult XoaPB(int IDPhongBan)
         {
-            var result = pbDao.Delete(id);
-            TempData["ThongBao"] = result.Message;
+            var result = pbDao.Delete(IDPhongBan);
+            if (result.Success)
+                TempData["SuccessMessage"] = result.Message;
+            else
+                TempData["Error"] = result.Message;
+
             return RedirectToAction("DanhSachPB");
         }
 
-        // Xem nhân viên trong phòng ban
+        // Xem danh sách nhân viên thuộc 1 phòng ban cụ thể
+        [CustomAuthorize(Roles = "Admin,NhanSu,KeToan")]
         public ActionResult ChiTietNV(int id)
         {
             var allNV = nvDao.GetAll();
@@ -183,6 +297,15 @@ namespace QL_Luong_MVC.Controllers
             ViewBag.TenPhong = phong?.NamePhongBan ?? "Không xác định";
 
             return View(nhanviens);
+        }
+
+        // ==================================================================================
+        // HELPER METHODS
+        // ==================================================================================
+        private void LoadDropdownData()
+        {
+            ViewBag.DSPhongBan = pbDao.GetAll();
+            ViewBag.DSChucVu = cvDao.GetAll();
         }
     }
 }

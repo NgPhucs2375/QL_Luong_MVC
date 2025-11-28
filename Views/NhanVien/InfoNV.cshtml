@@ -93,12 +93,13 @@
                         </div>
                     </div>
 
-                    @if (Session["MaNV"]?.ToString() == Model.IDNhanVien.ToString() || Session["Quyen"]?.ToString() == "Admin" || Session["Quyen"]?.ToString() == "KeToan")
+                    @if (Session["MaNV"]?.ToString() == Model.IDNhanVien.ToString() ||
+           Session["Quyen"]?.ToString() == "Admin" || Session["Quyen"]?.ToString() == "KeToan")
                     {
                         <div class="row mb-2">
                             <div class="col-4 data-label text-success">Lương hiện tại</div>
                             <div class="col-8 data-value text-success">
-                                @(Model.GetType().GetProperty("LuongHienTai") != null ? string.Format("{0:N0} ₫", Model.GetType().GetProperty("LuongHienTai").GetValue(Model)) : "---")
+                                @Model.LuongHienTai.ToString("N0") ₫
                             </div>
                         </div>
                     }

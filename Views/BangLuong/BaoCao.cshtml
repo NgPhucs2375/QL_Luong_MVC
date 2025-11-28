@@ -1,0 +1,284 @@
+﻿@model List<QL_Luong_MVC.ViewModel.BaoCaoLuongViewModel>
+
+@{
+    ViewBag.Title = "Báo cáo lương tháng";
+    int thang = ViewBag.Thang ?? DateTime.Now.Month;
+    int nam = ViewBag.Nam ?? DateTime.Now.Year;
+    int tongSoNhanVien = ViewBag.TongSoNhanVien ?? 0;
+    decimal tongLuongThang = ViewBag.TongLuongThang ?? 0;
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-file-invoice-dollar text-primary mr-2"></i>Báo cáo lương (UC20)
+    </h1>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle mr-2"></i> @ViewBag.ErrorMessage
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<div class="card card-plus mb-4 border-left-primary">
+    <div class="card-body py-3">
+        <form method="get" action="@Url.Action("BaoCao")" class="form-inline d-flex justify-content-between align-items-center flex-wrap">
+
+            <div class="d-flex align-items-center mb-2 mb-lg-0">
+                <label class="mr-2 font-weight-bold text-gray-700">Kỳ lương:</label>
+                <select name="thang" class="form-control mr-2 custom-select" style="width: 120px;">
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i" @(i == thang ? "selected" : "")>Tháng @i</option>
+                    }
+                </select>
+
+                <select name="nam" class="form-control mr-2 custom-select" style="width: 100px;">
+                    @for (int y = DateTime.Now.Year; y >= 2020; y--)
+                    {
+                        <option value="@y" @(y == nam ? "selected" : "")>@y</option>
+                    }
+                </select>
+
+                <button type="submit" class="btn btn-accent shadow-sm">
+                    <i class="fas fa-search fa-sm text-white-50"></i> Xem báo cáo
+                </button>
+            </div>
+
+            <div class="mb-2 mb-lg-0">
+                <a href="@Url.Action("TinhLuong")" class="btn btn-primary shadow-sm mr-2">
+                    <i class="fas fa-calculator fa-sm text-white-50"></i> Tính lương
+                </a>
+                <a href="@Url.Action("ExportExcel", new { thang = thang, nam = nam })" class="btn btn-success shadow-sm">
+                    <i class="fas fa-file-excel fa-sm text-white-50"></i> Xuất Excel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-plus border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Tổng nhân viên
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@tongSoNhanVien</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-plus border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Tổng lương thực chi
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@string.Format("{0:N0}", tongLuongThang) ₫</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-coins fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-plus shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom-0">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-list"></i> Chi tiết lương tháng @thang/@nam
+        </h6>
+    </div>
+    <div class="card-body p-0">
+        @if (Model != null && Model.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0" id="tableBaoCao" width="100%" cellspacing="0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="text-center">STT</th>
+                            <th>Mã NV</th>
+                            <th>Họ tên</th>
+                            <th>Chức vụ</th>
+                            <th class="text-right">Lương CB</th>
+                            <th class="text-right">P.Cấp</th>
+                            <th class="text-right">Thưởng/Phạt</th>
+                            <th class="text-center">Giờ TC</th>
+                            <th class="text-right">Tiền TC</th>
+                            <th class="text-right text-success font-weight-bold">Thực nhận</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{int stt = 1;}
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center">@stt</td>
+                                <td><span class="badge badge-secondary">@item.MaNhanVien_BaoCao</span></td>
+                                <td class="font-weight-bold text-dark">@item.HoTenNhanVien_BaoCao</td>
+                                <td class="small">@item.TenChucVu_BaoCao <br /><span class="text-muted">@item.TenPhongBan_BaoCao</span></td>
+                                <td class="text-right">@string.Format("{0:N0}", item.LuongCoBan_BaoCao)</td>
+                                <td class="text-right">@string.Format("{0:N0}", item.TongPhuCap_BaoCao)</td>
+                                <td class="text-right">
+                                    @if (item.TongThuongPhat_BaoCao > 0)
+                                    {
+                                        <span class="text-success">+@string.Format("{0:N0}", item.TongThuongPhat_BaoCao)</span>
+                                    }
+                                    else if (item.TongThuongPhat_BaoCao < 0)
+                                    {
+                                        <span class="text-danger">@string.Format("{0:N0}", item.TongThuongPhat_BaoCao)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-400">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TongGioTangCa_BaoCao > 0)
+                                    {
+                                        <span class="badge badge-warning text-dark">@item.TongGioTangCa_BaoCao</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-400">-</span>
+                                    }
+                                </td>
+                                <td class="text-right text-muted">@string.Format("{0:N0}", item.TienTangCa_BaoCao)</td>
+                                <td class="text-right font-weight-bold text-success" style="background-color: #f0fdf4;">
+                                    @string.Format("{0:N0}", item.LuongThucNhan_BaoCao)
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-warning"
+                                            onclick="showQR('@item.HoTenNhanVien_BaoCao', @item.LuongThucNhan_BaoCao, 'LUONG T@(item.Thang_BaoCao)')">
+                                        <i class="fas fa-qrcode"></i> Pay
+                                    </button>
+                                </td>
+
+
+                            </tr>
+                            stt++;
+                        }
+                    </tbody>
+                    <tfoot class="bg-gray-100">
+                        <tr class="font-weight-bold text-dark">
+                            <td colspan="4" class="text-right text-uppercase">Tổng cộng:</td>
+                            <td class="text-right">@string.Format("{0:N0}", Model.Sum(x => x.LuongCoBan_BaoCao))</td>
+                            <td class="text-right">@string.Format("{0:N0}", Model.Sum(x => x.TongPhuCap_BaoCao))</td>
+                            <td class="text-right">@string.Format("{0:N0}", Model.Sum(x => x.TongThuongPhat_BaoCao))</td>
+                            <td class="text-center">@Model.Sum(x => x.TongGioTangCa_BaoCao)</td>
+                            <td class="text-right">@string.Format("{0:N0}", Model.Sum(x => x.TienTangCa_BaoCao))</td>
+                            <td class="text-right text-success h5 mb-0">
+                                @string.Format("{0:N0}", Model.Sum(x => x.LuongThucNhan_BaoCao))
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <img src="~/Content/img/undraw_empty.svg" style="height: 150px; opacity: 0.5" alt="No data" />
+                <h5 class="text-gray-500 mt-3">Chưa có dữ liệu lương cho tháng @thang/@nam</h5>
+                <p class="text-gray-400">Vui lòng tính lương để xem báo cáo.</p>
+                <a href="@Url.Action("TinhLuong")" class="btn btn-primary btn-sm">Đi tới Tính lương &rarr;</a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card shadow mb-4 border-bottom-secondary">
+    <a href="#collapseNote" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+        <h6 class="m-0 font-weight-bold text-secondary"><i class="fas fa-info-circle"></i> Giải thích thuật ngữ</h6>
+    </a>
+    <div class="collapse show" id="collapseNote">
+        <div class="card-body">
+            <div class="row text-sm text-gray-700">
+                <div class="col-md-4">
+                    <p><strong><i class="fas fa-circle text-primary text-xs"></i> Lương CB:</strong> Mức lương cơ bản theo hợp đồng.</p>
+                    <p><strong><i class="fas fa-circle text-info text-xs"></i> Phụ cấp:</strong> Tổng các khoản trợ cấp (ăn trưa, xăng xe...).</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong><i class="fas fa-circle text-warning text-xs"></i> Giờ TC:</strong> Tổng số giờ làm thêm đã được duyệt.</p>
+                    <p><strong><i class="fas fa-circle text-success text-xs"></i> Tiền TC:</strong> (Giờ TC x Hệ số) x Lương giờ.</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong><i class="fas fa-circle text-danger text-xs"></i> Thưởng/Phạt:</strong> Các khoản điều chỉnh khác.</p>
+                    <p><strong><i class="fas fa-check-circle text-success text-xs"></i> Thực nhận:</strong> Tổng thu nhập cuối cùng.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Đoạn này kích hoạt tính năng sort/search cho bảng
+        $(document).ready(function () {
+            $('#tableBaoCao').DataTable({
+                "language": {
+                    "lengthMenu": "Hiển thị _MENU_ dòng",
+                    "zeroRecords": "Không tìm thấy dữ liệu",
+                    "info": "Hiển thị trang _PAGE_ / _PAGES_",
+                    "infoEmpty": "Không có dữ liệu",
+                    "search": "Tìm kiếm nhanh:",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Sau",
+                        "previous": "Trước"
+                    }
+                },
+                "pageLength": 25,
+                "ordering": true
+            });
+        });
+    </script>
+    <script>
+        function showQR(tenNV, soTien, noiDung) {
+            // API VietQR QuickLink
+            // Định dạng: https://img.vietqr.io/image/[BANK]-[ACC_NO]-[TEMPLATE].png?amount=...&addInfo=...
+            var bankId = "MB"; // Ví dụ ngân hàng MB
+            var accountNo = "0987654321"; // Số tài khoản công ty
+            var template = "compact";
+
+            var url = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${soTien}&addInfo=${noiDung} ${tenNV}`;
+
+            Swal.fire({
+                title: 'Quét mã để trả lương',
+                text: `Chuyển ${new Intl.NumberFormat().format(soTien)}đ cho ${tenNV}`,
+                imageUrl: url,
+                imageWidth: 400,
+                imageAlt: 'QR Code',
+                confirmButtonText: 'Đã thanh toán',
+                confirmButtonColor: '#722F37'
+            });
+        }
+    </script>
+}

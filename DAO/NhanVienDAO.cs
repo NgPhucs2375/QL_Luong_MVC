@@ -160,7 +160,8 @@ namespace QL_Luong_MVC.DAO
                 Email_NhanVien = reader["Email"].ToString(),
                 State_NhanVien = reader["TrangThai"].ToString(),
                 IDCV_NhanVien = reader["MaCV"] != DBNull.Value ? Convert.ToInt32(reader["MaCV"]) : 0,
-                IDPB_NhanVien = reader["MaPB"] != DBNull.Value ? Convert.ToInt32(reader["MaPB"]) : 0
+                IDPB_NhanVien = reader["MaPB"] != DBNull.Value ? Convert.ToInt32(reader["MaPB"]) : 0,
+                LuongHienTai = reader["LuongHienTai"] != DBNull.Value ? Convert.ToDecimal(reader["LuongHienTai"]) : 0
             };
 
             // Kiểm tra cột LuongHienTai (nếu có trong DB)

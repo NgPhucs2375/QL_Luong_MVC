@@ -1,0 +1,130 @@
+﻿@model QL_Luong_MVC.Models.BangChamCong
+
+@{
+    ViewBag.Title = "Sửa chấm công";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-edit text-warning mr-2"></i>Sửa thông tin chấm công
+    </h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+
+        @* Hiển thị thông báo lỗi nếu có *@
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-exclamation-circle mr-2"></i> @ViewBag.ErrorMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        <div class="card card-plus shadow mb-4 border-top-warning">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white">
+                <h6 class="m-0 font-weight-bold text-warning">
+                    <i class="fas fa-pen-square"></i> Cập nhật bản ghi #@Model.IDChamCong
+                </h6>
+                <span class="badge badge-warning text-dark">Chế độ sửa</span>
+            </div>
+            <div class="card-body">
+                @* QUAN TRỌNG: Đã thêm tham số id vào RouteValues để sửa lỗi Server Error *@
+                @using (Html.BeginForm("Edit", "ChamCong", new { id = Model.IDChamCong }, FormMethod.Post, new { @class = "user" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("IDChamCong", Model.IDChamCong)
+
+                    @* 1. Thông tin Nhân viên (Read-only) *@
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-gray-700">Nhân viên <span class="text-muted">(Không thể sửa)</span></label>
+                        @Html.DropDownList("IDNhanVien_ChamCong", (SelectList)ViewBag.DanhSachNhanVien, new { @class = "form-control bg-gray-200", disabled = "disabled" })
+                        @Html.Hidden("IDNhanVien_ChamCong", Model.IDNhanVien_ChamCong)
+                    </div>
+
+                    @* 2. Ngày chấm công (Read-only) *@
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-gray-700">Ngày chấm công</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-gray-200 border-0"><i class="far fa-calendar-alt"></i></span>
+                            </div>
+                            <input type="text" class="form-control bg-gray-200" value="@Model.Day_ChamCong.ToString("dd/MM/yyyy")" disabled />
+                            @Html.Hidden("Day_ChamCong", Model.Day_ChamCong)
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        @* 3. Ngày công (Editable) *@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="small font-weight-bold text-gray-700">
+                                    Ngày công <span class="text-danger">*</span>
+                                </label>
+                                @Html.TextBox("DayCong_ChamCong", Model.DayCong_ChamCong, new { @class = "form-control form-control-user font-weight-bold text-primary", type = "number", step = "0.1", min = "0", max = "1", required = "required" })
+                                @Html.ValidationMessage("DayCong_ChamCong", "", new { @class = "text-danger small" })
+                                <small class="form-text text-muted">Nhập từ 0 đến 1 (VD: 0.5, 1.0)</small>
+                            </div>
+                        </div>
+
+                        @* 4. Giờ tăng ca (Editable) *@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="small font-weight-bold text-gray-700">Giờ tăng ca</label>
+                                @Html.TextBox("GioTangCa", Model.GioTangCa, new { @class = "form-control form-control-user", type = "number", step = "0.5", min = "0" })
+                                @Html.ValidationMessage("GioTangCa", "", new { @class = "text-danger small" })
+                                <small class="form-text text-muted">Số giờ làm thêm (VD: 1.5, 2.0)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    @* Buttons *@
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-arrow-left"></i>
+                            </span>
+                            <span class="text">Hủy bỏ</span>
+                        </a>
+
+                        <button type="submit" class="btn btn-warning btn-icon-split shadow-sm">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-save"></i>
+                            </span>
+                            <span class="text text-dark font-weight-bold">Lưu thay đổi</span>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* Cảnh báo *@
+        <div class="card shadow mb-4 border-left-danger py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Lưu ý quan trọng
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800 text-sm">
+                            Bạn đang sửa dữ liệu gốc. Mọi thay đổi sẽ ảnh hưởng trực tiếp đến tính toán lương cuối tháng.
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

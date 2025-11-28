@@ -1,12 +1,13 @@
-﻿using System;
+﻿using QL_Luong_MVC.DAO;
+using QL_Luong_MVC.Models;
+using QL_Luong_MVC.ViewModel;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using System.Data.SqlClient;
-using System.Data;
-using QL_Luong_MVC.Models;
-using QL_Luong_MVC.ViewModel;
 
 
 namespace QL_Luong_MVC.Controllers
@@ -117,6 +118,29 @@ namespace QL_Luong_MVC.Controllers
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
+
+            return View();
+        }
+
+        // Thêm vào HomeController.cs
+
+        public ActionResult DashboardUser()
+        {
+            if (Session["MaNV"] == null) return RedirectToAction("Login", "Login");
+            int maNV = Convert.ToInt32(Session["MaNV"]);
+
+            // Lấy số liệu cá nhân
+            int thang = DateTime.Now.Month;
+            int nam = DateTime.Now.Year;
+
+            var bangCong = new BangChamCongDAO().GetByNhanVien(maNV)
+                            .Where(x => x.Day_ChamCong.Month == thang && x.Day_ChamCong.Year == nam).ToList();
+
+            ViewBag.SoNgayCong = bangCong.Sum(x => x.DayCong_ChamCong);
+            ViewBag.GioTangCa = bangCong.Sum(x => x.GioTangCa);
+
+            // Kiểm tra hôm nay chấm công chưa
+            ViewBag.IsCheckedIn = bangCong.Any(x => x.Day_ChamCong.Date == DateTime.Now.Date);
 
             return View();
         }
