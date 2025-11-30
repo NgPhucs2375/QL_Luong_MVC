@@ -16,29 +16,23 @@ namespace QL_Luong_MVC.Controllers
     {
         public ActionResult Index()
         {
-            // ✅ Kiểm tra đăng nhập
             if (Session["TenDangNhap"] == null)
                 return RedirectToAction("Login", "Login");
 
-            // ✅ Kiểm tra quyền
             string username = Session["TenDangNhap"].ToString().ToLower();
             string role = Session["Quyen"]?.ToString();
 
             if (username != "admin" && role != "Admin")
             {
-                TempData["Error"] = "Bạn không có quyền truy cập trang này!";
-                return RedirectToAction("AccessDenied", "Login");
+                return RedirectToAction("DashboardUser");
             }
 
             ViewBag.Username = username;
-            // ✅ Tạo dữ liệu Dashboard
             var db = new DB();
 
-            // Tổng số liệu
             int totalNV = db.dsNhanVien.Count;
             int totalHD = db.dsHopDong.Count;
 
-            // Lấy HĐ mới nhất theo mỗi NV để tính tổng lương hiện tại
             var latestContracts = db.dsHopDong
                 .GroupBy(h => h.IDNhanVIen_HopDong)
                 .Select(g => g.OrderByDescending(x => x.DayToStart).FirstOrDefault())
@@ -48,7 +42,6 @@ namespace QL_Luong_MVC.Controllers
             decimal totalSalary = latestContracts.Sum(h => h.LuongCoBan_HopDong);
             decimal totalAllowances = db.dsPhuCap.Sum(p => p.SoTien_PhuCap);
 
-            // Chart: Lương theo tháng (12 tháng gần nhất) - dựa trên HĐ bắt đầu trong tháng đó
             var labels = new List<string>();
             var values = new List<decimal>();
             var start = DateTime.Now.AddMonths(-11);
@@ -65,7 +58,6 @@ namespace QL_Luong_MVC.Controllers
                 values.Add(sumMonth);
             }
 
-            // Chart: Cơ cấu phụ cấp theo loại
             var allowanceGroups = db.dsPhuCap
                 .GroupBy(p => p.Loai_PhuCap ?? "Khác")
                 .Select(g => new { Loai = g.Key, Tong = g.Sum(x => x.SoTien_PhuCap) })
@@ -75,7 +67,6 @@ namespace QL_Luong_MVC.Controllers
             var allowanceLabels = allowanceGroups.Select(x => x.Loai).ToList();
             var allowanceValues = allowanceGroups.Select(x => x.Tong).ToList();
 
-            // Phòng ban và danh sách nhân viên
             var departments = db.dsPhongBan
                 .OrderBy(pb => pb.NamePhongBan)
                 .Select(pb => new DepartmentMembersVM
@@ -122,27 +113,90 @@ namespace QL_Luong_MVC.Controllers
             return View();
         }
 
-        // Thêm vào HomeController.cs
 
         public ActionResult DashboardUser()
         {
             if (Session["MaNV"] == null) return RedirectToAction("Login", "Login");
-            int maNV = Convert.ToInt32(Session["MaNV"]);
+            int idNhanVien = Convert.ToInt32(Session["MaNV"]);
 
-            // Lấy số liệu cá nhân
             int thang = DateTime.Now.Month;
             int nam = DateTime.Now.Year;
 
-            var bangCong = new BangChamCongDAO().GetByNhanVien(maNV)
+            var bangCong = new BangChamCongDAO().GetByNhanVien(idNhanVien)
                             .Where(x => x.Day_ChamCong.Month == thang && x.Day_ChamCong.Year == nam).ToList();
 
             ViewBag.SoNgayCong = bangCong.Sum(x => x.DayCong_ChamCong);
             ViewBag.GioTangCa = bangCong.Sum(x => x.GioTangCa);
 
-            // Kiểm tra hôm nay chấm công chưa
             ViewBag.IsCheckedIn = bangCong.Any(x => x.Day_ChamCong.Date == DateTime.Now.Date);
 
+            var congGanDay = new BangChamCongDAO()
+                .GetByNhanVien(idNhanVien)
+                .OrderByDescending(x => x.Day_ChamCong)
+                .Take(10)
+                .ToList();
+            ViewBag.RecentActivities = congGanDay;
+
+            var db = new DB();
+
+            var nhanVien = db.dsNhanVien.FirstOrDefault(x => x.IDNhanVien == idNhanVien);
+            
+            var hopDong = db.dsHopDong
+                            .Where(x => x.IDNhanVIen_HopDong == idNhanVien)
+                            .OrderByDescending(x => x.DayToStart)
+                            .FirstOrDefault();
+
+            var luongGanNhat = new BangLuongDAO()
+                                 .GetByNhanVien(idNhanVien)
+                                 .FirstOrDefault();
+
+            ViewBag.NhanVien = nhanVien;
+            ViewBag.HopDong = hopDong;
+            ViewBag.LuongGanNhat = luongGanNhat;
+
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CheckIn()
+        {
+            if (Session["MaNV"] == null) return RedirectToAction("Login", "Login");
+            int maNV = Convert.ToInt32(Session["MaNV"]);
+
+            BangChamCongDAO dao = new BangChamCongDAO();
+
+            var listCong = dao.GetByNhanVien(maNV);
+            bool daChamCong = listCong.Any(x => x.Day_ChamCong.Date == DateTime.Now.Date);
+
+            if (daChamCong)
+            {
+                TempData["Message"] = "Hôm nay bạn đã chấm công rồi!";
+                TempData["Type"] = "warning";
+                return RedirectToAction("DashboardUser");
+            }
+
+            BangChamCong bcc = new BangChamCong
+            {
+                IDNhanVien_ChamCong = maNV,
+                Day_ChamCong = DateTime.Now,
+                DayCong_ChamCong = 1,
+                GioTangCa = 0
+            };
+
+            var insertResult = dao.Insert(bcc);
+            if (insertResult.Success)
+            {
+                TempData["Message"] = insertResult.Message ?? "Chấm công thành công!";
+                TempData["Type"] = "success";
+            }
+            else
+            {
+                TempData["Message"] = insertResult.Message ?? "Có lỗi xảy ra, vui lòng thử lại!";
+                TempData["Type"] = "danger";
+            }
+
+            return RedirectToAction("DashboardUser");
         }
     }
 }
