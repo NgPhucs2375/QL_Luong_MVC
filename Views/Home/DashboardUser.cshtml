@@ -1,20 +1,85 @@
-﻿@{
+﻿@using QL_Luong_MVC.Models
+@{
     ViewBag.Title = "Tổng quan cá nhân";
     Layout = "~/Views/Shared/_LayoutNhanVien.cshtml";
     bool isCheckedIn = ViewBag.IsCheckedIn ?? false;
+
+    // ======================================================================
+    // KHAI BÁO CÁC BIẾN MÀU MỚI (XANH LÁ - NÂU - BE)
+    // ======================================================================
+    var primaryGreenDark = "rgb(77, 102, 72)";     /* Xanh lá đậm (Primary/Accent) */
+    var secondaryGreenLight = "rgb(130, 140, 110)"; /* Xanh lá nhạt (Gradient/Warning) */
+    var darkBrown = "rgb(82, 60, 52)";             /* Nâu trầm (Dark/Charcoal) */
+    var successColor = "#1cc88a";                 /* Giữ Success */
+    var infoColor = "#36b9cc";                      /* Giữ Info */
 }
+
+<style>
+    /* 1. Thay thế màu nền chính của thẻ Chấm Công */
+    .card-check-in {
+        /* Nền Gradient Nâu Trầm -> Xanh Lá Nhạt */
+        background: linear-gradient(135deg, @darkBrown 0%, @secondaryGreenLight 100%) !important;
+        color: white;
+    }
+
+    /* 2. Thay thế màu nút chính (Nút Chấm Công) */
+    .btn-gold-primary {
+        background-color: @primaryGreenDark !important;
+        border-color: @primaryGreenDark !important;
+        color: #fff !important; /* Chữ trắng */
+        font-weight: 700 !important;
+    }
+
+    .btn-gold-primary:hover {
+        background-color: @darkBrown !important;
+        border-color: @darkBrown !important;
+    }
+
+
+    /* 3. Thay thế màu icon/text khi chưa chấm công */
+    .icon-fingerprint {
+        color: @secondaryGreenLight !important; /* Icon Xanh Lá Nhạt */
+    }
+
+    /* 4. Thay thế màu Border Left cho Card Ngày Công (Warning -> Primary Green) */
+    .card.border-left-warning {
+        border-left: 0.25rem solid @primaryGreenDark !important;
+    }
+
+    /* 5. Thay thế màu text cho Card Ngày Công (Warning Text -> Primary Green Text) */
+    .text-warning-gold {
+        color: @primaryGreenDark !important;
+    }
+
+    /* 6. Thay thế màu Border Left cho Card Tăng ca (Success -> Giữ Success) */
+    .card.border-left-success {
+        border-left: 0.25rem solid @successColor !important;
+    }
+
+    /* 7. Thay thế màu tiêu đề Hoạt động gần đây (Primary -> Dark Brown) */
+    .text-primary-charcoal {
+        color: @darkBrown !important;
+    }
+
+    /* 8. Màu cho Badge Tăng ca (Warning Gold -> Primary Green) */
+    .badge-warning-gold {
+        background-color: @primaryGreenDark !important;
+        color: #fff !important;
+    }
+</style>
+
 
 <div class="row">
     <div class="col-lg-4 mb-4">
-        <div class="card shadow border-0 h-100" style="background: linear-gradient(135deg, #722F37 0%, #990033 100%); color: white;">
+        <div class="card shadow border-0 h-100 card-check-in">
             <div class="card-body text-center p-5">
                 <h3 class="font-weight-bold" style="font-family: 'Playfair Display', serif;">@DateTime.Now.ToString("dd MMMM, yyyy")</h3>
                 <p class="mb-4 text-white-50">Chúc bạn một ngày làm việc hiệu quả!</p>
 
                 @if (!isCheckedIn)
                 {
-                    <div class="display-1 mb-3"><i class="fas fa-fingerprint text-warning"></i></div>
-                    <a href="@Url.Action("DiemDanhHangNgay", "ChamCong")" class="btn btn-warning btn-lg rounded-pill px-5 font-weight-bold shadow-sm" style="color: #722F37;">
+                    <div class="display-1 mb-3"><i class="fas fa-fingerprint icon-fingerprint"></i></div>
+                    <a href="@Url.Action("DiemDanhHangNgay", "ChamCong")" class="btn btn-gold-primary btn-lg rounded-pill px-5 font-weight-bold shadow-sm">
                         CHẤM CÔNG VÀO
                     </a>
                 }
@@ -37,7 +102,7 @@
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Ngày công tháng này</div>
+                                <div class="text-xs font-weight-bold text-warning-gold text-uppercase mb-1">Ngày công tháng này</div>
                                 <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.SoNgayCong <span class="text-xs text-muted">/ 26</span></div>
                             </div>
                             <div class="col-auto">
@@ -67,7 +132,7 @@
 
         <div class="card shadow mb-4">
             <div class="card-header py-3 bg-white border-bottom-0">
-                <h6 class="m-0 font-weight-bold text-primary" style="color: #722F37 !important;">Hoạt động gần đây</h6>
+                <h6 class="m-0 font-weight-bold text-primary-charcoal">Hoạt động gần đây</h6>
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
@@ -76,12 +141,12 @@
                         <span class="badge badge-light">08:00 - 17:00</span>
                     </div>
                     <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div><i class="fas fa-circle text-warning text-xs mr-2"></i> Tăng ca ngày 20/11</div>
-                        <span class="badge badge-warning text-white">2.5 giờ</span>
+                        <div><i class="fas fa-circle text-warning-gold text-xs mr-2"></i> Tăng ca ngày 20/11</div>
+                        <span class="badge badge-warning-gold">2.5 giờ</span>
                     </div>
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                         <div><i class="fas fa-circle text-info text-xs mr-2"></i> Nhận lương tháng 10</div>
-                        <span class="badge badge-info text-white">Đã thanh toán</span>
+                        <span class="badge badge-info text-white" style="background-color: @infoColor !important;">Đã thanh toán</span>
                     </div>
                 </div>
             </div>

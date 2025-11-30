@@ -16,22 +16,23 @@ namespace QL_Luong_MVC.Controllers
     {
         public ActionResult Index()
         {
-            // ✅ Kiểm tra đăng nhập
+            // 1. Kiểm tra đăng nhập
             if (Session["TenDangNhap"] == null)
                 return RedirectToAction("Login", "Login");
 
-            // ✅ Kiểm tra quyền
-            string username = Session["TenDangNhap"].ToString().ToLower();
             string role = Session["Quyen"]?.ToString();
 
-            if (username != "admin" && role != "Admin")
+            // 2. LOGIC ĐIỀU HƯỚNG MỚI (FIX LỖI)
+            // Nếu KHÔNG phải Admin, chuyển hướng thẳng đến Dashboard cá nhân
+            if (role != "Admin")
             {
-                TempData["Error"] = "Bạn không có quyền truy cập trang này!";
-                return RedirectToAction("AccessDenied", "Login");
+                // Hành động này đảm bảo nhân viên không bị chặn lỗi 
+                // và được đưa đến trang dành cho họ.
+                return RedirectToAction("DashboardUser");
             }
 
-            ViewBag.Username = username;
-            // ✅ Tạo dữ liệu Dashboard
+            // --- LOGIC CHO ADMIN CHÍNH THỨC BẮT ĐẦU TỪ ĐÂY ---
+            ViewBag.Username = Session["TenDangNhap"].ToString().ToLower();
             var db = new DB();
 
             // Tổng số liệu
@@ -134,7 +135,7 @@ namespace QL_Luong_MVC.Controllers
             int nam = DateTime.Now.Year;
 
             var bangCong = new BangChamCongDAO().GetByNhanVien(maNV)
-                            .Where(x => x.Day_ChamCong.Month == thang && x.Day_ChamCong.Year == nam).ToList();
+                .Where(x => x.Day_ChamCong.Month == thang && x.Day_ChamCong.Year == nam).ToList();
 
             ViewBag.SoNgayCong = bangCong.Sum(x => x.DayCong_ChamCong);
             ViewBag.GioTangCa = bangCong.Sum(x => x.GioTangCa);

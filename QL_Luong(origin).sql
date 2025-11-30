@@ -1,5 +1,3 @@
-
-﻿
 USE master;
 GO
 
@@ -2966,3 +2964,6 @@ INSERT INTO ThuongPhat (MaNV, Thangg, Namm, Loai, SoTien, LyDo)
 VALUES (1, 11, 2025, N'Thưởng', 2000, N'Thưởng dự án');
 
 SELECT * FROM BangLuong WHERE MaNV = 1 
+
+select * From NhanVien
+select * From TaiKhoan
