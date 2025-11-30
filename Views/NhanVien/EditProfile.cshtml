@@ -1,16 +1,102 @@
-﻿
-@model QL_Luong_MVC.Models.NhanVien
+﻿@model QL_Luong_MVC.Models.NhanVien
 @{
     ViewBag.Title = "Cập nhật hồ sơ";
     Layout = "~/Views/Shared/_LayoutNhanVien.cshtml";
+
+    // Lấy danh sách danh mục từ ViewBag (Giữ nguyên)
+    var dsPhongBan = ViewBag.PhongBans as List<QL_Luong_MVC.Models.PhongBan>;
+    var dsChucVu = ViewBag.ChucVus as List<QL_Luong_MVC.Models.ChucVu>;
+
+    // Helper Functions (Giữ nguyên logic)
+    Func<int?, string> GetPhongBanName = (id) =>
+        id.HasValue && dsPhongBan != null
+        ? dsPhongBan.FirstOrDefault(pb => pb.IDPhongBan == id)?.NamePhongBan ?? "Chưa xác định"
+        : "Chưa xác định";
+
+    Func<int?, string> GetChucVuName = (id) =>
+        id.HasValue && dsChucVu != null
+        ? dsChucVu.FirstOrDefault(cv => cv.IDChucVu == id)?.NameChucVu ?? "Chưa xác định"
+        : "Chưa xác định";
+
+    Func<bool> CanViewSalary = () =>
+        Session["MaNV"]?.ToString() == Model.IDNhanVien.ToString() ||
+        Session["Quyen"]?.ToString() == "Admin" ||
+        Session["Quyen"]?.ToString() == "KeToan";
+
+    Func<bool> CanEditProfile = () =>
+        Session["Quyen"]?.ToString() == "Admin" ||
+        Session["Quyen"]?.ToString() == "NhanSu";
+
+    // Sửa lỗi CS1061 (DateTime)
+    string formattedDate = Model.DayOfBirth_NhanVien != DateTime.MinValue
+                           ? Model.DayOfBirth_NhanVien.ToString("yyyy-MM-dd")
+                           : "";
 }
+
+<style>
+    /* ====================================================================== */
+    /* === BẢNG MÀU MỚI (XANH LÁ - NÂU - BE) === */
+    /* ====================================================================== */
+    :root {
+        --primary-green-dark: rgb(77, 102, 72); /* Xanh lá đậm (Primary) */
+        --secondary-green-light: rgb(130, 140, 110); /* Xanh lá nhạt (Secondary) */
+        --dark-brown: rgb(82, 60, 52); /* Nâu trầm (Dark/Charcoal) */
+        --light-beige: rgb(220, 218, 201); /* Be nhạt */
+    }
+
+    /* Tiêu đề card và icon */
+    .card-header h4 {
+        color: var(--dark-brown) !important; /* Nâu Trầm */
+        font-family: 'Playfair Display', serif;
+    }
+
+    .card-header i.fas {
+        color: var(--primary-green-dark); /* Xanh Lá Đậm */
+    }
+
+    /* Input read-only */
+    .form-control.bg-light {
+        background-color: #f3f4f6 !important;
+        border: 1px solid #ddd;
+        font-weight: 500;
+        color: #555;
+    }
+
+    /* Nút Submit */
+    .btn-primary {
+        background-color: var(--primary-green-dark) !important;
+        border-color: var(--primary-green-dark) !important;
+        color: #fff !important; /* Chữ trắng */
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-green-light) !important;
+            border-color: var(--secondary-green-light) !important;
+            color: var(--dark-brown) !important; /* Chữ Nâu Trầm */
+        }
+
+    /* Nút Hủy */
+    .btn-light {
+        color: var(--dark-brown) !important; /* Nâu Trầm */
+        border: 1px solid #ddd;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    /* Label text color */
+    .fw-bold {
+        color: var(--dark-brown); /* Nâu Trầm */
+    }
+</style>
 
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-lg border-0 rounded-lg">
                 <div class="card-header bg-white border-0 pt-4 pb-0">
-                    <h4 class="fw-bold text-primary"><i class="fas fa-user-edit me-2"></i> Cập nhật thông tin cá nhân</h4>
+                    <h4 class="fw-bold"><i class="fas fa-user-edit me-2"></i> Cập nhật thông tin cá nhân</h4>
                     <p class="text-muted small">Vui lòng cập nhật thông tin liên hệ mới nhất để nhận thông báo.</p>
                 </div>
                 <div class="card-body p-4">
@@ -18,6 +104,17 @@
                     {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(m => m.IDNhanVien)
+
+                        @Html.HiddenFor(m => m.IDCV_NhanVien)
+                        @Html.HiddenFor(m => m.IDPB_NhanVien)
+                        @Html.HiddenFor(m => m.Sex_NhanVien)
+                        @Html.HiddenFor(m => m.LuongHienTai)
+                        @Html.HiddenFor(m => m.State_NhanVien)
+
+                        if (Model.DayOfBirth_NhanVien != DateTime.MinValue)
+                        {
+                            <input type="hidden" name="DayOfBirth_NhanVien_Original" value="@Model.DayOfBirth_NhanVien" />
+                        }
 
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -33,23 +130,28 @@
                         <hr class="my-4" />
 
                         <div class="form-group mb-3">
-                            <label class="fw-bold text-dark">Số điện thoại <span class="text-danger">*</span></label>
-                            @Html.TextBoxFor(m => m.SDT_NhanVien, new { @class = "form-control", required = "required" })
+                            <label class="fw-bold">Số điện thoại <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.SDT_NhanVien, new { @class = "form-control", required = "required", placeholder = "Nhập số điện thoại liên hệ" })
+                            @Html.ValidationMessageFor(m => m.SDT_NhanVien, "", new { @class = "text-danger small" })
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="fw-bold text-dark">Email liên hệ <span class="text-danger">*</span></label>
-                            @Html.TextBoxFor(m => m.Email_NhanVien, new { @class = "form-control", type = "email", required = "required" })
+                            <label class="fw-bold">Email liên hệ <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.Email_NhanVien, new { @class = "form-control", type = "email", required = "required", placeholder = "Nhập email cá nhân/liên hệ" })
+                            @Html.ValidationMessageFor(m => m.Email_NhanVien, "", new { @class = "text-danger small" })
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="fw-bold text-dark">Địa chỉ thường trú</label>
-                            @Html.TextAreaFor(m => m.Address_NhanVien, new { @class = "form-control", rows = "2" })
+                            <label class="fw-bold">Địa chỉ thường trú</label>
+                            @Html.TextAreaFor(m => m.Address_NhanVien, new { @class = "form-control", rows = "2", placeholder = "Địa chỉ hiện tại" })
+                            @Html.ValidationMessageFor(m => m.Address_NhanVien, "", new { @class = "text-danger small" })
                         </div>
 
                         <div class="form-group mb-4">
-                            <label class="fw-bold text-dark">Ngày sinh</label>
-                            @Html.TextBoxFor(m => m.DayOfBirth_NhanVien, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                            <label class="fw-bold">Ngày sinh</label>
+                            @* SỬ DỤNG FORMATTED DATE VÀ TYPE="DATE" *@
+                            @Html.TextBoxFor(m => m.DayOfBirth_NhanVien, new { @class = "form-control", type = "date", value = formattedDate })
+                            @Html.ValidationMessageFor(m => m.DayOfBirth_NhanVien, "", new { @class = "text-danger small" })
                         </div>
 
                         <div class="d-flex justify-content-end">

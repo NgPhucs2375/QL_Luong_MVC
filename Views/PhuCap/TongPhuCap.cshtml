@@ -1,31 +1,123 @@
-﻿@{
+﻿@model IEnumerable<QL_Luong_MVC.Models.PhuCap>
+@{
     ViewBag.Title = "Chi tiết phụ cấp nhân viên";
+    // Ép kiểu Model thành List<PhuCap> để dùng trong View
+    var dsPhuCap = Model as List<QL_Luong_MVC.Models.PhuCap>;
+
+    // Lấy thông tin tóm tắt từ ViewBag
     var nv = ViewBag.NhanVien as QL_Luong_MVC.Models.NhanVien;
+
+    // Lấy tổng và tên Phòng ban từ ViewBag
+    decimal tongPhuCap = (decimal)ViewBag.Tong;
+    string phongBanName = ViewBag.PhongBanName?.ToString() ?? "Chưa xác định";
+
+    // ======================================================================
+    // KHAI BÁO CÁC BIẾN MÀU MỚI (XANH LÁ - NÂU - BE)
+    // ======================================================================
+    var primaryGreenDark = "rgb(77, 102, 72)";     /* Xanh lá đậm (Primary) */
+    var secondaryGreenLight = "rgb(130, 140, 110)"; /* Xanh lá nhạt (Secondary/Avatar BG) */
+    var darkBrown = "rgb(82, 60, 52)";             /* Nâu trầm (Dark/Charcoal) */
+    var lightBeige = "rgb(220, 218, 201)";         /* Be nhạt */
+    var successColor = "#1cc88a";                  /* Giữ Success */
 }
+
+<style>
+    /* Bảng màu Xanh Lá & Nâu (Tương thích với _Layout) */
+    :root {
+        --primary-green-dark: @primaryGreenDark;
+        --secondary-green-light: @secondaryGreenLight;
+        --dark-brown: @darkBrown;
+        --light-beige: @lightBeige;
+    }
+
+    /* Custom CSS cho Card Tổng Quan */
+    .card-summary {
+        border-radius: 16px;
+        transition: transform 0.3s;
+    }
+
+    /* Đổi màu nền của khối tổng tiền thành Gradient Xanh Lá */
+    .bg-gradient-gold {
+        background: linear-gradient(135deg, var(--primary-green-dark) 0%, var(--secondary-green-light) 100%) !important;
+        color: #fff; /* Chữ màu trắng */
+    }
+
+    /* Đổi màu tiêu đề và chữ trong khối tổng tiền (Dùng cho h4) */
+    .text-gold-dark {
+        color: var(--dark-brown) !important; /* Nâu Trầm */
+    }
+
+    .text-gold-muted {
+        color: rgba(255, 255, 255, 0.8) !important; /* Chữ trắng mờ cho Total Text */
+    }
+
+    /* Căn chỉnh lại Avartar cho đồng bộ với InfoNV */
+    .img-profile-custom {
+        width: 100px;
+        height: 100px;
+        border: 4px solid @primaryGreenDark; /* Viền Xanh Lá Đậm */
+        background-color: @secondaryGreenLight; /* Nền Xanh Lá Nhạt */
+    }
+
+    /* Căn chỉnh màu cho tiêu đề Hoạt động */
+    .text-section-title {
+        color: var(--dark-brown) !important; /* Nâu Trầm */
+    }
+
+    /* Màu tiền là Primary Green (chủ đạo) */
+    .text-allowance {
+        color: var(--primary-green-dark) !important;
+    }
+
+    .table thead th {
+        border-top: none !important;
+    }
+
+    /* Kẻ chân bảng rõ ràng */
+    .table tbody tr:last-child {
+        border-bottom: 2px solid var(--dark-brown);
+    }
+
+    /* Màu nền cho hàng tổng */
+    .table tbody tr:last-child[style] {
+        background-color: var(--light-beige) !important;
+    }
+
+    /* Nút Trở về Tổng quan */
+    .btn-primary {
+        background-color: var(--primary-green-dark) !important;
+        border-color: var(--primary-green-dark) !important;
+        color: #fff !important;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--dark-brown) !important;
+        border-color: var(--dark-brown) !important;
+    }
+</style>
 
 <div class="container-fluid py-4">
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Chi tiết phụ cấp</h1>
-        <a href="@Url.Action("Index")" class="btn btn-light text-primary font-weight-bold border shadow-sm">
-            <i class="fas fa-arrow-left mr-1"></i> Trở về danh sách
+        <a href="@Url.Action("DashboardUser", "Home")" class="btn btn-primary font-weight-bold shadow-sm">
+            <i class="fas fa-arrow-left mr-1"></i> Trở về tổng quan
         </a>
     </div>
 
     @if (nv != null)
     {
         <div class="row">
-            <!-- Cột Trái: Thông tin tóm tắt -->
             <div class="col-xl-4 col-lg-5 mb-4">
-                <div class="card card-plus shadow h-100">
+                <div class="card card-summary shadow h-100">
                     <div class="card-body text-center p-5">
-                        <img class="img-profile rounded-circle mb-3" src="~/Content/img/default-avatar.png" style="width: 100px; height: 100px; border: 4px solid #f8f9fc;">
-                        <h4 class="font-weight-bold text-gray-800 mb-1">@nv.FullNameNhanVien</h4>
-                        <p class="text-muted mb-4">ID: @nv.IDNhanVien • @ViewBag.PhongBanName</p>
+                        <img class="img-profile rounded-circle mb-3 img-profile-custom" src="~/Content/img/default-avatar.png">
+                        <h4 class="font-weight-bold text-gold-dark mb-1">@nv.FullNameNhanVien</h4>
+                        <p class="text-muted mb-4">ID: @nv.IDNhanVien • @phongBanName</p>
 
-                        <div class="p-3 bg-gradient-primary rounded text-white mb-3 shadow-sm">
-                            <div class="small text-white-50 text-uppercase font-weight-bold">Tổng Phụ Cấp Tháng</div>
-                            <div class="h2 font-weight-bold mb-0">@string.Format("{0:N0}", ViewBag.Tong) ₫</div>
+                        <div class="p-4 bg-gradient-gold rounded text-white mb-3 shadow-lg">
+                            <div class="small text-gold-muted text-uppercase font-weight-bold">Tổng Phụ Cấp Hiện Hành</div>
+                            <div class="h2 font-weight-bold mb-0" style="color: #fff;">@string.Format("{0:N0}", tongPhuCap) ₫</div>
                         </div>
 
                         <p class="small text-muted">
@@ -35,43 +127,47 @@
                 </div>
             </div>
 
-            <!-- Cột Phải: Danh sách chi tiết -->
             <div class="col-xl-8 col-lg-7 mb-4">
-                <div class="card card-plus shadow h-100">
+                <div class="card card-summary shadow h-100">
                     <div class="card-header py-3 bg-white border-bottom-0">
-                        <h6 class="m-0 font-weight-bold text-primary">Các khoản mục chi tiết</h6>
+                        <h6 class="m-0 font-weight-bold text-section-title">Các khoản mục chi tiết</h6>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-borderless align-middle">
-                                <thead class="border-bottom bg-light text-dark">
+                                <thead class="border-bottom bg-light">
                                     <tr>
-                                        <th class="pl-4">Loại phụ cấp</th>
-                                        <th>Ghi chú</th>
-                                        <th class="text-right pr-4">Số tiền</th>
+                                        <th class="pl-4 text-gold-dark">Loại phụ cấp</th>
+                                        <th class="text-gold-dark">Mã giao dịch</th>
+                                        <th class="text-right pr-4 text-gold-dark">Số tiền</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if (ViewBag.ChiTiet != null)
+                                    @if (dsPhuCap != null && dsPhuCap.Any())
                                     {
-                                        foreach (var item in ViewBag.ChiTiet)
+                                        foreach (var item in dsPhuCap)
                                         {
                                             <tr class="border-bottom">
-                                                <td class="pl-4 py-3 font-weight-bold text-dark">@item.Loai_PhuCap</td>
+                                                <td class="pl-4 py-3 font-weight-bold text-gold-dark">@item.Loai_PhuCap</td>
                                                 <td class="py-3 text-muted small">
-                                                    @* Giả sử có trường Note, nếu không có thì hiển thị mặc định *@
-                                                    Theo quy định công ty
+                                                    PC-@item.IDPhuCap@item.IDNhanVien_PhuCap
                                                 </td>
-                                                <td class="pr-4 py-3 text-right font-weight-bold text-success">
+                                                <td class="pr-4 py-3 text-right font-weight-bold text-allowance">
                                                     + @string.Format("{0:N0}", item.SoTien_PhuCap) ₫
                                                 </td>
                                             </tr>
                                         }
+                                        <tr class="font-weight-bold" style="background-color: var(--light-beige);">
+                                            <td colspan="2" class="pl-4 py-3 h5 text-gold-dark">TỔNG CỘNG PHỤ CẤP</td>
+                                            <td class="pr-4 py-3 text-right h5 text-allowance">@string.Format("{0:N0}", tongPhuCap) ₫</td>
+                                        </tr>
                                     }
                                     else
                                     {
                                         <tr>
-                                            <td colspan="3" class="text-center py-4 text-muted">Chưa có dữ liệu chi tiết.</td>
+                                            <td colspan="3" class="text-center py-4 text-muted">
+                                                <i class="fas fa-frown mr-2"></i> Nhân viên này hiện không có khoản phụ cấp nào.
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
@@ -84,8 +180,8 @@
     }
     else
     {
-        <div class="alert alert-danger shadow-sm border-0">
-            <i class="fas fa-times-circle mr-2"></i> Không tìm thấy thông tin nhân viên.
+        <div class="alert alert-danger shadow-sm border-0" style="background-color: #f8d7da; color: #721c24;">
+            <i class="fas fa-times-circle mr-2"></i> Không tìm thấy thông tin nhân viên hoặc dữ liệu phụ cấp.
         </div>
     }
 </div>

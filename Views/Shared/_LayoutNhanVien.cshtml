@@ -1,279 +1,369 @@
 ﻿<!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Portal Nhân Viên</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="">
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>QL_LƯƠNG_NV - @ViewBag.Title</title>
 
-    <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
-    <link href="~/Content/css/sb-admin-2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+    <link href="~/Content/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="~/Content/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
     <style>
+        /* ====================================================================== */
+        /* === BẢNG MÀU MỚI (XANH LÁ - NÂU - BE) === */
+        /* ====================================================================== */
         :root {
-            /* BẢNG MÀU RƯỢU VANG & JAZZ */
-            --wine-primary: #722F37; /* Đỏ Bordeaux chủ đạo */
-            --wine-dark: #4A192C; /* Đỏ thẫm tối */
-            --jazz-gold: #D4AF37; /* Vàng kim loại */
-            --jazz-gold-light: #F4E5B2; /* Vàng nhạt */
-            --paper-bg: #F9F7F2; /* Màu giấy trắng ngà */
-            --text-dark: #2C2C2C;
-            --sidebar-width: 260px;
+            --primary-green-dark: rgb(77, 102, 72); /* Xanh lá đậm (Primary) */
+            --secondary-green-light: rgb(130, 140, 110); /* Xanh lá nhạt (Secondary) */
+            --dark-brown: rgb(82, 60, 52); /* Nâu trầm (Dark/Charcoal) */
+            --light-beige: rgb(220, 218, 201); /* Be nhạt (Background/Icon Light) */
+            --muted-gray: #6c757d;
+            --sidebar-text-color: #f8f9fc;
+            --sidebar-active-color: rgb(220, 218, 201);
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--paper-bg) !important;
-            color: var(--text-dark);
+        /* --- Sidebar --- */
+        .sidebar {
+            background-color: var(--dark-brown);
+            color: var(--sidebar-text-color);
+            transition: all 0.3s;
         }
 
-        /* --- 1. SIDEBAR PHONG CÁCH RƯỢU VANG --- */
-        .sidebar-wine {
-            background: linear-gradient(160deg, var(--wine-dark) 0%, var(--wine-primary) 100%);
-            border-right: 3px solid var(--jazz-gold);
-            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
-        }
-
-        .sidebar-brand-text {
-            font-family: 'Playfair Display', serif;
-            letter-spacing: 2px;
-            color: var(--jazz-gold) !important;
-            font-size: 1.2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .sidebar-brand-icon i {
-            color: var(--jazz-gold);
-            transform: rotate(-15deg);
-        }
-
-        /* Menu Item Style */
-        .sidebar-wine .nav-item {
-            margin-bottom: 5px;
-        }
-
-            .sidebar-wine .nav-item .nav-link {
-                color: rgba(255,255,255,0.75) !important;
-                font-weight: 400;
-                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-                border-left: 4px solid transparent;
-                padding: 1rem 1.5rem;
+            .sidebar .nav-item .nav-link {
+                color: var(--sidebar-text-color);
             }
 
-                .sidebar-wine .nav-item .nav-link:hover {
-                    background-color: rgba(212, 175, 55, 0.1); /* Gold tint */
-                    color: #fff !important;
-                    padding-left: 2rem; /* Hiệu ứng trượt nhẹ */
+                .sidebar .nav-item .nav-link i {
+                    color: var(--light-beige);
                 }
 
-                .sidebar-wine .nav-item .nav-link i {
-                    color: rgba(255,255,255,0.5);
-                    margin-right: 10px;
-                    transition: 0.3s;
-                }
-
-            /* Active State */
-            .sidebar-wine .nav-item.active .nav-link {
-                background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
-                color: var(--jazz-gold) !important;
-                font-weight: 700;
-                border-left: 4px solid var(--jazz-gold);
+            .sidebar .nav-item.active .nav-link {
+                color: var(--dark-brown);
+                background-color: var(--sidebar-active-color);
+                border-radius: 8px;
+                margin-right: 10px;
             }
 
-                .sidebar-wine .nav-item.active .nav-link i {
-                    color: var(--jazz-gold);
+                .sidebar .nav-item.active .nav-link i {
+                    color: var(--dark-brown);
                 }
 
-        .sidebar-heading {
-            color: var(--jazz-gold-light) !important;
-            opacity: 0.7;
+            .sidebar .nav-item .nav-link:hover {
+                color: var(--dark-brown);
+                background-color: var(--secondary-green-light);
+            }
+
+                .sidebar .nav-item .nav-link:hover i {
+                    color: var(--dark-brown);
+                }
+
+
+            .sidebar .sidebar-brand {
+                background-color: var(--dark-brown);
+                color: var(--sidebar-text-color);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+                .sidebar .sidebar-brand .sidebar-brand-icon {
+                    color: var(--light-beige);
+                }
+
+            .sidebar .sidebar-heading {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .sidebar hr.sidebar-divider {
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+        /* --- Topbar --- */
+        .navbar-nav .nav-item .nav-link.dropdown-toggle span {
+            color: var(--dark-brown);
+        }
+
+        .navbar-nav .nav-item .nav-link.dropdown-toggle img {
+            border: 2px solid var(--primary-green-dark);
+        }
+
+        /* --- Header và Title --- */
+        .h3.mb-0.text-gray-800,
+        h1.h3.mb-0.text-gray-800 {
+            color: var(--dark-brown) !important;
             font-family: 'Playfair Display', serif;
-            letter-spacing: 1px;
-            margin-top: 15px;
         }
 
-        hr.sidebar-divider {
-            border-top: 1px solid rgba(212, 175, 55, 0.3) !important;
+        /* --- Card Headers --- */
+        .card-header h6.m-0.font-weight-bold {
+            color: var(--primary-green-dark);
         }
 
-        /* --- 2. TOPBAR SANG TRỌNG --- */
-        .topbar-classic {
-            background-color: #fff;
-            border-bottom: 1px solid rgba(114, 47, 55, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
-            height: 80px;
+        .card-header {
+            background-color: var(--light-beige) !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
         }
 
-        .page-title {
-            font-family: 'Playfair Display', serif;
-            color: var(--wine-primary);
-            font-size: 1.5rem;
-            margin-left: 1rem;
+        /* --- Buttons --- */
+        .btn-primary {
+            background-color: var(--primary-green-dark) !important;
+            border-color: var(--primary-green-dark) !important;
+            color: #fff !important;
         }
 
-        /* --- 3. HIỆU ỨNG CARD --- */
-        .card {
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
+            .btn-primary:hover {
+                background-color: var(--secondary-green-light) !important;
+                border-color: var(--secondary-green-light) !important;
+                color: var(--dark-brown) !important;
+            }
+
+        .btn-danger {
+            background-color: #e74a3b !important;
+            border-color: #e74a3b !important;
         }
 
-        /* Hiệu ứng loading mượt mà */
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
+        /* --- Text Colors --- */
+        .text-primary {
+            color: var(--primary-green-dark) !important;
+        }
+
+        .text-success {
+            color: #1cc88a !important;
+        }
+
+        .text-info {
+            color: #36b9cc !important;
+        }
+
+        .text-warning {
+            color: var(--secondary-green-light) !important;
+        }
+
+        .text-danger {
+            color: #e74a3b !important;
+        }
+
+        .text-gray-800 {
+            color: var(--dark-brown) !important;
+        }
+
+        .text-gray-700 {
+            color: var(--dark-brown) !important;
+        }
+
+        .text-gray-600 {
+            color: var(--dark-brown) !important;
+        }
+
+        .text-gray-500 {
+            color: var(--muted-gray) !important;
+        }
+
+        .text-gray-300 {
+            color: var(--light-beige) !important;
+        }
+
+        /* --- Borders --- */
+        .border-left-primary {
+            border-left: .25rem solid var(--primary-green-dark) !important;
+        }
+
+        .border-bottom-primary {
+            border-bottom: .25rem solid var(--primary-green-dark) !important;
+        }
+
+        .border-left-success {
+            border-left: .25rem solid #1cc88a !important;
+        }
+
+        .border-left-info {
+            border-left: .25rem solid #36b9cc !important;
+        }
+
+        .border-left-warning {
+            border-left: .25rem solid var(--secondary-green-light) !important;
+        }
+
+        /* --- Progress Bars --- */
+        .progress-bar {
+            background-color: var(--primary-green-dark);
+        }
+
+        /* --- Dropdown Hoạt động (Admin) --- */
+        .dropdown-menu-right {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 .15rem 1.75rem 0 rgba(58, 59, 69, .15) !important;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-beige);
+            color: var(--dark-brown);
+        }
+
+        /* --- DataTables --- */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background-color: var(--primary-green-dark) !important;
+            border-color: var(--primary-green-dark) !important;
+            color: #fff !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background-color: var(--secondary-green-light) !important;
+            border-color: var(--secondary-green-light) !important;
+            color: var(--dark-brown) !important;
         }
     </style>
 
-    @RenderSection("Styles", required: false)
 </head>
 
 <body id="page-top">
 
-    @helper IsActive(string controller, string action)
-    {
-        var routeData = ViewContext.RouteData;
-        var currentAction = routeData.Values["action"].ToString();
-        var currentController = routeData.Values["controller"].ToString();
-
-        if (string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase))
-        {
-            @Html.Raw("active")
-        }
-    }
-
     <div id="wrapper">
-        <ul class="navbar-nav sidebar-wine sidebar sidebar-dark accordion" id="accordionSidebar">
 
-            <a class="sidebar-brand d-flex align-items-center justify-content-center py-4" href="@Url.Action("DashboardUser", "Home")">
+        <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("DashboardUser", "Home")">
                 <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-wine-glass-alt fa-2x"></i>
+                    <i class="fas fa-laugh-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">HRM <span style="color:#fff">PORTAL</span></div>
+                <div class="sidebar-brand-text mx-3">QL_LƯƠNG_NV</div>
             </a>
 
             <hr class="sidebar-divider my-0">
 
-            <li class="nav-item @IsActive("Home", "DashboardUser")">
+            <li class="nav-item @(ViewBag.Title == "Tổng quan cá nhân" ? "active" : "")">
                 <a class="nav-link" href="@Url.Action("DashboardUser", "Home")">
-                    <i class="fas fa-fw fa-home"></i>
-                    <span>Tổng quan</span>
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Tổng quan cá nhân</span>
                 </a>
             </li>
 
             <hr class="sidebar-divider">
-            <div class="sidebar-heading">Cá Nhân</div>
 
-            <li class="nav-item @IsActive("NhanVien", "InfoNV")">
-                <a class="nav-link" href="@Url.Action("InfoNV", "NhanVien")">
-                    <i class="fas fa-fw fa-id-badge"></i>
-                    <span>Hồ sơ của tôi</span>
+            <div class="sidebar-heading">
+                Quản lý thông tin
+            </div>
+
+            <li class="nav-item @(ViewBag.Title == "Thông tin cá nhân" || ViewBag.Title == "Cập nhật hồ sơ" || ViewBag.Title == "Đổi mật khẩu" ? "active" : "")">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUser"
+                   aria-expanded="true" aria-controls="collapseUser">
+                    <i class="fas fa-fw fa-user"></i>
+                    <span>Tài khoản của tôi</span>
                 </a>
+                <div id="collapseUser" class="collapse @(ViewBag.Title == "Thông tin cá nhân" || ViewBag.Title == "Cập nhật hồ sơ" || ViewBag.Title == "Đổi mật khẩu" ? "show" : "")" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Thông tin:</h6>
+                        <a class="collapse-item @(ViewBag.Title == "Thông tin cá nhân" ? "active" : "")" href="@Url.Action("InfoNV", "NhanVien")">Thông tin cá nhân</a>
+                        <a class="collapse-item @(ViewBag.Title == "Cập nhật hồ sơ" ? "active" : "")" href="@Url.Action("EditProfile", "NhanVien")">Cập nhật hồ sơ</a>
+                        <a class="collapse-item @(ViewBag.Title == "Đổi mật khẩu" ? "active" : "")" href="@Url.Action("ChangePassword", "NhanVien")">Đổi mật khẩu</a>
+                    </div>
+                </div>
             </li>
 
-            <li class="nav-item @IsActive("NhanVien", "EditProfile")">
-                <a class="nav-link" href="@Url.Action("EditProfile", "NhanVien")">
-                    <i class="fas fa-fw fa-user-edit"></i>
-                    <span>Cập nhật thông tin</span>
-                </a>
-            </li>
-
-            <li class="nav-item @IsActive("ChamCong", "XemGioTangCa")">
-                <a class="nav-link" href="@Url.Action("XemGioTangCa", "ChamCong", new { maNV = Session["MaNV"] })">
-                    <i class="fas fa-fw fa-business-time"></i>
-                    <span>Lịch sử tăng ca</span>
-                </a>
-            </li>
-
-            <hr class="sidebar-divider">
-            <div class="sidebar-heading">Tài Chính</div>
-
-            <li class="nav-item @IsActive("BangLuong", "ChiTietNhanVien")">
-                <a class="nav-link" href="@Url.Action("ChiTietNhanVien", "BangLuong", new { maNV = Session["MaNV"] })">
-                    <i class="fas fa-fw fa-file-invoice-dollar"></i>
-                    <span>Phiếu lương & Thưởng</span>
-                </a>
-            </li>
-
-            <li class="nav-item @IsActive("PhuCap", "TongPhuCap")">
+            <li class="nav-item @(ViewBag.Title == "Chi tiết phụ cấp nhân viên" ? "active" : "")">
                 <a class="nav-link" href="@Url.Action("TongPhuCap", "PhuCap", new { id = Session["MaNV"] })">
-                    <i class="fas fa-fw fa-wallet"></i>
-                    <span>Phúc lợi & Phụ cấp</span>
+                    <i class="fas fa-fw fa-money-check-alt"></i>
+                    <span>Phụ cấp của tôi</span>
                 </a>
             </li>
 
-            <li class="text-center d-none d-md-inline mt-5">
-                <button class="rounded-circle border-0" id="sidebarToggle" style="background: rgba(255,255,255,0.2);"></button>
+            <hr class="sidebar-divider">
+
+            <div class="sidebar-heading">
+                Hoạt động
+            </div>
+
+            <li class="nav-item @(ViewBag.Title == "Xem giờ tăng ca" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("XemGioTangCa", "ChamCong")">
+                    <i class="fas fa-fw fa-business-time"></i>
+                    <span>Xem giờ tăng ca</span>
+                </a>
             </li>
+
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
         </ul>
         <div id="content-wrapper" class="d-flex flex-column">
+
             <div id="content">
 
-                <nav class="navbar navbar-expand navbar-light topbar-classic topbar mb-4 static-top">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                        <i class="fa fa-bars" style="color: var(--wine-primary);"></i>
+                        <i class="fa fa-bars"></i>
                     </button>
 
-                    <div class="d-none d-sm-block">
-                        <h1 class="page-title mb-0 animate__animated animate__fadeInLeft">@ViewBag.Title</h1>
-                    </div>
-
                     <ul class="navbar-nav ml-auto">
+
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
-                                <div class="mr-3 d-none d-lg-inline text-right">
-                                    <span class="d-block text-gray-600 small">Xin chào,</span>
-                                    <span class="d-block font-weight-bold" style="color: var(--wine-primary);">@Session["TenDangNhap"]</span>
-                                </div>
-                                <img class="img-profile rounded-circle shadow-sm" src="~/Content/img/default-avatar.png" style="border: 2px solid var(--jazz-gold);">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">@Session["TenNV"]</span>
+                                <img class="img-profile rounded-circle"
+                                     src="~/Content/img/undraw_profile.svg">
                             </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
-                                <a class="dropdown-item" href="@Url.Action("EditProfile", "NhanVien")">
-                                    <i class="fas fa-user-cog fa-sm fa-fw mr-2 text-gray-400"></i> Cài đặt tài khoản
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="@Url.Action("InfoNV", "NhanVien")">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Thông tin cá nhân
+                                </a>
+                                <a class="dropdown-item" href="@Url.Action("ChangePassword", "NhanVien")">
+                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đổi mật khẩu
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i> Đăng xuất
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đăng xuất
                                 </a>
                             </div>
                         </li>
+
                     </ul>
+
                 </nav>
-                <div class="container-fluid fade-in-up">
+                <div class="container-fluid">
                     @RenderBody()
                 </div>
-
             </div>
-
-            <footer class="sticky-footer bg-white mt-4">
+            <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
-                    <div class="copyright text-center my-auto text-gray-500">
-                        <span>HRM System &copy; @DateTime.Now.Year - Designed with <i class="fas fa-heart text-danger"></i> & Jazz</span>
+                    <div class="copyright text-center my-auto">
+                        <span>Bản quyền &copy; Ứng dụng QL_LƯƠNG_NV 2023</span>
                     </div>
                 </div>
             </footer>
         </div>
     </div>
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
 
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog">
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
-                <div class="modal-header border-0 bg-light" style="border-radius: 15px 15px 0 0;">
-                    <h5 class="modal-title font-weight-bold text-dark">Sẵn sàng rời đi?</h5>
-                    <button class="close" type="button" data-dismiss="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Sẵn sàng rời đi?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body p-4 text-center">
-                    <i class="fas fa-door-open fa-3x text-gray-300 mb-3"></i>
-                    <p>Chọn "Đăng xuất" bên dưới nếu bạn muốn kết thúc phiên làm việc hiện tại.</p>
-                </div>
-                <div class="modal-footer border-0">
-                    <button class="btn btn-light rounded-pill px-4" type="button" data-dismiss="modal">Hủy</button>
-                    <a class="btn btn-primary rounded-pill px-4" href="@Url.Action("Logout", "Login")" style="background-color: var(--wine-primary); border:none;">Đăng xuất</a>
+                <div class="modal-body">Chọn "Đăng xuất" bên dưới nếu bạn đã sẵn sàng kết thúc phiên hiện tại của mình.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy</button>
+                    <a class="btn btn-primary" href="@Url.Action("Logout", "Auth")">Đăng xuất</a>
                 </div>
             </div>
         </div>
@@ -282,35 +372,15 @@
     <script src="~/Content/vendor/jquery/jquery.min.js"></script>
     <script src="~/Content/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/Content/vendor/jquery-easing/jquery.easing.min.js"></script>
+
     <script src="~/Scripts/js/sb-admin-2.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/Content/vendor/chart.js/Chart.min.js"></script>
+    <script src="~/Content/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="~/Content/js/demo/datatables-demo.js"></script>
 
-    <script>
-        // Tự động hiển thị thông báo nếu có TempData
-        $(document).ready(function() {
-            var msgSuccess = '@TempData["SuccessMessage"]';
-            var msgError = '@TempData["Error"]';
+    @RenderSection("scripts", required: false)
 
-            if (msgSuccess) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    text: msgSuccess,
-                    confirmButtonColor: '#722F37'
-                });
-            }
-            if (msgError) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi!',
-                    text: msgError,
-                    confirmButtonColor: '#722F37'
-                });
-            }
-        });
-    </script>
-
-    @RenderSection("Scripts", required: false)
 </body>
 </html>

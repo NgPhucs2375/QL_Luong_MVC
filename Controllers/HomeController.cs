@@ -1,4 +1,4 @@
-﻿using QL_Luong_MVC.DAO;
+using QL_Luong_MVC.DAO;
 using QL_Luong_MVC.Models;
 using QL_Luong_MVC.ViewModel;
 using System;
@@ -16,18 +16,24 @@ namespace QL_Luong_MVC.Controllers
     {
         public ActionResult Index()
         {
+            // ✅ Kiểm tra đăng nhập
             if (Session["TenDangNhap"] == null)
                 return RedirectToAction("Login", "Login");
 
+            // ✅ Kiểm tra quyền
             string username = Session["TenDangNhap"].ToString().ToLower();
             string role = Session["Quyen"]?.ToString();
 
-            if (username != "admin" && role != "Admin")
+            // 2. LOGIC ĐIỀU HƯỚNG MỚI (FIX LỖI)
+            // Nếu KHÔNG phải Admin, chuyển hướng thẳng đến Dashboard cá nhân
+            if (role != "Admin")
             {
-                return RedirectToAction("DashboardUser");
+                TempData["Error"] = "Bạn không có quyền truy cập trang này!";
+                return RedirectToAction("AccessDenied", "Login");
             }
 
             ViewBag.Username = username;
+            // ✅ Tạo dữ liệu Dashboard
             var db = new DB();
 
             int totalNV = db.dsNhanVien.Count;
@@ -122,7 +128,7 @@ namespace QL_Luong_MVC.Controllers
             int thang = DateTime.Now.Month;
             int nam = DateTime.Now.Year;
 
-            var bangCong = new BangChamCongDAO().GetByNhanVien(idNhanVien)
+            var bangCong = new BangChamCongDAO().GetByNhanVien(maNV)
                             .Where(x => x.Day_ChamCong.Month == thang && x.Day_ChamCong.Year == nam).ToList();
 
             ViewBag.SoNgayCong = bangCong.Sum(x => x.DayCong_ChamCong);
