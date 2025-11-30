@@ -16,9 +16,6 @@ namespace QL_Luong_MVC.Controllers
         private PhongBanDAO pbDao = new PhongBanDAO();
         private ChucVuDAO cvDao = new ChucVuDAO();
 
-        // ==================================================================================
-        // PHẦN 1: DÀNH CHO TẤT CẢ NGƯỜI DÙNG (USER, ADMIN, HR...)
-        // ==================================================================================
 
         // 1. Xem thông tin cá nhân (Profile)
         [CustomAuthorize] // Ai đăng nhập rồi cũng vào được
@@ -31,6 +28,11 @@ namespace QL_Luong_MVC.Controllers
             var nv = nvDao.GetById(maNV);
 
             if (nv == null) return HttpNotFound();
+
+            var chucVu = cvDao.GetAll().FirstOrDefault(x => x.IDChucVu == nv.IDCV_NhanVien);
+            var phongBan = pbDao.GetAll().FirstOrDefault(x => x.IDPhongBan == nv.IDPB_NhanVien);
+            ViewBag.TenChucVu = chucVu?.NameChucVu ?? "Chưa cập nhật";
+            ViewBag.TenPhongBan = phongBan?.NamePhongBan ?? "Chưa cập nhật";
             return View(nv);
         }
 

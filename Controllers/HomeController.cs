@@ -23,12 +23,12 @@ namespace QL_Luong_MVC.Controllers
             // ✅ Kiểm tra quyền
             string username = Session["TenDangNhap"].ToString().ToLower();
             string role = Session["Quyen"]?.ToString();
-
-            // 2. LOGIC ĐIỀU HƯỚNG MỚI (FIX LỖI)
-            // Nếu KHÔNG phải Admin, chuyển hướng thẳng đến Dashboard cá nhân
-            if (role != "Admin")
+            // Sửa lại dòng if check quyền trong HomeController.Index
+            if (role != "Admin" && role != "NhanSu" && role != "KeToan")
             {
-                TempData["Error"] = "Bạn không có quyền truy cập trang này!";
+                // Nếu là User thường thì đá về Dashboard của User
+                if (role == "User") return RedirectToAction("DashboardUser");
+
                 return RedirectToAction("AccessDenied", "Login");
             }
 
@@ -128,7 +128,7 @@ namespace QL_Luong_MVC.Controllers
             int thang = DateTime.Now.Month;
             int nam = DateTime.Now.Year;
 
-            var bangCong = new BangChamCongDAO().GetByNhanVien(maNV)
+            var bangCong = new BangChamCongDAO().GetByNhanVien(idNhanVien)
                             .Where(x => x.Day_ChamCong.Month == thang && x.Day_ChamCong.Year == nam).ToList();
 
             ViewBag.SoNgayCong = bangCong.Sum(x => x.DayCong_ChamCong);

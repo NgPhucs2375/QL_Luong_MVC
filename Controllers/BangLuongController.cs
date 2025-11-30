@@ -4,20 +4,12 @@ using System.Web.Mvc;
 
 namespace QL_Luong_MVC.Controllers
 {
-    [CustomAuthorize(Roles = "Admin,KeToan")]
     public class BangLuongController : Controller
     {
         // Khởi tạo DAO để truy cập database
         private readonly BangLuongDAO bangLuongDAO = new BangLuongDAO();
 
-        // ==================================================================================
-        // UC20: HIỂN THỊ DANH SÁCH BẢNG LƯƠNG
-        // ==================================================================================
-
-        /// <summary>
-        /// [UC20] Trang chủ - Hiển thị danh sách bảng lương
-        /// Route: /BangLuong/Index
-        /// </summary>
+        [CustomAuthorize(Roles = "Admin,KeToan")]
         public ActionResult Index(int? thang, int? nam)
         {
             try
@@ -42,15 +34,9 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        // ==================================================================================
-        // UC13: TÍNH BẢNG LƯƠNG THEO THÁNG
-        // ==================================================================================
 
-        /// <summary>
-        /// [UC13] Hiển thị form chọn tháng/năm để tính lương
-        /// Route: GET /BangLuong/TinhLuong
-        /// </summary>
         [HttpGet]
+
         public ActionResult TinhLuong()
         {
             // Set mặc định là tháng/năm hiện tại
@@ -60,12 +46,10 @@ namespace QL_Luong_MVC.Controllers
             return View();
         }
 
-        /// <summary>
-        /// [UC13] Xử lý tính lương - Gọi SP sp_TinhBangLuong_Thang
-        /// Route: POST /BangLuong/TinhLuong
-        /// </summary>
+
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [CustomAuthorize(Roles = "Admin,KeToan")]
         public ActionResult TinhLuong(int thang, int nam)
         {
             try
@@ -114,14 +98,7 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        // ==================================================================================
-        // UC20: XEM BÁO CÁO LƯƠNG THÁNG (TỔNG HỢP)
-        // ==================================================================================
-
-        /// <summary>
-        /// [UC20] Xem báo cáo lương tổng hợp với thông tin đầy đủ
-        /// Route: /BangLuong/BaoCao?thang={thang}&nam={nam}
-        /// </summary>
+        [CustomAuthorize(Roles = "Admin,KeToan")]
         public ActionResult BaoCao(int? thang, int? nam)
         {
             try
@@ -155,19 +132,18 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        // ==================================================================================
-        // UC20: XEM CHI TIẾT LƯƠNG CỦA 1 NHÂN VIÊN
-        // ==================================================================================
-
-        /// <summary>
-        /// [UC20] Xem lịch sử lương của 1 nhân viên
-        /// Route: /BangLuong/ChiTietNhanVien/{maNV}
-        /// </summary>
+        [CustomAuthorize]
         public ActionResult ChiTietNhanVien(int maNV)
         {
-            try
+           try
+            {  int currentID = Convert.ToInt32(Session["MaNV"]);
+            string currentRole = Session["Quyen"].ToString();
+            if (currentRole == "User" && currentID != maNV)
             {
-                // Lấy lịch sử lương của nhân viên
+                TempData["Error"] = "Bạn chỉ được xem phiếu lương của chính mình!";
+                return RedirectToAction("ChiTietNhanVien", new { maNV = currentID });
+            }
+           
                 var lichSuLuong = bangLuongDAO.GetByNhanVien(maNV);
 
                 ViewBag.MaNhanVien = maNV;
@@ -181,21 +157,11 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        // ==================================================================================
-        // HELPER: EXPORT BÁO CÁO RA EXCEL (OPTIONAL - CÓ THỂ BỔ SUNG SAU)
-        // ==================================================================================
 
-        /// <summary>
-        /// [UC20] Export báo cáo lương ra file Excel (Optional)
-        /// Route: /BangLuong/ExportExcel?thang={thang}&nam={nam}
-        /// </summary>
         public ActionResult ExportExcel(int? thang, int? nam)
         {
             try
             {
-                // TODO: Implement export Excel logic
-                // Sử dụng thư viện như EPPlus hoặc ClosedXML
-
                 TempData["InfoMessage"] = "Chức năng Export Excel đang được phát triển";
                 return RedirectToAction("BaoCao", new { thang = thang, nam = nam });
             }

@@ -52,7 +52,8 @@ namespace QL_Luong_MVC.Controllers
                 // Nhóm Nhân viên (User) -> Vào Trang hồ sơ cá nhân
                 else
                 {
-                    return RedirectToAction("InfoNV", "NhanVien");
+                    // Chuyển hướng về Dashboard dành riêng cho User
+                    return RedirectToAction("DashboardUser", "Home");
                 }
             }
             else

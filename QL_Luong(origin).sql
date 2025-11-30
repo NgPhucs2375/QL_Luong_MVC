@@ -1,6 +1,4 @@
-﻿-- ======================================================================================
--- [FINAL SCRIPT] QUẢN LÝ LƯƠNG NHÂN VIÊN (FULL OPTIMIZED)
--- ======================================================================================
+﻿
 
 -- PHẦN 1: KHỞI TẠO DATABASE & BẢNG
 -- ======================================================================================
@@ -462,5 +460,28 @@ GRANT EXECUTE ON sp_TongPhuCapTheoLoai TO role_KeToan;
 GRANT EXECUTE ON sp_ThemThuongPhat_AndCapNhatBangLuong TO role_KeToan; -- Quan trọng
 GO
 
+
+-- ===================================================
+-- Backup --
+-- ===================================================
 PRINT N'*** HỆ THỐNG ĐÃ CÀI ĐẶT THÀNH CÔNG ***';
 PRINT N'Sử dụng câu lệnh SELECT * FROM TaiKhoan để lấy tài khoản đăng nhập.';
+SELECT * FROM TaiKhoan
+
+-- 1. Cập nhật Lương hiện tại từ Hợp đồng mới nhất (ưu tiên)
+UPDATE NhanVien
+SET LuongHienTai = (
+    SELECT TOP 1 LuongCoBan
+    FROM HopDong
+    WHERE HopDong.MaNV = NhanVien.MaNV
+    ORDER BY NgayBatDau DESC
+);
+
+-- 2. Nếu không có hợp đồng, lấy lương cơ bản theo Chức vụ
+UPDATE NhanVien
+SET LuongHienTai = (
+    SELECT TOP 1 MucLuong
+    FROM LuongCoBan
+    WHERE LuongCoBan.MaCV = NhanVien.MaCV
+)
+WHERE LuongHienTai IS NULL OR LuongHienTai = 0;
