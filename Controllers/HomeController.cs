@@ -128,7 +128,7 @@ namespace QL_Luong_MVC.Controllers
             int thang = DateTime.Now.Month;
             int nam = DateTime.Now.Year;
 
-            var bangCong = new BangChamCongDAO().GetByNhanVien(maNV)
+            var bangCong = new BangChamCongDAO().GetByNhanVien(idNhanVien)
                             .Where(x => x.Day_ChamCong.Month == thang && x.Day_ChamCong.Year == nam).ToList();
 
             ViewBag.SoNgayCong = bangCong.Sum(x => x.DayCong_ChamCong);

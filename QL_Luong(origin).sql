@@ -464,3 +464,4 @@ GO
 
 PRINT N'*** HỆ THỐNG ĐÃ CÀI ĐẶT THÀNH CÔNG ***';
 PRINT N'Sử dụng câu lệnh SELECT * FROM TaiKhoan để lấy tài khoản đăng nhập.';
+select * from TaiKhoan

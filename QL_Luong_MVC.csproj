@@ -2310,6 +2310,7 @@
     <Content Include="Views\Home\DashboardUser.cshtml" />
     <Content Include="Views\NhanVien\EditProfile.cshtml" />
     <Content Include="Views\BangLuong\ChiTietNhanVien.cshtml" />
+    <Content Include="Views\Login\ChangePassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
