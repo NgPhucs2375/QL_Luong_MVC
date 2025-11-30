@@ -122,5 +122,46 @@ namespace QL_Luong_MVC.DAO
                 catch { return false; }
             }
         }
+
+        public (bool Success, string Message) ChangePassword(string username, string oldPassword, string newPassword)
+        {
+            using (SqlConnection conn = GetConnection())
+            {
+                try
+                {
+                    // BƯỚC 1: KIỂM TRA MẬT KHẨU CŨ CÓ ĐÚNG KHÔNG (Sử dụng CheckLogin logic)
+                    // Lưu ý: KHÔNG nên hash mật khẩu mới trong DAO, nên hash trong Controller nếu có logic hash.
+                    var checkOldPass = CheckLogin(username, oldPassword);
+
+                    if (!checkOldPass.Success)
+                    {
+                        return (false, "❌ Mật khẩu cũ không đúng.");
+                    }
+
+                    // BƯỚC 2: CẬP NHẬT MẬT KHẨU MỚI
+                    string query = "UPDATE TaiKhoan SET MatKhau = @NewPass WHERE TenDangNhap = @User";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@NewPass", newPassword);
+                    cmd.Parameters.AddWithValue("@User", username);
+
+                    conn.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        return (true, "Đổi mật khẩu thành công!");
+                    }
+                    else
+                    {
+                        return (false, "Không thể cập nhật mật khẩu. Vui lòng thử lại.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Trả về lỗi chi tiết cho nhà phát triển/admin
+                    return (false, "Lỗi hệ thống khi đổi mật khẩu: " + ex.Message);
+                }
+            }
+        }
     }
 }

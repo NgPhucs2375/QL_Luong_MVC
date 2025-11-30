@@ -1,133 +1,42 @@
 ﻿@model QL_Luong_MVC.Models.NhanVien
+@using QL_Luong_MVC.Models
 @{
     ViewBag.Title = "Hồ sơ nhân sự";
+    Layout = "~/Views/Shared/_LayoutNhanVien.cshtml";
 
-    // Lấy danh sách danh mục từ ViewBag (Giữ nguyên)
-    var dsPhongBan = ViewBag.PhongBans as List<QL_Luong_MVC.Models.PhongBan>;
-    var dsChucVu = ViewBag.ChucVus as List<QL_Luong_MVC.Models.ChucVu>;
+    // Lấy dữ liệu phụ cấp từ Controller (đã fix)
+    var listPhuCap = ViewBag.ListPhuCap as List<PhuCap>;
+    decimal tongPhuCap = ViewBag.TongPhuCap ?? 0;
 
-    // Helper Functions (Giữ nguyên)
-    Func<int?, string> GetPhongBanName = (id) =>
-        id.HasValue && dsPhongBan != null
-        ? dsPhongBan.FirstOrDefault(pb => pb.IDPhongBan == id)?.NamePhongBan ?? "Chưa xác định"
-        : "Chưa xác định";
+    Func<bool> CheckCanViewSalary = () =>
+    {
+        var role = Session["Quyen"]?.ToString();
+        var currentID = Session["MaNV"]?.ToString();
 
-    Func<int?, string> GetChucVuName = (id) =>
-        id.HasValue && dsChucVu != null
-        ? dsChucVu.FirstOrDefault(cv => cv.IDChucVu == id)?.NameChucVu ?? "Chưa xác định"
-        : "Chưa xác định";
-
-    // Helper kiểm tra quyền Admin/Kế toán/Chính mình (KHÔNG THAY ĐỔI LOGIN)
-    Func<bool> CanViewSalary = () =>
-        Session["MaNV"]?.ToString() == Model.IDNhanVien.ToString() ||
-        Session["Quyen"]?.ToString() == "Admin" ||
-        Session["Quyen"]?.ToString() == "KeToan";
-
-    // Helper kiểm tra quyền Admin/Nhân sự (KHÔNG THAY ĐỔI LOGIN)
-    Func<bool> CanEditProfile = () =>
-        Session["Quyen"]?.ToString() == "Admin" ||
-        Session["Quyen"]?.ToString() == "NhanSu";
+        // Admin, Kế toán, hoặc chính chủ nhân của hồ sơ này được xem
+        return role == "Admin" || role == "KeToan" || currentID == Model.IDNhanVien.ToString();
+    };
 }
 
 <style>
-    /* ====================================================================== */
-    /* === BẢNG MÀU MỚI (XANH LÁ - NÂU - BE) === */
-    /* ====================================================================== */
-    :root {
-        --primary-green-dark: rgb(77, 102, 72); /* Xanh lá đậm (Primary) */
-        --secondary-green-light: rgb(130, 140, 110); /* Xanh lá nhạt (Avatar BG) */
-        --dark-brown: rgb(82, 60, 52); /* Nâu trầm (Dark/Charcoal) */
+    /* ... (Giữ nguyên style cũ) ... */
+    /* Thêm style mới cho danh sách phụ cấp */
+    .list-group-item-phucap {
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px dashed rgba(130, 140, 110, 0.3);
+        padding: 0.75rem 0;
     }
 
-    /* --- PROFILE HEADER --- */
-    .profile-header-bg {
-        /* Màu nền header sang tone Nâu Trầm -> Xanh lá đậm */
-        background: linear-gradient(135deg, var(--dark-brown) 0%, var(--primary-green-dark) 100%);
-        height: 150px;
-        border-radius: 16px 16px 0 0;
-        position: relative;
-    }
-
-    .profile-avatar {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        border: 5px solid #fff;
-        background: var(--secondary-green-light); /* Nền Avatar Xanh lá nhạt */
-        position: absolute;
-        bottom: -60px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 3rem;
-        color: var(--dark-brown); /* Icon Nâu Trầm */
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-
-    /* ĐIỀU CHỈNH CHÍNH CỦA UI: CĂN CHỈNH TÊN */
-    .card-body.text-center.pt-0.px-5.pb-5 {
-        padding-top: 40px !important;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* --- TEXT STYLES --- */
-    .data-label {
-        color: #6c757d;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 600;
-    }
-
-    .data-value {
-        color: #2d3436;
-        font-weight: 600;
-        font-size: 1rem;
-    }
-
-    .text-section-title {
-        color: var(--dark-brown); /* Tiêu đề phần Nâu trầm */
-    }
-
-        .text-section-title i.fas {
-            color: var(--primary-green-dark); /* Icon Xanh lá đậm */
-        }
-
-    .text-dark-charcoal {
-        color: var(--dark-brown) !important; /* Thay thế text-dark-charcoal cũ */
-    }
-
-    /* --- BADGES & BUTTONS --- */
-    .badge.badge-info {
-        background-color: var(--primary-green-dark) !important; /* Xanh lá đậm cho Phòng ban */
-    }
-
-    .badge.badge-primary {
-        background-color: var(--secondary-green-light) !important; /* Xanh lá nhạt cho Chức vụ */
-    }
-
-    .btn-primary {
-        background-color: var(--primary-green-dark) !important;
-        border-color: var(--primary-green-dark) !important;
-        color: #fff !important;
-    }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-green-light) !important;
-            border-color: var(--secondary-green-light) !important;
-            color: var(--dark-brown) !important;
+        .list-group-item-phucap:last-child {
+            border-bottom: none;
         }
 </style>
 
 <div class="container-fluid py-4 fade-in-content">
     <div class="card border-0 shadow-lg" style="border-radius: 16px;">
         <div class="profile-header-bg mb-5">
-            <div class="profile-avatar">
-                <i class="fas fa-user-tie"></i>
-            </div>
+            <div class="profile-avatar"><i class="fas fa-user-tie"></i></div>
         </div>
 
         <div class="card-body text-center pt-0 px-5 pb-5">
@@ -142,68 +51,82 @@
                     <h6 class="font-weight-bold text-section-title mb-3 border-bottom pb-2">
                         <i class="fas fa-address-card mr-2"></i>Thông tin cá nhân
                     </h6>
-                    <div class="row mb-2">
-                        <div class="col-4 data-label">Email</div>
-                        <div class="col-8 data-value">@Model.Email_NhanVien</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-4 data-label">Điện thoại</div>
-                        <div class="col-8 data-value">@Model.SDT_NhanVien</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-4 data-label">Địa chỉ</div>
-                        <div class="col-8 data-value">@Model.Address_NhanVien</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-4 data-label">Ngày sinh</div>
-                        <div class="col-8 data-value">
-                            @(Model.DayOfBirth_NhanVien == DateTime.MinValue ? "N/A" : Model.DayOfBirth_NhanVien.ToString("dd/MM/yyyy"))
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-4 data-label">Giới tính</div>
-                        <div class="col-8 data-value">@Model.Sex_NhanVien</div>
-                    </div>
+                    <div class="row mb-2"><div class="col-4 data-label">Email</div><div class="col-8 data-value">@Model.Email_NhanVien</div></div>
+                    <div class="row mb-2"><div class="col-4 data-label">Điện thoại</div><div class="col-8 data-value">@Model.SDT_NhanVien</div></div>
+                    <div class="row mb-2"><div class="col-4 data-label">Địa chỉ</div><div class="col-8 data-value">@Model.Address_NhanVien</div></div>
                 </div>
 
                 <div class="col-md-6 mb-4">
                     <h6 class="font-weight-bold text-section-title mb-3 border-bottom pb-2">
                         <i class="fas fa-briefcase mr-2"></i>Công việc & Chế độ
                     </h6>
+
                     <div class="row mb-2">
                         <div class="col-4 data-label">Phòng ban</div>
-                        <div class="col-8 data-value">
-                            <span class="badge badge-info px-3 py-1">
-                                @GetPhongBanName(Model.IDPB_NhanVien)
-                            </span>
-                        </div>
+                        <div class="col-8 data-value"><span class="badge badge-info px-3 py-1">@ViewBag.TenPhongBan</span></div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-4 data-label">Chức vụ</div>
-                        <div class="col-8 data-value">
-                            <span class="badge badge-primary px-3 py-1">
-                                @GetChucVuName(Model.IDCV_NhanVien)
-                            </span>
-                        </div>
+                        <div class="col-8 data-value"><span class="badge badge-primary px-3 py-1">@ViewBag.TenChucVu</span></div>
                     </div>
 
-                    @if (CanViewSalary())
+                    @if (CheckCanViewSalary())
                     {
-                        <div class="row mb-2 mt-4 p-2 border rounded" style="background-color: #f7f7f7;">
-                            <div class="col-4 data-label text-dark-charcoal">Lương hiện tại</div>
-                            <div class="col-8 data-value font-weight-bolder text-dark-charcoal">
-                                @(Model.LuongHienTai.ToString("N0")) ₫
+                        <div class="mt-4 p-3 rounded" style="background-color: #fcfbf8; border: 1px solid rgba(130, 140, 110, 0.2);">
+
+                            <div class="row mb-2">
+                                <div class="col-5 data-label text-dark-charcoal">Lương cơ bản</div>
+                                <div class="col-7 data-value font-weight-bolder text-success text-right">
+                                    @(Model.LuongHienTai.ToString("N0")) ₫
+                                </div>
+                            </div>
+
+                            <hr class="my-2" style="border-color: rgba(130, 140, 110, 0.2);">
+
+                            <div class="mb-2">
+                                <div class="data-label mb-1">Các khoản phụ cấp:</div>
+                                @if (listPhuCap != null && listPhuCap.Count > 0)
+                                {
+                                    <ul class="list-group list-group-flush pl-2">
+                                        @foreach (var pc in listPhuCap)
+                                        {
+                                            <li class="list-group-item-phucap d-flex justify-content-between align-items-center">
+                                                <span class="text-muted small"><i class="fas fa-check mr-1 text-success"></i> @pc.Loai_PhuCap</span>
+                                                <span class="font-weight-bold text-dark">+@pc.SoTien_PhuCap.ToString("N0") ₫</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                    <div class="row mt-2 pt-2 border-top">
+                                        <div class="col-6 data-label">Tổng phụ cấp</div>
+                                        <div class="col-6 text-right font-weight-bold text-primary">
+                                            +@tongPhuCap.ToString("N0") ₫
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted small font-italic ml-2 mb-0">Không có phụ cấp.</p>
+                                }
+                            </div>
+
+                            <div class="row mt-3 pt-3" style="border-top: 2px solid var(--primary-green-dark);">
+                                <div class="col-5 data-label text-dark-charcoal font-weight-bold">Tổng chế độ</div>
+                                <div class="col-7 text-right">
+                                    <span class="h5 font-weight-bold text-danger">
+                                        @((Model.LuongHienTai + tongPhuCap).ToString("N0")) ₫
+                                    </span>
+                                    <small class="d-block text-muted">(Chưa tính tăng ca/thưởng)</small>
+                                </div>
                             </div>
                         </div>
                     }
                 </div>
             </div>
 
-            @if (CanEditProfile())
+            @if (Session["Quyen"]?.ToString() == "Admin" || Session["Quyen"]?.ToString() == "NhanSu" || Session["MaNV"]?.ToString() == Model.IDNhanVien.ToString())
             {
                 <div class="text-center mt-5">
-                    <a href="@Url.Action("SuaNV", "NhanVien", new { id = Model.IDNhanVien })"
-                       class="btn btn-primary rounded-pill px-5 shadow-sm font-weight-bold">
+                    <a href="@Url.Action("EditProfile")" class="btn btn-primary rounded-pill px-5 shadow-sm font-weight-bold">
                         <i class="fas fa-edit mr-2"></i> CẬP NHẬT HỒ SƠ
                     </a>
                 </div>

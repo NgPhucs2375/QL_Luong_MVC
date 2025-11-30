@@ -1,5 +1,6 @@
 ﻿using QL_Luong_MVC.DAO;
 using QL_Luong_MVC.Models;
+using System;
 using System.Web.Mvc;
 
 namespace QL_Luong_MVC.Controllers
@@ -30,6 +31,23 @@ namespace QL_Luong_MVC.Controllers
             ViewBag.ThongBao = result.Message;
             ViewBag.DSNhanVien = nvDao.GetAll();
             return View(hd);
+        }
+
+        [CustomAuthorize] // Ai đăng nhập cũng được xem của mình
+        public ActionResult XemHopDongCaNhan()
+        {
+            if (Session["MaNV"] == null) return RedirectToAction("Login", "Login");
+            int maNV = Convert.ToInt32(Session["MaNV"]);
+
+            // 1. Lấy thông tin nhân viên để hiển thị tên
+            NhanVienDAO nvDao = new NhanVienDAO();
+            var nv = nvDao.GetById(maNV);
+            ViewBag.TenNhanVien = nv?.FullNameNhanVien ?? "Bạn";
+
+            // 2. Lấy danh sách hợp đồng
+            var listHD = hdDao.GetListByNhanVien(maNV);
+
+            return View(listHD);
         }
     }
 }

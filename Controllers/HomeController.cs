@@ -160,6 +160,28 @@ namespace QL_Luong_MVC.Controllers
             ViewBag.HopDong = hopDong;
             ViewBag.LuongGanNhat = luongGanNhat;
 
+            var listLuongHistory = new BangLuongDAO().GetByNhanVien(idNhanVien)
+    .OrderByDescending(x => x.Nam).ThenByDescending(x => x.Month)
+    .Take(6)
+    .OrderBy(x => x.Month) // Sắp xếp lại theo tháng tăng dần để vẽ biểu đồ
+    .ToList();
+
+            var salaryLabels = listLuongHistory.Select(x => "T" + x.Month).ToList();
+            var salaryValues = listLuongHistory.Select(x => x.LuongThucNhan_BangLuong).ToList();
+
+            ViewBag.SalaryHistoryLabels = salaryLabels;
+            ViewBag.SalaryHistoryValues = salaryValues;
+
+            // 2. Lấy dữ liệu phụ cấp (cho biểu đồ tròn)
+            var phuCapDao = new PhuCapDAO();
+            decimal tongPhuCap = phuCapDao.GetByNhanVienId(idNhanVien).Sum(x => x.SoTien_PhuCap);
+            ViewBag.TongPhuCap = tongPhuCap;
+
+            // 3. Lấy tiền tăng ca tháng này (cho biểu đồ tròn)
+            // Giả sử bạn đã có hàm tính tiền tăng ca hoặc lấy từ BangLuong tháng hiện tại
+            var luongThangNay = listLuongHistory.FirstOrDefault(x => x.Month == DateTime.Now.Month && x.Nam == DateTime.Now.Year);
+            ViewBag.TienTangCa = luongThangNay != null ? (luongThangNay.TongGioTangCa * 50000) : 0;
+
             return View();
         }
 

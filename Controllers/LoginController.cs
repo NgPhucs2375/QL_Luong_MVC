@@ -87,5 +87,57 @@ namespace QL_Luong_MVC.Controllers
 
             return View();
         }
+
+        [HttpGet]
+        public ActionResult ChangePassword()
+        {
+            // Kiểm tra đăng nhập
+            if (Session["TenDangNhap"] == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult ChangePassword(string oldPassword, string newPassword, string confirmNewPassword)
+        {
+            if (Session["TenDangNhap"] == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            // 1. Kiểm tra đầu vào
+            if (string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmNewPassword))
+            {
+                ViewBag.Error = "Vui lòng nhập đầy đủ mật khẩu.";
+                return View();
+            }
+
+            if (newPassword != confirmNewPassword)
+            {
+                ViewBag.Error = "Mật khẩu mới và Xác nhận mật khẩu không khớp.";
+                return View();
+            }
+
+            // Lấy Tên đăng nhập từ Session
+            string username = Session["TenDangNhap"].ToString();
+
+            // 2. Thực hiện đổi mật khẩu qua DAO
+            var result = tkDao.ChangePassword(username, oldPassword, newPassword);
+
+            if (result.Success)
+            {
+                // Xóa Session và buộc đăng nhập lại
+                Session.Clear();
+                TempData["SuccessMessage"] = "🎉 Đổi mật khẩu thành công! Vui lòng đăng nhập lại.";
+                return RedirectToAction("Login", "Login");
+            }
+            else
+            {
+                ViewBag.Error = result.Message;
+                return View();
+            }
+        }
     }
 }

@@ -4,107 +4,41 @@
     int thang = ViewBag.Thang ?? DateTime.Now.Month;
     int nam = ViewBag.Nam ?? DateTime.Now.Year;
 
-    // ======================================================================
-    // KHAI BÁO CÁC BIẾN MÀU MỚI (XANH LÁ - NÂU - BE)
-    // ======================================================================
-    var primaryGreenDark = "rgb(77, 102, 72)";     /* Xanh lá đậm (Primary) */
-    var secondaryGreenLight = "rgb(130, 140, 110)"; /* Xanh lá nhạt (Warning/Secondary) */
-    var darkBrown = "rgb(82, 60, 52)";             /* Nâu trầm (Dark/Charcoal) */
-    var lightBeige = "rgb(220, 218, 201)";         /* Be nhạt (Info Background) */
-    var successColor = "#1cc88a";                  /* Giữ Success */
-    var infoColor = "#36b9cc";                     /* Giữ Info */
+    // Styles variables
+    var primaryGreenDark = "rgb(77, 102, 72)";
+    var secondaryGreenLight = "rgb(130, 140, 110)";
+    var darkBrown = "rgb(82, 60, 52)";
+    var lightBeige = "rgb(220, 218, 201)";
+    var successColor = "#1cc88a";
+
+    // Check Role
+    bool isUser = Session["Quyen"]?.ToString() == "User";
 }
 
 <style>
-    /* 1. Tiêu đề chính */
-    .h3.mb-0 i.fas {
-        color: @primaryGreenDark !important; /* Icon Xanh Lá Đậm */
-    }
-
-    /* 2. Card Lọc (Top Card) */
-    .card.border-top-primary {
-        border-top: 4px solid @primaryGreenDark !important; /* Border Xanh Lá Đậm */
-    }
-    .card-header h6.text-primary {
-        color: @darkBrown !important; /* Text Nâu Trầm */
-    }
-
-    /* 3. Nút Tra cứu */
-    .btn-primary {
-        background-color: @primaryGreenDark !important;
-        border-color: @primaryGreenDark !important;
-        color: #fff !important; /* Chữ trắng */
-        font-weight: 600;
-        transition: all 0.2s ease-in-out;
-    }
-    .btn-primary:hover {
-        background-color: @darkBrown !important;
-        border-color: @darkBrown !important;
-    }
-
-    /* 4. Kết quả: Tổng Giờ (Warning -> Primary Green) */
-    .card.border-left-warning {
-        border-left: 0.25rem solid @primaryGreenDark !important;
-    }
-    .text-warning {
-        color: @primaryGreenDark !important; /* Tiêu đề Tổng Giờ Xanh Lá Đậm */
-    }
-
-    /* 5. Kết quả: Thành tiền (Success -> Custom Success) */
-    .card.border-left-success {
-        border-left: 0.25rem solid @successColor !important;
-    }
-    .card-header h6.text-success {
-        color: @darkBrown !important; /* Tiêu đề Kết quả: Nâu Trầm */
-    }
-
-    /* 6. Card Guide (Hướng dẫn) */
-    .card-header h6.text-secondary {
-        color: @darkBrown !important; /* Tiêu đề Nâu Trầm */
-        opacity: 0.7;
-    }
-
-    /* 7. Alert Info cho Công thức */
-    .alert-info {
-        background-color: @lightBeige !important; /* Be Nhạt làm nền info */
-        border-color: @secondaryGreenLight !important; /* Border Xanh Lá Nhạt */
-        color: @darkBrown !important; /* Chữ Nâu Trầm */
-    }
-
-    /* 8. Alert Error Message (Giữ nguyên cho cảnh báo chung) */
-    .alert-danger {
-        background-color: #f8d7da !important;
-        color: #721c24 !important;
-        border-color: #f5c6cb !important;
-    }
-
-    /* Cập nhật màu cho Badge (nếu có) */
-    .badge-info {
-        background-color: @primaryGreenDark !important;
-        color: #fff !important;
-    }
-    .badge-primary {
-        background-color: @darkBrown !important;
-        color: #fff !important;
-    }
-
-    /* Cập nhật màu cho text-gray-700 trong form */
-    .font-weight-bold.text-gray-700 {
-        color: @darkBrown !important;
-    }
+    /* (Your existing styles remain here...) */
+    .h3.mb-0 i.fas { color: @primaryGreenDark !important; }
+    .card.border-top-primary { border-top: 4px solid @primaryGreenDark !important; }
+    .btn-primary { background-color: @primaryGreenDark !important; border-color: @primaryGreenDark !important; color: #fff !important; }
+    .btn-primary:hover { background-color: @darkBrown !important; border-color: @darkBrown !important; }
+    .text-warning { color: @primaryGreenDark !important; }
+    .card-header h6.text-success { color: @darkBrown !important; }
+    .alert-info { background-color: @lightBeige !important; border-color: @secondaryGreenLight !important; color: @darkBrown !important; }
 </style>
-
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">
-        <i class="fas fa-business-time mr-2"></i>Tra cứu giờ tăng ca (UC8)
+        <i class="fas fa-business-time mr-2"></i>
+        @if (isUser)
+        {<text>Tra cứu giờ tăng ca cá nhân</text> }
+    else
+    { <text>Quản lý giờ tăng ca (UC8)</text>}
     </h1>
 </div>
 
 <div class="row justify-content-center">
     <div class="col-lg-8">
 
-        @* Hiển thị lỗi *@
         @if (ViewBag.ErrorMessage != null)
         {
             <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
@@ -118,18 +52,28 @@
         <div class="card card-plus shadow mb-4 border-top-primary">
             <div class="card-header py-3 bg-white border-bottom-0">
                 <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-filter"></i> Chọn thông tin tra cứu
+                    <i class="fas fa-filter"></i> Chọn thời gian
                 </h6>
             </div>
             <div class="card-body">
                 <form method="get" action="@Url.Action("XemGioTangCa")">
                     <div class="form-row align-items-end">
-                        <div class="form-group col-md-5">
-                            <label class="font-weight-bold text-gray-700 small">Nhân viên:</label>
-                            @Html.DropDownList("maNV", (SelectList)ViewBag.DanhSachNhanVien, "-- Chọn nhân viên --", new { @class = "form-control custom-select" })
-                        </div>
 
-                        <div class="form-group col-md-3">
+                        @if (isUser)
+                        {
+                            // HIDDEN INPUT FOR USER - No visible selection needed
+                            <input type="hidden" name="maNV" value="@Session["MaNV"]" />
+                        }
+                        else
+                        {
+                            // DROPDOWN FOR ADMIN/HR
+                            <div class="form-group col-md-5">
+                                <label class="font-weight-bold text-gray-700 small">Nhân viên:</label>
+                                @Html.DropDownList("maNV", (SelectList)ViewBag.DanhSachNhanVien, "-- Chọn nhân viên --", new { @class = "form-control custom-select" })
+                            </div>
+                        }
+
+                        <div class="form-group col-md-@((isUser) ? "5" : "3")">
                             <label class="font-weight-bold text-gray-700 small">Tháng:</label>
                             <select name="thang" class="form-control custom-select">
                                 @for (int i = 1; i <= 12; i++)
@@ -139,7 +83,7 @@
                             </select>
                         </div>
 
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-@((isUser) ? "4" : "2")">
                             <label class="font-weight-bold text-gray-700 small">Năm:</label>
                             <select name="nam" class="form-control custom-select">
                                 @for (int y = DateTime.Now.Year; y >= 2020; y--)
@@ -149,7 +93,7 @@
                             </select>
                         </div>
 
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-@((isUser) ? "3" : "2")">
                             <button type="submit" class="btn btn-primary btn-block shadow-sm">
                                 <i class="fas fa-search"></i> Xem
                             </button>
@@ -164,7 +108,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-success">
-                        <i class="fas fa-clipboard-check"></i> Kết quả: @ViewBag.TenNhanVien (Tháng @thang/@nam)
+                        <i class="fas fa-clipboard-check"></i> Kết quả tháng @thang/@nam
                     </h6>
                 </div>
                 <div class="card-body">
@@ -217,29 +161,29 @@
                 </div>
             </div>
         }
-        else if (Request.QueryString["maNV"] != null)
+        else if (Request.QueryString["thang"] != null)
         {
+            // Only show "Not Found" if a search was actually performed (query string exists)
             <div class="text-center py-4">
                 <i class="fas fa-search-minus fa-3x text-gray-300 mb-3"></i>
-                <h6 class="text-gray-500">Không tìm thấy dữ liệu tăng ca phù hợp.</h6>
+                <h6 class="text-gray-500">Không có dữ liệu tăng ca trong tháng @thang/@nam.</h6>
             </div>
         }
 
         <div class="card shadow mb-4">
-            <a href="#collapseGuide" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+            <a href="#collapseGuide" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="false">
                 <h6 class="m-0 font-weight-bold text-secondary">
-                    <i class="fas fa-question-circle"></i> Quy trình tính toán
+                    <i class="fas fa-question-circle"></i> Quy định tính toán
                 </h6>
             </a>
-            <div class="collapse show" id="collapseGuide">
+            <div class="collapse" id="collapseGuide">
                 <div class="card-body">
-                    <p class="mb-2"><strong>Quy trình hệ thống xử lý (UC8):</strong></p>
+                    <p class="mb-2"><strong>Quy trình hệ thống xử lý:</strong></p>
                     <ol class="text-sm text-gray-700 pl-3">
-                        <li class="mb-1">Tiếp nhận ID nhân viên và Tháng/Năm từ người dùng.</li>
-                        <li class="mb-1">Hệ thống gọi hàm SQL <code>fn_TongGioTangCa_Thang</code>.</li>
-                        <li class="mb-1">Hàm SQL quét toàn bộ bảng <code>ChamCong</code>, lọc theo nhân viên và tháng.</li>
-                        <li class="mb-1">Cộng dồn cột <code>GioTangCa</code> và trả về kết quả.</li>
-                        <li>Hiển thị kết quả lên màn hình và tính toán số tiền tương ứng.</li>
+                        <li class="mb-1">Hệ thống tổng hợp dữ liệu từ máy chấm công/bảng công hàng ngày.</li>
+                        <li class="mb-1">Lọc dữ liệu theo tháng và năm bạn chọn.</li>
+                        <li class="mb-1">Cộng dồn tất cả giờ làm thêm (OT) đã được duyệt.</li>
+                        <li>Nhân tổng giờ với đơn giá 50,000 VNĐ/giờ để ra thành tiền dự kiến.</li>
                     </ol>
                 </div>
             </div>

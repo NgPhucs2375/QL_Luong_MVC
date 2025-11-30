@@ -1,29 +1,20 @@
 using QL_Luong_MVC.DAO;
 using QL_Luong_MVC.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
 namespace QL_Luong_MVC.Controllers
 {
-    /// <summary>
-    /// Controller quản lý chấm công nhân viên
-    /// Chức năng: UC6 (Chấm công), UC7 (Ngăn trùng), UC8 (Tính giờ tăng ca)
-    /// </summary>
+
     public class ChamCongController : Controller
     {
         // Khởi tạo DAO để truy cập database
         private readonly BangChamCongDAO chamCongDAO = new BangChamCongDAO();
         private readonly NhanVienDAO nhanVienDAO = new NhanVienDAO();
 
-        // ==================================================================================
-        // UC6: HIỂN THỊ DANH SÁCH CHẤM CÔNG
-        // ==================================================================================
 
-        /// <summary>
-        /// [UC6] Trang chủ - Hiển thị danh sách chấm công
-        /// Route: /ChamCong/Index
-        /// </summary>
         public ActionResult Index(int? thang, int? nam)
         {
             try
@@ -48,14 +39,7 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        // ==================================================================================
-        // UC6: THÊM CHẤM CÔNG MỚI
-        // ==================================================================================
 
-        /// <summary>
-        /// [UC6] Hiển thị form thêm chấm công
-        /// Route: GET /ChamCong/Create
-        /// </summary>
         [HttpGet]
         public ActionResult Create()
         {
@@ -77,11 +61,6 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        /// <summary>
-        /// [UC6 + UC7] Xử lý thêm chấm công
-        /// Trigger trg_PreventDuplicate_ChanCong sẽ tự động kiểm tra trùng ngày
-        /// Route: POST /ChamCong/Create
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(BangChamCong model)
@@ -142,14 +121,7 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        // ==================================================================================
-        // UC6: SỬA CHẤM CÔNG
-        // ==================================================================================
 
-        /// <summary>
-        /// [UC6] Hiển thị form sửa chấm công
-        /// Route: GET /ChamCong/Edit/{id}
-        /// </summary>
         [HttpGet]
         public ActionResult Edit(int id)
         {
@@ -177,10 +149,6 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        /// <summary>
-        /// [UC6] Xử lý cập nhật chấm công
-        /// Route: POST /ChamCong/Edit/{id}
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(BangChamCong model)
@@ -236,14 +204,6 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        // ==================================================================================
-        // UC6: XÓA CHẤM CÔNG
-        // ==================================================================================
-
-        /// <summary>
-        /// [UC6] Xóa bản ghi chấm công
-        /// Route: POST /ChamCong/Delete/{id}
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id)
@@ -270,14 +230,7 @@ namespace QL_Luong_MVC.Controllers
             }
         }
 
-        // ==================================================================================
-        // UC8: XEM TỔNG GIỜ TĂNG CA THÁNG
-        // ==================================================================================
 
-        /// <summary>
-        /// [UC8] Xem tổng giờ tăng ca của nhân viên theo tháng
-        /// Route: /ChamCong/XemGioTangCa?maNV={maNV}&thang={thang}&nam={nam}
-        /// </summary>
         public ActionResult XemGioTangCa(int? maNV, int? thang, int? nam)
         {
             try
@@ -285,10 +238,26 @@ namespace QL_Luong_MVC.Controllers
                 // Nếu không truyền tháng/năm, lấy tháng/năm hiện tại
                 int thangHienTai = thang ?? DateTime.Now.Month;
                 int namHienTai = nam ?? DateTime.Now.Year;
+                string userRole = Session["Quyen"]?.ToString();
+                int currentUserID = Convert.ToInt32(Session["MaNV"]);
+                if (userRole == "User")
+                {
+                    // Gán cứng mã NV là chính mình
+                    maNV = currentUserID;
+
+                    // Chỉ tạo list có 1 người (là chính mình) để Dropdown không hiện người khác
+                    var me = nhanVienDAO.GetById(currentUserID);
+                    var listMe = new List<NhanVien> { me };
+                    ViewBag.DanhSachNhanVien = new SelectList(listMe, "IDNhanVien", "FullNameNhanVien", currentUserID);
+                }
+                else
+                {
+                    // Nếu là Admin/HR -> Được xem tất cả (Code cũ)
+                    var danhSachNhanVien = nhanVienDAO.GetAll();
+                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien", maNV);
+                }
 
                 // Lấy danh sách nhân viên để chọn
-                var danhSachNhanVien = nhanVienDAO.GetAll();
-                ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien", maNV);
 
                 ViewBag.Thang = thangHienTai;
                 ViewBag.Nam = namHienTai;

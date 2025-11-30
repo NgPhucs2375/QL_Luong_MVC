@@ -33,6 +33,12 @@ namespace QL_Luong_MVC.Controllers
             var phongBan = pbDao.GetAll().FirstOrDefault(x => x.IDPhongBan == nv.IDPB_NhanVien);
             ViewBag.TenChucVu = chucVu?.NameChucVu ?? "Chưa cập nhật";
             ViewBag.TenPhongBan = phongBan?.NamePhongBan ?? "Chưa cập nhật";
+
+            PhuCapDAO pcDao = new PhuCapDAO();
+            var listPhuCap = pcDao.GetByNhanVienId(maNV);
+
+            ViewBag.ListPhuCap = listPhuCap;
+            ViewBag.TongPhuCap = listPhuCap.Sum(x => x.SoTien_PhuCap);
             return View(nv);
         }
 

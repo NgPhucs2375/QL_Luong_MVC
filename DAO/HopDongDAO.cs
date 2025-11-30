@@ -66,5 +66,39 @@ namespace QL_Luong_MVC.DAO
                 }
             }
         }
+
+
+        public List<HopDong> GetListByNhanVien(int maNV)
+        {
+            var list = new List<HopDong>();
+            using (SqlConnection conn = GetConnection())
+            {
+                // Lấy hợp đồng mới nhất lên đầu
+                string query = "SELECT * FROM HopDong WHERE MaNV = @MaNV ORDER BY NgayBatDau DESC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@MaNV", maNV);
+                try
+                {
+                    conn.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        list.Add(new HopDong()
+                        {
+                            IDHopDong = Convert.ToInt32(reader["MaHD"]),
+                            IDNhanVIen_HopDong = Convert.ToInt32(reader["MaNV"]),
+                            DayToStart = Convert.ToDateTime(reader["NgayBatDau"]),
+                            // Kiểm tra DBNull cho ngày kết thúc
+                            DayToEnd = reader["NgayKetThuc"] != DBNull.Value ? Convert.ToDateTime(reader["NgayKetThuc"]) : (DateTime?)null,
+                            Loai_HopDong = reader["LoaiHD"].ToString(),
+                            LuongCoBan_HopDong = Convert.ToDecimal(reader["LuongCoBan"]),
+                            Note_HopDong = reader["GhiChu"] != DBNull.Value ? reader["GhiChu"].ToString() : ""
+                        });
+                    }
+                }
+                catch (Exception ex) { /* Log lỗi nếu cần */ }
+            }
+            return list;
+        }
     }
 }

@@ -1,0 +1,124 @@
+﻿
+@model List<QL_Luong_MVC.Models.HopDong>
+@{
+    ViewBag.Title = "Hợp đồng lao động";
+    Layout = "~/Views/Shared/_LayoutNhanVien.cshtml";
+}
+
+<div class="container-fluid py-4 fade-in-content">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 font-weight-bold" style="color: var(--wine-primary); font-family: 'Playfair Display', serif;">
+            <i class="fas fa-file-signature mr-2"></i>Hợp đồng của @ViewBag.TenNhanVien
+        </h1>
+    </div>
+
+    <div class="row">
+        @if (Model != null && Model.Count > 0)
+        {
+            // Hợp đồng mới nhất (Active) hiển thị to và đẹp nhất
+            var latestHD = Model.First();
+            bool isActive = latestHD.DayToEnd == null || latestHD.DayToEnd > DateTime.Now;
+
+            <div class="col-xl-4 col-lg-5 mb-4">
+                <div class="card border-0 shadow-lg h-100" style="border-radius: 16px; overflow:hidden;">
+                    <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #722F37 0%, #4A192C 100%);">
+                        <h5 class="font-weight-bold mb-0 text-uppercase">Hợp đồng hiện tại</h5>
+                        <small class="opacity-75">Số HĐ: #@latestHD.IDHopDong</small>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-4">
+                            <span class="badge @(isActive ? "badge-success" : "badge-secondary") px-3 py-2 rounded-pill">
+                                @(isActive ? "ĐANG HIỆU LỰC" : "HẾT HIỆU LỰC")
+                            </span>
+                        </div>
+
+                        <h2 class="display-4 font-weight-bold text-dark mb-1">@latestHD.LuongCoBan_HopDong.ToString("N0")</h2>
+                        <span class="text-muted text-uppercase small font-weight-bold">Lương cơ bản (VNĐ)</span>
+
+                        <hr class="my-4" style="border-color: rgba(114, 47, 55, 0.1);">
+
+                        <div class="text-left">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted"><i class="fas fa-tag mr-2 text-warning"></i>Loại HĐ:</span>
+                                <span class="font-weight-bold text-dark">@latestHD.Loai_HopDong</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted"><i class="fas fa-calendar-plus mr-2 text-success"></i>Ngày ký:</span>
+                                <span class="font-weight-bold text-dark">@latestHD.DayToStart.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted"><i class="fas fa-calendar-minus mr-2 text-danger"></i>Hết hạn:</span>
+                                <span class="font-weight-bold text-dark">
+                                    @(latestHD.DayToEnd.HasValue ? latestHD.DayToEnd.Value.ToString("dd/MM/yyyy") : "Vô thời hạn")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light border-0 text-center">
+                        <small class="text-muted font-italic">"@latestHD.Note_HopDong"</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4 border-0" style="border-radius: 16px;">
+                    <div class="card-header py-3 bg-white border-bottom-0">
+                        <h6 class="m-0 font-weight-bold" style="color: var(--wine-primary);">Lịch sử ký kết</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead style="background-color: rgba(114, 47, 55, 0.05); color: var(--wine-primary);">
+                                    <tr>
+                                        <th>Số HĐ</th>
+                                        <th>Loại hợp đồng</th>
+                                        <th>Ngày hiệu lực</th>
+                                        <th>Lương CB</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        bool isItemActive = item.DayToEnd == null || item.DayToEnd > DateTime.Now;
+                                        <tr>
+                                            <td class="font-weight-bold">#@item.IDHopDong</td>
+                                            <td>@item.Loai_HopDong</td>
+                                            <td>
+                                                @item.DayToStart.ToString("dd/MM/yyyy")
+                                                <i class="fas fa-arrow-right mx-1 text-muted small"></i>
+                                                @(item.DayToEnd.HasValue ? item.DayToEnd.Value.ToString("dd/MM/yyyy") : "...")
+                                            </td>
+                                            <td class="text-success font-weight-bold">@item.LuongCoBan_HopDong.ToString("N0") ₫</td>
+                                            <td>
+                                                @if (isItemActive)
+                                                {
+                                                    <i class="fas fa-check-circle text-success" title="Đang hiệu lực"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-history text-secondary" title="Đã hết hạn"></i>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <div style="font-size: 5rem; color: #e3e6f0;">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <h4 class="text-gray-500 mt-3">Chưa tìm thấy hợp đồng lao động nào.</h4>
+                <p class="text-muted">Vui lòng liên hệ phòng Nhân sự để bổ sung hồ sơ.</p>
+            </div>
+        }
+    </div>
+</div>

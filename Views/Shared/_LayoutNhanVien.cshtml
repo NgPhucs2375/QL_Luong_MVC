@@ -14,7 +14,22 @@
 
     <link href="~/Content/css/sb-admin-2.min.css" rel="stylesheet">
     <link href="~/Content/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    @{
+        // Định nghĩa hàm IsActive như một biến cục bộ (Delegate)
+        Func<string, string, IHtmlString> IsActive = (controller, action) =>
+        {
+            var routeData = ViewContext.RouteData;
+            var currentAction = routeData.Values["action"].ToString();
+            var currentController = routeData.Values["controller"].ToString();
 
+            if (string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase))
+            {
+                return Html.Raw("active");
+            }
+            return Html.Raw("");
+        };
+    }
     <style>
         /* ====================================================================== */
         /* === BẢNG MÀU MỚI (XANH LÁ - NÂU - BE) === */
@@ -220,6 +235,7 @@
         }
     </style>
 
+
 </head>
 
 <body id="page-top">
@@ -228,12 +244,12 @@
 
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
 
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("DashboardUser", "Home")">
+            <li class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("DashboardUser", "Home")">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">QL_LƯƠNG_NV</div>
-            </a>
+            </li>
 
             <hr class="sidebar-divider my-0">
 
@@ -246,9 +262,9 @@
 
             <hr class="sidebar-divider">
 
-            <div class="sidebar-heading">
+            <li class="sidebar-heading">
                 Quản lý thông tin
-            </div>
+            </li>
 
             <li class="nav-item @(ViewBag.Title == "Thông tin cá nhân" || ViewBag.Title == "Cập nhật hồ sơ" || ViewBag.Title == "Đổi mật khẩu" ? "active" : "")">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUser"
@@ -261,7 +277,7 @@
                         <h6 class="collapse-header">Thông tin:</h6>
                         <a class="collapse-item @(ViewBag.Title == "Thông tin cá nhân" ? "active" : "")" href="@Url.Action("InfoNV", "NhanVien")">Thông tin cá nhân</a>
                         <a class="collapse-item @(ViewBag.Title == "Cập nhật hồ sơ" ? "active" : "")" href="@Url.Action("EditProfile", "NhanVien")">Cập nhật hồ sơ</a>
-                        <a class="collapse-item @(ViewBag.Title == "Đổi mật khẩu" ? "active" : "")" href="@Url.Action("ChangePassword", "NhanVien")">Đổi mật khẩu</a>
+                        <a class="collapse-item @(ViewBag.Title == "Đổi mật khẩu" ? "active" : "")" href="@Url.Action("ChangePassword", "Login")">Đổi mật khẩu</a>
                     </div>
                 </div>
             </li>
@@ -273,11 +289,17 @@
                 </a>
             </li>
 
+            <li class="nav-item @IsActive("HopDong", "XemHopDongCaNhan")">
+                <a class="nav-link" href="@Url.Action("XemHopDongCaNhan", "HopDong")">
+                    <i class="fas fa-fw fa-file-signature"></i> <span>Hợp đồng lao động</span>
+                </a>
+            </li>
+
             <hr class="sidebar-divider">
 
-            <div class="sidebar-heading">
+            <li class="sidebar-heading">
                 Hoạt động
-            </div>
+            </li>
 
             <li class="nav-item @(ViewBag.Title == "Xem giờ tăng ca" ? "active" : "")">
                 <a class="nav-link" href="@Url.Action("XemGioTangCa", "ChamCong")">
@@ -288,9 +310,9 @@
 
             <hr class="sidebar-divider d-none d-md-block">
 
-            <div class="text-center d-none d-md-inline">
+            <li class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
+            </li>
 
         </ul>
         <div id="content-wrapper" class="d-flex flex-column">
@@ -318,12 +340,12 @@
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Thông tin cá nhân
                                 </a>
-                                <a class="dropdown-item" href="@Url.Action("ChangePassword", "NhanVien")">
+                                <a class="dropdown-item" href="@Url.Action("ChangePassword", "Login")">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Đổi mật khẩu
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                <a class="dropdown-item" href="@Url.Action("Login", "Login")" data-toggle="modal" data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Đăng xuất
                                 </a>
@@ -363,7 +385,7 @@
                 <div class="modal-body">Chọn "Đăng xuất" bên dưới nếu bạn đã sẵn sàng kết thúc phiên hiện tại của mình.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy</button>
-                    <a class="btn btn-primary" href="@Url.Action("Logout", "Auth")">Đăng xuất</a>
+                    <a class="btn btn-primary" href="@Url.Action("Login", "Login")">Đăng xuất</a>
                 </div>
             </div>
         </div>

@@ -15,6 +15,6 @@ namespace QL_Luong_MVC.Models
         public decimal TongPhuCap {  get; set; }
         public decimal TongThuongPhat {  get; set; }
         public decimal TongGioTangCa { get; set; }
-        
+        public object LuongThucNhan_BangLuong { get; internal set; }
     }
 }

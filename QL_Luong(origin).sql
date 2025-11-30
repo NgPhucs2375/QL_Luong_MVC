@@ -467,7 +467,9 @@ GO
 PRINT N'*** HỆ THỐNG ĐÃ CÀI ĐẶT THÀNH CÔNG ***';
 PRINT N'Sử dụng câu lệnh SELECT * FROM TaiKhoan để lấy tài khoản đăng nhập.';
 SELECT * FROM TaiKhoan
-
+SELECT * FROM PhongBan
+SELECT * FROM ChucVu
+SELECT * FROM Roles
 -- 1. Cập nhật Lương hiện tại từ Hợp đồng mới nhất (ưu tiên)
 UPDATE NhanVien
 SET LuongHienTai = (
@@ -485,3 +487,83 @@ SET LuongHienTai = (
     WHERE LuongCoBan.MaCV = NhanVien.MaCV
 )
 WHERE LuongHienTai IS NULL OR LuongHienTai = 0;
+
+
+
+UPDATE NhanVien
+SET MaPB = (ABS(CHECKSUM(NEWID())) % 6) + 1, -- Random PB từ 1-6
+    MaCV = (ABS(CHECKSUM(NEWID())) % 8) + 1  -- Random CV từ 1-8
+WHERE MaPB IS NULL OR MaCV IS NULL;
+
+-- 2. CẬP NHẬT LƯƠNG HIỆN TẠI (Đồng bộ lại)
+UPDATE NhanVien
+SET LuongHienTai = (
+    SELECT TOP 1 MucLuong 
+    FROM LuongCoBan 
+    WHERE LuongCoBan.MaCV = NhanVien.MaCV
+)
+WHERE LuongHienTai IS NULL OR LuongHienTai = 0;
+
+-- 3. INSERT DỮ LIỆU PHỤ CẤP MẪU (Cho 50 nhân viên đầu tiên)
+DELETE FROM PhuCap; -- Xóa cũ làm lại cho sạch
+
+DECLARE @i INT = 1;
+WHILE @i <= 50
+BEGIN
+    -- Phụ cấp Xăng xe
+    INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien) 
+    VALUES (@i, N'Xăng xe', 500000);
+    
+    -- Phụ cấp Ăn trưa (Random ai cũng có)
+    INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien) 
+    VALUES (@i, N'Ăn trưa', 730000);
+
+    -- Phụ cấp Trách nhiệm (Chỉ dành cho CV 1,2,3 - Sếp)
+    IF EXISTS (SELECT 1 FROM NhanVien WHERE MaNV = @i AND MaCV IN (1, 2, 3))
+    BEGIN
+        INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien) 
+        VALUES (@i, N'Trách nhiệm', 2000000);
+    END
+
+    SET @i = @i + 1;
+END
+GO
+
+
+SELECT 
+    NV.MaNV, 
+    NV.HoTen, 
+    NV.LuongHienTai AS [Lương Trong DB ], 
+    NV.MaCV AS [ID Chức Vụ],
+    CV.TenCV AS [Tên Chức Vụ (Nếu NULL là lỗi)],
+    NV.MaPB AS [ID Phòng Ban],
+    PB.TenPB AS [Tên Phòng Ban (Nếu NULL là lỗi)]
+FROM NhanVien NV
+LEFT JOIN ChucVu CV ON NV.MaCV = CV.MaCV
+LEFT JOIN PhongBan PB ON NV.MaPB = PB.MaPB
+
+
+DELETE FROM TaiKhoan;
+
+-- 2. Tạo lại tài khoản từ danh sách nhân viên hiện có
+-- Logic: Username = Email (bỏ phần @...)
+-- Ví dụ: Email = 'nguyenvanan@company.vn' -> User = 'nguyenvanan'
+INSERT INTO TaiKhoan (TenDangNhap, MatKhau, MaNV, Quyen, MaRole)
+SELECT 
+    LEFT(Email, CHARINDEX('@', Email) - 1), -- Username lấy từ Email
+    '123456', -- Mật khẩu mặc định
+    MaNV,
+    CASE 
+        WHEN MaCV = 3 THEN 'Admin'  -- Giám đốc là Admin
+        WHEN MaPB = 2 THEN 'KeToan' -- Phòng Kế toán là KeToan
+        WHEN MaPB = 1 THEN 'NhanSu' -- Phòng Nhân sự là NhanSu
+        ELSE 'User'                 -- Còn lại là User
+    END,
+    CASE 
+        WHEN MaCV = 3 THEN 1
+        WHEN MaPB = 1 THEN 2
+        WHEN MaPB = 2 THEN 3
+        ELSE 4
+    END
+FROM NhanVien
+WHERE Email IS NOT NULL AND Email <> '';

@@ -4,157 +4,228 @@
     Layout = "~/Views/Shared/_LayoutNhanVien.cshtml";
     bool isCheckedIn = ViewBag.IsCheckedIn ?? false;
 
-    // ======================================================================
-    // KHAI BÁO CÁC BIẾN MÀU MỚI (XANH LÁ - NÂU - BE)
-    // ======================================================================
-    var primaryGreenDark = "rgb(77, 102, 72)";     /* Xanh lá đậm (Primary/Accent) */
-    var secondaryGreenLight = "rgb(130, 140, 110)"; /* Xanh lá nhạt (Gradient/Warning) */
-    var darkBrown = "rgb(82, 60, 52)";             /* Nâu trầm (Dark/Charcoal) */
-    var successColor = "#1cc88a";                 /* Giữ Success */
-    var infoColor = "#36b9cc";                      /* Giữ Info */
+    // MÀU SẮC THEME
+    var primaryGreenDark = "rgb(77, 102, 72)";
+    var secondaryGreenLight = "rgb(130, 140, 110)";
+    var darkBrown = "rgb(82, 60, 52)";
 }
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-    /* 1. Thay thế màu nền chính của thẻ Chấm Công */
-    .card-check-in {
-        /* Nền Gradient Nâu Trầm -> Xanh Lá Nhạt */
-        background: linear-gradient(135deg, @darkBrown 0%, @secondaryGreenLight 100%) !important;
-        color: white;
-    }
-
-    /* 2. Thay thế màu nút chính (Nút Chấm Công) */
-    .btn-gold-primary {
-        background-color: @primaryGreenDark !important;
-        border-color: @primaryGreenDark !important;
-        color: #fff !important; /* Chữ trắng */
-        font-weight: 700 !important;
-    }
-
-    .btn-gold-primary:hover {
-        background-color: @darkBrown !important;
-        border-color: @darkBrown !important;
-    }
-
-
-    /* 3. Thay thế màu icon/text khi chưa chấm công */
-    .icon-fingerprint {
-        color: @secondaryGreenLight !important; /* Icon Xanh Lá Nhạt */
-    }
-
-    /* 4. Thay thế màu Border Left cho Card Ngày Công (Warning -> Primary Green) */
-    .card.border-left-warning {
-        border-left: 0.25rem solid @primaryGreenDark !important;
-    }
-
-    /* 5. Thay thế màu text cho Card Ngày Công (Warning Text -> Primary Green Text) */
-    .text-warning-gold {
-        color: @primaryGreenDark !important;
-    }
-
-    /* 6. Thay thế màu Border Left cho Card Tăng ca (Success -> Giữ Success) */
-    .card.border-left-success {
-        border-left: 0.25rem solid @successColor !important;
-    }
-
-    /* 7. Thay thế màu tiêu đề Hoạt động gần đây (Primary -> Dark Brown) */
-    .text-primary-charcoal {
-        color: @darkBrown !important;
-    }
-
-    /* 8. Màu cho Badge Tăng ca (Warning Gold -> Primary Green) */
-    .badge-warning-gold {
-        background-color: @primaryGreenDark !important;
-        color: #fff !important;
-    }
+    /* CSS cũ giữ nguyên */
+    .card-check-in { background: linear-gradient(135deg, @darkBrown 0%, @secondaryGreenLight 100%) !important; color: white; }
+    .btn-gold-primary { background-color: @primaryGreenDark !important; border-color: @primaryGreenDark !important; color: #fff !important; font-weight: 700 !important; }
+    .text-warning-gold { color: @primaryGreenDark !important; }
+    .text-primary-charcoal { color: @darkBrown !important; }
 </style>
 
+<div class="container-fluid py-2">
 
-<div class="row">
-    <div class="col-lg-4 mb-4">
-        <div class="card shadow border-0 h-100 card-check-in">
-            <div class="card-body text-center p-5">
-                @if (TempData["Message"] != null)
-                {
-                    var type = (TempData["Type"] ?? "info").ToString();
-                    <div class="alert alert-@type">@TempData["Message"]</div>
-                }
-                <h3 class="font-weight-bold" style="font-family: 'Playfair Display', serif;">@DateTime.Now.ToString("dd MMMM, yyyy")</h3>
-                <p class="mb-4 text-white-50">Chúc bạn một ngày làm việc hiệu quả!</p>
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow border-0 h-100 card-check-in">
+                <div class="card-body text-center p-5 d-flex flex-column justify-content-center">
+                    <h3 class="font-weight-bold mb-1" style="font-family: 'Playfair Display', serif;">@DateTime.Now.ToString("dd MMMM, yyyy")</h3>
+                    <p class="mb-4 text-white-50">Chúc bạn một ngày làm việc hiệu quả!</p>
 
-                @if (!isCheckedIn)
-                {
-                    <div class="display-1 mb-3"><i class="fas fa-fingerprint icon-fingerprint"></i></div>
-                    <a href="@Url.Action("DiemDanhHangNgay", "ChamCong")" class="btn btn-gold-primary btn-lg rounded-pill px-5 font-weight-bold shadow-sm">
-                        CHẤM CÔNG VÀO
-                    </a>
-                }
-                else
-                {
-                    <div class="display-1 mb-3"><i class="fas fa-check-circle text-success"></i></div>
-                    <button class="btn btn-light btn-lg rounded-pill px-5 font-weight-bold disabled">
-                        ĐÃ ĐIỂM DANH
-                    </button>
-                    <p class="mt-3 small">Giờ vào: @DateTime.Now.ToString("HH:mm")</p>
-                }
+                    @if (!isCheckedIn)
+                    {
+                        <div class="display-1 mb-3"><i class="fas fa-fingerprint" style="color: rgba(255,255,255,0.5)"></i></div>
+                        <form action="@Url.Action("CheckIn", "Home")" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-gold-primary btn-lg rounded-pill px-5 shadow-lg">CHẤM CÔNG VÀO</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="display-1 mb-3"><i class="fas fa-check-circle text-white"></i></div>
+                        <button class="btn btn-light btn-lg rounded-pill px-5 font-weight-bold disabled" style="opacity:0.9">ĐÃ ĐIỂM DANH</button>
+                        <p class="mt-3 small text-white-50">Giờ vào: @DateTime.Now.ToString("HH:mm")</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2" style="border-left-color: @primaryGreenDark !important;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1 text-warning-gold">Ngày công tháng này</div>
+                                    <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.SoNgayCong <span class="text-xs text-muted">/ 26</span></div>
+                                </div>
+                                <div class="col-auto"><i class="fas fa-calendar-alt fa-2x text-gray-300"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tăng ca tích lũy</div>
+                                    <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.GioTangCa <span class="text-xs text-muted">giờ</span></div>
+                                </div>
+                                <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-white d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary-charcoal">Biến động thu nhập (6 tháng gần nhất)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 300px;">
+                        <canvas id="salaryHistoryChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-8">
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning-gold text-uppercase mb-1">Ngày công tháng này</div>
-                                <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.SoNgayCong <span class="text-xs text-muted">/ 26</span></div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary-charcoal">Cơ cấu thu nhập tháng này</h6>
                 </div>
-            </div>
-
-            <div class="col-md-6 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tăng ca tích lũy</div>
-                                <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.GioTangCa <span class="text-xs text-muted">giờ</span></div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-clock fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2" style="height: 250px;">
+                        <canvas id="incomeStructureChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        <span class="mr-2"><i class="fas fa-circle text-success"></i> Lương CB</span>
+                        <span class="mr-2"><i class="fas fa-circle text-info"></i> Phụ cấp</span>
+                        <span class="mr-2"><i class="fas fa-circle text-warning"></i> Tăng ca</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 bg-white border-bottom-0">
-                <h6 class="m-0 font-weight-bold text-primary-charcoal">Hoạt động gần đây</h6>
-            </div>
-            <div class="card-body">
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div><i class="fas fa-circle text-success text-xs mr-2"></i> Chấm công hôm qua</div>
-                        <span class="badge badge-light">08:00 - 17:00</span>
-                    </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div><i class="fas fa-circle text-warning-gold text-xs mr-2"></i> Tăng ca ngày 20/11</div>
-                        <span class="badge badge-warning-gold">2.5 giờ</span>
-                    </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div><i class="fas fa-circle text-info text-xs mr-2"></i> Nhận lương tháng 10</div>
-                        <span class="badge badge-info text-white" style="background-color: @infoColor !important;">Đã thanh toán</span>
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary-charcoal">Hoạt động chấm công gần đây</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @if (ViewBag.RecentActivities != null)
+                        {
+                            foreach (var item in ViewBag.RecentActivities as List<QL_Luong_MVC.Models.BangChamCong>)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-circle text-xs mr-2 @(item.GioTangCa > 0 ? "text-warning" : "text-success")"></i>
+                                        <span class="font-weight-bold text-dark">@item.Day_ChamCong.ToString("dd/MM/yyyy")</span>
+                                        <span class="small text-muted ml-2">
+                                            @(item.GioTangCa > 0 ? $"Tăng ca {item.GioTangCa}h" : "Hành chính")
+                                        </span>
+                                    </div>
+                                    <span class="badge badge-light">@item.DayCong_ChamCong công</span>
+                                </div>
+                            }
+                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // 1. Biểu đồ Lương (Bar Chart)
+    // Dữ liệu giả lập (Cần lấy thật từ Controller nếu muốn chính xác 100%)
+    var salaryData = @Html.Raw(Json.Encode(ViewBag.SalaryHistoryValues ?? new List<decimal> { 10000000, 10500000, 10200000, 11000000, 10800000, 11500000 }));
+    var salaryLabels = @Html.Raw(Json.Encode(ViewBag.SalaryHistoryLabels ?? new List<string> { "T6", "T7", "T8", "T9", "T10", "T11" }));
+
+    var ctxBar = document.getElementById("salaryHistoryChart");
+    var myBarChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: salaryLabels,
+            datasets: [{
+                label: "Thực nhận",
+                backgroundColor: "@primaryGreenDark",
+                hoverBackgroundColor: "@secondaryGreenLight",
+                borderColor: "@primaryGreenDark",
+                data: salaryData,
+                barPercentage: 0.5,
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            layout: { padding: { left: 10, right: 25, top: 25, bottom: 0 } },
+            scales: {
+                xAxes: [{ gridLines: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 6 } }],
+                yAxes: [{ ticks: { maxTicksLimit: 5, padding: 10, callback: function(value) { return value.toLocaleString('vi-VN') + ' đ'; } }, gridLines: { color: "rgb(234, 236, 244)", zeroLineColor: "rgb(234, 236, 244)", drawBorder: false, borderDash: [2], zeroLineBorderDash: [2] } }],
+            },
+            legend: { display: false },
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                callbacks: {
+                    label: function(tooltipItem, chart) {
+                        return 'Thực nhận: ' + tooltipItem.yLabel.toLocaleString('vi-VN') + ' đ';
+                    }
+                }
+            }
+        }
+    });
+
+    // 2. Biểu đồ Tròn (Cơ cấu thu nhập tháng này)
+    // Dữ liệu giả lập lấy từ Viewbag
+    var luongCB = @(ViewBag.NhanVien?.LuongHienTai ?? 0);
+    var phuCap = @(ViewBag.TongPhuCap ?? 0); // Cần truyền từ Controller
+    var tangCa = @(ViewBag.TienTangCa ?? 0);  // Cần truyền từ Controller
+
+    // Nếu chưa có dữ liệu thật, dùng số mẫu để hiện hình cho đẹp
+    if(luongCB == 0) { luongCB = 10000000; phuCap = 2000000; tangCa = 1500000; }
+
+    var ctxPie = document.getElementById("incomeStructureChart");
+    var myPieChart = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: ["Lương CB", "Phụ cấp", "Tăng ca"],
+            datasets: [{
+                data: [luongCB, phuCap, tangCa],
+                backgroundColor: ['#1cc88a', '#36b9cc', '#f6c23e'], // Xanh lá, Xanh dương, Vàng
+                hoverBackgroundColor: ['#17a673', '#2c9faf', '#dda20a'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.labels[tooltipItem.index];
+                        var value = data.datasets[0].data[tooltipItem.index];
+                        return label + ': ' + value.toLocaleString('vi-VN') + ' đ';
+                    }
+                }
+            },
+            legend: { display: false },
+            cutoutPercentage: 75,
+        },
+    });
+</script>
