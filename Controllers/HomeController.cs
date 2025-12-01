@@ -16,13 +16,13 @@ namespace QL_Luong_MVC.Controllers
     {
         public ActionResult Index()
         {
-            // ✅ Kiểm tra đăng nhập
             if (Session["TenDangNhap"] == null)
                 return RedirectToAction("Login", "Login");
 
-            // ✅ Kiểm tra quyền
+
             string username = Session["TenDangNhap"].ToString().ToLower();
             string role = Session["Quyen"]?.ToString();
+
             // Sửa lại dòng if check quyền trong HomeController.Index
             if (role != "Admin" && role != "NhanSu" && role != "KeToan")
             {

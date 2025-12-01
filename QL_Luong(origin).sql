@@ -36,7 +36,7 @@ CREATE TABLE NhanVien (
     TrangThai nvarchar(25) DEFAULT N'Đang làm',
     MaCV int,
     MaPB int,
-    LuongHienTai decimal(18,2), -- Lương hiển thị nhanh
+    LuongHienTai decimal(18,2), 
     CONSTRAINT FK_MaCV_NhanVien FOREIGN KEY (MaCV) REFERENCES ChucVu(MaCV),
     CONSTRAINT FK_MaPB_NhanVien FOREIGN KEY (MaPB) REFERENCES PhongBan(MaPB)
 );
@@ -118,9 +118,27 @@ CREATE TABLE TaiKhoan (
     CONSTRAINT FK_TaiKhoan_Roles FOREIGN KEY (MaRole) REFERENCES Roles(MaRole)
 );
 
-CREATE TABLE LichSuXoaNhanVien (ID INT IDENTITY(1,1) PRIMARY KEY, MaNV INT, HoTen NVARCHAR(40), NgayXoa DATETIME, LyDo NVARCHAR(200));
-CREATE TABLE LichSuTaiKhoan (ID INT IDENTITY(1,1) PRIMARY KEY, MaNV INT, TenDangNhap NVARCHAR(50), NgayTao DATETIME DEFAULT GETDATE());
-CREATE TABLE LuongCoBanLog (ID INT IDENTITY(1,1) PRIMARY KEY, MaCV INT, MucLuongCu DECIMAL(18,2), MucLuongMoi DECIMAL(18,2), NgayCapNhat DATETIME DEFAULT GETDATE());
+CREATE TABLE LichSuXoaNhanVien 
+(
+	ID INT IDENTITY(1,1) PRIMARY KEY, 
+	MaNV INT, 
+	HoTen NVARCHAR(40), 
+	NgayXoa DATETIME, 
+	LyDo NVARCHAR(200)
+);
+CREATE TABLE LichSuTaiKhoan 
+(
+	ID INT IDENTITY(1,1) PRIMARY KEY, 
+	MaNV INT, TenDangNhap NVARCHAR(50),
+	NgayTao DATETIME DEFAULT GETDATE()
+);
+CREATE TABLE LuongCoBanLog 
+(
+	ID INT IDENTITY(1,1) PRIMARY KEY, 
+	MaCV INT, MucLuongCu DECIMAL(18,2), 
+	MucLuongMoi DECIMAL(18,2), 
+	NgayCapNhat DATETIME DEFAULT GETDATE()
+);
 CREATE TABLE Log_ChamCong (
     LogID INT IDENTITY(1,1) PRIMARY KEY,
     HanhDong NVARCHAR(10), MaNV INT, Ngay DATE,
@@ -132,10 +150,17 @@ GO
 
 -- PHẦN 2: DỮ LIỆU MẪU CẤU HÌNH
 -- ======================================================================================
-INSERT INTO Roles (TenRole) VALUES (N'Admin'), (N'NhanSu'), (N'KeToan'), (N'NhanVien');
-INSERT INTO PhongBan(TenPB) VALUES (N'Phòng Nhân Sự'), (N'Phòng Kế Toán'), (N'Phòng IT'), (N'Phòng Kinh Doanh'), (N'Phòng Marketing'), (N'Phòng Hành Chính');
-INSERT INTO ChucVu(TenCV,HeSoLuong) VALUES (N'Nhân viên',1.20), (N'Trưởng phòng',2.00), (N'Giám đốc',3.50), (N'Phó phòng', 1.70), (N'Kế toán trưởng', 2.20);
-INSERT INTO LuongCoBan(MaCV, MucLuong) VALUES (1, 8000000), (2, 12000000), (3, 20000000), (4, 10000000), (5, 13000000);
+INSERT INTO Roles (TenRole) 
+VALUES (N'Admin'), (N'NhanSu'), (N'KeToan'), (N'NhanVien');
+
+INSERT INTO PhongBan(TenPB) 
+VALUES (N'Phòng Nhân Sự'), (N'Phòng Kế Toán'), (N'Phòng IT'), (N'Phòng Kinh Doanh'), (N'Phòng Marketing'), (N'Phòng Hành Chính');
+
+INSERT INTO ChucVu(TenCV,HeSoLuong) 
+VALUES (N'Nhân viên',1.20), (N'Trưởng phòng',2.00), (N'Giám đốc',3.50), (N'Phó phòng', 1.70), (N'Kế toán trưởng', 2.20);
+
+INSERT INTO LuongCoBan(MaCV, MucLuong)
+VALUES (1, 8000000), (2, 12000000), (3, 20000000), (4, 10000000), (5, 13000000);
 GO
 
 -- PHẦN 3: CÁC HÀM (FUNCTIONS)
@@ -220,6 +245,7 @@ BEGIN
     RETURN 0; -- Không đạt
 END;
 GO
+
 -- [PHÚC] Hàm lấy tên người quản lý (Trưởng phòng) của nhân viên
 -- Dùng để: Hiển thị trong profile "Báo cáo cho: Ông Nguyễn Văn A"
 CREATE FUNCTION fn_LayTruongPhongCuaNV(@MaNV INT) RETURNS NVARCHAR(40) AS
@@ -234,6 +260,7 @@ BEGIN
     RETURN ISNULL(@TenTP, N'Chưa có quản lý');
 END;
 GO
+
 -- [PHÚC] Hàm tính thuế TNCN ước tính (Đơn giản)
 -- Dùng để: Hiển thị mức thuế phải đóng dự kiến trên phiếu lương
 CREATE FUNCTION fn_TinhThueTNCN_UocTinh(@ThuNhapChiuThue DECIMAL(18,2)) RETURNS DECIMAL(18,2) AS
@@ -246,22 +273,58 @@ GO
 -- ======================================================================================
 
 -- [TRƯỜNG] Các hàm tiện ích
-CREATE FUNCTION fn_LayMaNhanVienTheoEmail(@Email NVARCHAR(60)) RETURNS INT AS
+CREATE FUNCTION fn_LayMaNhanVienTheoEmail(@Email NVARCHAR(60)) 
+RETURNS INT AS
 BEGIN
-    DECLARE @MaNV INT; SELECT TOP 1 @MaNV = MaNV FROM NhanVien WHERE Email = @Email; RETURN ISNULL(@MaNV, 0);
+    DECLARE @MaNV INT;
+	SELECT TOP 1 @MaNV = MaNV 
+	FROM NhanVien WHERE Email = @Email; 
+	RETURN ISNULL(@MaNV, 0);
 END;
 GO
-CREATE FUNCTION fn_KiemTraNhanVienTonTai(@MaNV INT) RETURNS BIT AS
-BEGIN RETURN (SELECT CASE WHEN EXISTS(SELECT 1 FROM NhanVien WHERE MaNV = @MaNV) THEN 1 ELSE 0 END); END;
+CREATE FUNCTION fn_KiemTraNhanVienTonTai(@MaNV INT)
+RETURNS BIT AS
+	BEGIN 
+		RETURN 
+			(
+			SELECT CASE WHEN EXISTS(
+				SELECT 1 
+				FROM NhanVien 
+				WHERE MaNV = @MaNV) 
+			THEN 1 
+			ELSE 0 
+			END); 
+	END;
 GO
-CREATE FUNCTION fn_LayQuyenTaiKhoan(@TenDangNhap NVARCHAR(50)) RETURNS NVARCHAR(20) AS
-BEGIN DECLARE @Quyen NVARCHAR(20); SELECT @Quyen = Quyen FROM TaiKhoan WHERE TenDangNhap = @TenDangNhap; RETURN ISNULL(@Quyen, N'User'); END;
+
+CREATE FUNCTION fn_LayQuyenTaiKhoan(@TenDangNhap NVARCHAR(50)) 
+RETURNS NVARCHAR(20) AS
+	BEGIN 
+		DECLARE @Quyen NVARCHAR(20); 
+		SELECT @Quyen = Quyen 
+		FROM TaiKhoan 
+		WHERE TenDangNhap = @TenDangNhap; 
+		RETURN ISNULL(@Quyen, N'User'); 
+	END;
 GO
-CREATE FUNCTION fn_DemNhanVienTrongPhong(@MaPB INT) RETURNS INT AS
-BEGIN RETURN (SELECT COUNT(*) FROM NhanVien WHERE MaPB = @MaPB); END;
+
+CREATE FUNCTION fn_DemNhanVienTrongPhong(@MaPB INT) 
+RETURNS INT AS
+	BEGIN 
+		RETURN 
+			(SELECT COUNT(*) 
+			FROM NhanVien 
+			WHERE MaPB = @MaPB); 
+	END;
 GO
-CREATE FUNCTION fn_TrungBinhHeSoLuong() RETURNS DECIMAL(5,2) AS
-BEGIN RETURN (SELECT AVG(HeSoLuong) FROM ChucVu); END;
+
+CREATE FUNCTION fn_TrungBinhHeSoLuong() 
+RETURNS DECIMAL(5,2) AS
+	BEGIN 
+		RETURN 
+			(SELECT AVG(HeSoLuong)
+			FROM ChucVu); 
+	END;
 GO
 -- ======================================================================================
 
@@ -329,29 +392,81 @@ GO
 
 -- [PHÚC] Quản lý nhân sự,Hợp đồng, Phụ cấp,....
 CREATE PROCEDURE sp_AddNhanVien @HoTen NVARCHAR(40), @NgaySinh DATE, @GioiTinh NVARCHAR(5), @DiaChi NVARCHAR(50), @DienThoai NVARCHAR(15), @Email NVARCHAR(60), @MaPB INT, @MaCV INT
-AS BEGIN SET NOCOUNT ON; IF @Email IS NOT NULL AND EXISTS (SELECT 1 FROM NhanVien WHERE Email = @Email) BEGIN RAISERROR(N'Email đã tồn tại',16,1); RETURN; END
-INSERT INTO NhanVien(HoTen, NgaySinh, GioiTinh, DiaChi, DienThoai, Email, MaPB, MaCV) VALUES (@HoTen, @NgaySinh, @GioiTinh, @DiaChi, @DienThoai, @Email, @MaPB, @MaCV); END;
+AS 
+	BEGIN 
+		SET NOCOUNT ON; 
+		IF @Email IS NOT NULL AND EXISTS (
+			SELECT 1 
+			FROM NhanVien 
+			WHERE Email = @Email)
+		BEGIN RAISERROR(N'Email đã tồn tại',16,1); 
+		RETURN; 
+	END
+	INSERT INTO NhanVien(HoTen, NgaySinh, GioiTinh, DiaChi, DienThoai, Email, MaPB, MaCV) VALUES (@HoTen, @NgaySinh, @GioiTinh, @DiaChi, @DienThoai, @Email, @MaPB, @MaCV); END;
 GO
 
 CREATE PROCEDURE sp_ThemHopDong @MaNV int, @NgayBatDau date, @NgayKetThuc date = null, @LoaiHD nvarchar(50), @Luongcoban decimal(18,2), @Ghichu nvarchar(200) = null 
-AS BEGIN SET NOCOUNT ON; IF EXISTS (SELECT 1 FROM HopDong WHERE MaNV = @MaNV AND ((NgayKetThuc IS NOT NULL AND NgayKetThuc > GETDATE()) OR LoaiHD = N'Không thời hạn')) BEGIN RAISERROR(N'Nhân viên này đang có hợp đồng còn hiệu lực!',16,1); RETURN; END
-INSERT INTO HopDong(MaNV,NgayBatDau,NgayKetThuc,LoaiHD,LuongCoBan,GhiChu) VALUES (@MaNV,@NgayBatDau,@NgayKetThuc,@LoaiHD,@Luongcoban,@Ghichu); END;
+AS 
+	BEGIN 
+		SET NOCOUNT ON; 
+		IF EXISTS (
+			SELECT 1 
+			FROM HopDong 
+			WHERE MaNV = @MaNV AND ((NgayKetThuc IS NOT NULL AND NgayKetThuc > GETDATE()) OR LoaiHD = N'Không thời hạn')) 
+		BEGIN RAISERROR(N'Nhân viên này đang có hợp đồng còn hiệu lực!',16,1);
+		RETURN;
+		END
+	INSERT INTO HopDong(MaNV,NgayBatDau,NgayKetThuc,LoaiHD,LuongCoBan,GhiChu) VALUES (@MaNV,@NgayBatDau,@NgayKetThuc,@LoaiHD,@Luongcoban,@Ghichu); END;
 GO
 
 CREATE PROCEDURE sp_ThemPhuCap @MaNV INT, @LoaiPhuCap NVARCHAR(50), @SoTien DECIMAL(18,2)
-AS BEGIN SET NOCOUNT ON; IF NOT EXISTS (SELECT 1 FROM NhanVien WHERE MaNV = @MaNV) BEGIN RAISERROR(N'Nhân viên không tồn tại!',16,1); RETURN; END
-INSERT INTO PhuCap(MaNV,LoaiPhuCap,SoTien) VALUES(@MaNV,@LoaiPhuCap,@SoTien); END;
+AS 
+	BEGIN 
+		SET NOCOUNT ON;
+		IF NOT EXISTS (
+			SELECT 1
+			FROM NhanVien 
+			WHERE MaNV = @MaNV) 
+		BEGIN RAISERROR(N'Nhân viên không tồn tại!',16,1); 
+		RETURN; 
+	END
+	INSERT INTO PhuCap(MaNV,LoaiPhuCap,SoTien) VALUES(@MaNV,@LoaiPhuCap,@SoTien); END;
 GO
 
 CREATE PROCEDURE sp_QuanLyLuongCoBan @HanhDong NVARCHAR(10), @MaCV INT, @MucLuong DECIMAL(18,2) = NULL
-AS BEGIN SET NOCOUNT ON; IF @HanhDong = N'Thêm' INSERT INTO LuongCoBan(MaCV,MucLuong) VALUES (@MaCV,@MucLuong);
-ELSE IF @HanhDong = N'Sửa' UPDATE LuongCoBan SET MucLuong = @MucLuong WHERE MaCV = @MaCV;
-ELSE IF @HanhDong = N'Xóa' DELETE FROM LuongCoBan WHERE MaCV = @MaCV; END;
+AS 
+	BEGIN 
+	SET NOCOUNT ON; 
+		IF @HanhDong = N'Thêm' 
+			INSERT INTO LuongCoBan(MaCV,MucLuong) 
+			VALUES (@MaCV,@MucLuong);
+		ELSE IF @HanhDong = N'Sửa' 
+			UPDATE LuongCoBan 
+			SET MucLuong = @MucLuong 
+			WHERE MaCV = @MaCV;
+		ELSE IF @HanhDong = N'Xóa' 
+			DELETE FROM LuongCoBan 
+			WHERE MaCV = @MaCV;
+	END;
 GO
 
-CREATE PROCEDURE sp_DanhSachHopDongNV @MaNV int = null AS BEGIN SELECT * FROM HopDong WHERE @MaNV IS NULL OR MaNV = @MaNV; END;
+CREATE PROCEDURE sp_DanhSachHopDongNV @MaNV int = null
+AS 
+BEGIN 
+SELECT * 
+FROM HopDong 
+WHERE @MaNV IS NULL OR MaNV = @MaNV; 
+END;
 GO
-CREATE PROCEDURE sp_TongPhuCapTheoLoai @LoaiPhuCap nvarchar(50) = null AS BEGIN SELECT LoaiPhuCap, SUM(SoTien) as TongPhuCap FROM PhuCap WHERE @LoaiPhuCap IS NULL OR LoaiPhuCap = @LoaiPhuCap GROUP BY LoaiPhuCap; END;
+
+CREATE PROCEDURE sp_TongPhuCapTheoLoai @LoaiPhuCap nvarchar(50) = null 
+AS 
+	BEGIN 
+		SELECT LoaiPhuCap, SUM(SoTien) as TongPhuCap
+		FROM PhuCap
+		WHERE @LoaiPhuCap IS NULL OR LoaiPhuCap = @LoaiPhuCap 
+		GROUP BY LoaiPhuCap; 
+	END;
 GO
 -- [PHÚC] Quy trình Tăng lương hàng loạt (Theo %)
 -- Dùng khi: Công ty tăng lương định kỳ hằng năm (VD: Tăng 5% cho toàn bộ nhân viên)
@@ -432,20 +547,85 @@ GO
 
 -- [TRƯỜNG] Quản lý hệ thống
 CREATE PROCEDURE sp_TaoTaiKhoan @TenDangNhap NVARCHAR(50), @MatKhau NVARCHAR(100), @MaNV INT, @Quyen NVARCHAR(20) = N'User', @MaRole INT = 4 
-AS BEGIN SET NOCOUNT ON; 
-IF NOT EXISTS (SELECT 1 FROM NhanVien WHERE MaNV=@MaNV) BEGIN RAISERROR (N'Nhân viên không tồn tại',16,1); RETURN; END 
-IF EXISTS (SELECT 1 FROM TaiKhoan WHERE TenDangNhap=@TenDangNhap) BEGIN RAISERROR (N'Tên đăng nhập đã tồn tại',16,1); RETURN; END 
-IF @MaRole IS NULL SELECT @MaRole = MaRole FROM Roles WHERE TenRole = @Quyen; 
-INSERT INTO TaiKhoan(TenDangNhap,MatKhau,MaNV,Quyen,MaRole) VALUES(@TenDangNhap,@MatKhau,@MaNV,@Quyen,@MaRole); END;
+AS 
+	BEGIN 
+	SET NOCOUNT ON; 
+	IF NOT EXISTS (
+			SELECT 1 
+			FROM NhanVien 
+			WHERE MaNV=@MaNV) 
+		BEGIN RAISERROR (N'Nhân viên không tồn tại',16,1); 
+		RETURN; 
+	END 
+
+	IF EXISTS (
+			SELECT 1 
+			FROM TaiKhoan 
+			WHERE TenDangNhap=@TenDangNhap) 
+		BEGIN RAISERROR (N'Tên đăng nhập đã tồn tại',16,1); 
+		RETURN; 
+	END 
+
+	IF @MaRole IS NULL 
+			SELECT @MaRole = MaRole 
+			FROM Roles 
+			WHERE TenRole = @Quyen; 
+		INSERT INTO TaiKhoan(TenDangNhap,MatKhau,MaNV,Quyen,MaRole) 
+		VALUES(@TenDangNhap,@MatKhau,@MaNV,@Quyen,@MaRole);
+	END;
 GO
 
-CREATE PROCEDURE sp_CapNhatTrangThaiNV AS BEGIN UPDATE NhanVien SET TrangThai = N'Nghỉ việc' WHERE MaNV NOT IN (SELECT MaNV FROM HopDong WHERE (NgayKetThuc IS NULL OR NgayKetThuc > GETDATE())); END;
+CREATE PROCEDURE sp_CapNhatTrangThaiNV 
+AS 
+	BEGIN 
+		UPDATE NhanVien 
+		SET TrangThai = N'Nghỉ việc' 
+			WHERE MaNV NOT IN (
+			SELECT MaNV 
+			FROM HopDong 
+			WHERE (NgayKetThuc IS NULL OR NgayKetThuc > GETDATE())); 
+	END;
 GO
-CREATE PROCEDURE sp_QuanLyPhongBan @ThaoTac NVARCHAR(10), @MaPB INT = NULL, @TenPB NVARCHAR(50) = NULL AS BEGIN IF @ThaoTac = 'THEM' INSERT INTO PhongBan(TenPB) VALUES(@TenPB); ELSE IF @ThaoTac = 'SUA' UPDATE PhongBan SET TenPB = @TenPB WHERE MaPB = @MaPB; ELSE IF @ThaoTac = 'XOA' DELETE FROM PhongBan WHERE MaPB = @MaPB; END;
+
+CREATE PROCEDURE sp_QuanLyPhongBan @ThaoTac NVARCHAR(10), @MaPB INT = NULL, @TenPB NVARCHAR(50) = NULL 
+AS 
+	BEGIN 
+		IF @ThaoTac = 'THEM' 
+			INSERT INTO PhongBan(TenPB) 
+			VALUES(@TenPB); 
+		ELSE IF @ThaoTac = 'SUA' 
+			UPDATE PhongBan 
+			SET TenPB = @TenPB 
+			WHERE MaPB = @MaPB; 
+		ELSE IF @ThaoTac = 'XOA' 
+			DELETE FROM PhongBan 
+			WHERE MaPB = @MaPB; 
+	END;
 GO
-CREATE PROCEDURE sp_QuanLyChucVu @ThaoTac NVARCHAR(10), @MaCV INT = NULL, @TenCV NVARCHAR(50) = NULL, @HeSoLuong DECIMAL(4,2) = NULL AS BEGIN IF @ThaoTac = 'THEM' INSERT INTO ChucVu(TenCV, HeSoLuong) VALUES(@TenCV, @HeSoLuong); ELSE IF @ThaoTac = 'SUA' UPDATE ChucVu SET TenCV = @TenCV, HeSoLuong = @HeSoLuong WHERE MaCV = @MaCV; ELSE IF @ThaoTac = 'XOA' DELETE FROM ChucVu WHERE MaCV = @MaCV; END;
+CREATE PROCEDURE sp_QuanLyChucVu @ThaoTac NVARCHAR(10), @MaCV INT = NULL, @TenCV NVARCHAR(50) = NULL, @HeSoLuong DECIMAL(4,2) = NULL
+AS
+	BEGIN
+		IF @ThaoTac = 'THEM' 
+			INSERT INTO ChucVu(TenCV, HeSoLuong)
+			VALUES(@TenCV, @HeSoLuong);
+		ELSE IF @ThaoTac = 'SUA' 
+			UPDATE ChucVu 
+			SET TenCV = @TenCV, HeSoLuong = @HeSoLuong 
+			WHERE MaCV = @MaCV; 
+		ELSE IF @ThaoTac = 'XOA' 
+			DELETE FROM ChucVu
+			WHERE MaCV = @MaCV; 
+	END;
 GO
-CREATE PROCEDURE sp_TaoBackup_QLLuong AS BEGIN DECLARE @File NVARCHAR(300); SET @File = 'D:\Backup_QLLuong\QL_Luong_' + CONVERT(VARCHAR(8), GETDATE(), 112) + '_' + REPLACE(CONVERT(VARCHAR(8), GETDATE(), 108), ':', '') + '.bak'; BACKUP DATABASE QL_LuongNV TO DISK = @File WITH INIT, FORMAT, NAME = 'Backup tu dong CSDL QL_Luong'; END;
+
+CREATE PROCEDURE sp_TaoBackup_QLLuong 
+AS 
+	BEGIN 
+		DECLARE @File NVARCHAR(300); 
+		SET @File = 'D:\Backup_QLLuong\QL_Luong_' + CONVERT(VARCHAR(8), GETDATE(), 112) + '_' + REPLACE(CONVERT(VARCHAR(8), GETDATE(), 108), ':', '') + '.bak'; 
+		BACKUP DATABASE QL_LuongNV TO DISK = @File WITH INIT, FORMAT, 
+		NAME = 'Backup tu dong CSDL QL_Luong'; 
+	END;
 GO
 
 -- [TUẤN] Tính lương
@@ -484,15 +664,71 @@ GO
 -- ======================================================================================
 
 -- [PHÚC]
-CREATE TRIGGER tr_HopDong_AfterUpdate ON HopDong AFTER UPDATE AS BEGIN UPDATE NhanVien SET TrangThai = N'Nghỉ việc' WHERE MaNV IN (SELECT i.MaNV FROM inserted i WHERE i.NgayKetThuc < GETDATE()); END;
+CREATE TRIGGER tr_HopDong_AfterUpdate 
+ON HopDong
+AFTER UPDATE 
+AS 
+	BEGIN 
+		UPDATE NhanVien 
+			SET TrangThai = N'Nghỉ việc' 
+			WHERE MaNV IN (
+			SELECT i.MaNV 
+			FROM inserted i 
+			WHERE i.NgayKetThuc < GETDATE()); 
+	END;
 GO
-CREATE TRIGGER tr_HopDong_AlterInsert ON HopDong AFTER INSERT AS BEGIN UPDATE NhanVien SET TrangThai = N'Đang làm' WHERE MaNV IN (SELECT i.MaNV FROM inserted i WHERE i.NgayKetThuc IS NULL OR i.NgayKetThuc > GETDATE()); END;
+CREATE TRIGGER tr_HopDong_AlterInsert 
+ON HopDong 
+AFTER INSERT 
+AS
+	BEGIN 
+		UPDATE NhanVien 
+			SET TrangThai = N'Đang làm'
+			WHERE MaNV IN (
+			SELECT i.MaNV 
+			FROM inserted i
+			WHERE i.NgayKetThuc IS NULL OR i.NgayKetThuc > GETDATE());
+	END;
 GO
-CREATE TRIGGER tr_NhanVien_AfterUpdate ON NhanVien AFTER UPDATE AS BEGIN UPDATE nv SET nv.LuongHienTai = lc.MucLuong FROM NhanVien nv JOIN inserted i ON nv.MaNV = i.MaNV JOIN LuongCoban lc ON i.MaCV = lc.MaCV WHERE i.MaCV <> (SELECT d.MaCV FROM deleted d WHERE d.MaNV = i.MaNV); END;
+
+CREATE TRIGGER tr_NhanVien_AfterUpdate 
+ON NhanVien 
+AFTER UPDATE 
+AS 
+	BEGIN 
+		UPDATE nv 
+			SET nv.LuongHienTai = lc.MucLuong 
+			FROM NhanVien nv 
+			JOIN inserted i ON nv.MaNV = i.MaNV 
+			JOIN LuongCoban lc  ON i.MaCV = lc.MaCV 
+			WHERE i.MaCV <> (
+				SELECT d.MaCV FROM deleted d 
+				WHERE d.MaNV = i.MaNV); 
+	END;
 GO
-CREATE TRIGGER tr_LuongCoBan_AfterUpdate ON LuongCoBan AFTER UPDATE AS BEGIN INSERT INTO LuongCoBanLog(MaCV, MucLuongCu, MucLuongMoi) SELECT d.MaCV, d.MucLuong, i.MucLuong FROM inserted i JOIN deleted d ON i.MaCV = d.MaCV WHERE i.MucLuong <> d.MucLuong; END;
+
+CREATE TRIGGER tr_LuongCoBan_AfterUpdate 
+ON LuongCoBan 
+AFTER UPDATE 
+AS 
+	BEGIN 
+		INSERT INTO LuongCoBanLog(MaCV, MucLuongCu, MucLuongMoi) 
+		SELECT d.MaCV, d.MucLuong, i.MucLuong
+		FROM inserted i 
+		JOIN deleted d ON i.MaCV = d.MaCV 
+		WHERE i.MucLuong <> d.MucLuong;
+	END;
 GO
-CREATE TRIGGER trg_TaoBangLuongKhiThemNV ON NhanVien AFTER INSERT AS BEGIN INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa) SELECT MaNV, MONTH(GETDATE()), YEAR(GETDATE()), 0, 0, 0, 0 FROM inserted; END;
+
+CREATE TRIGGER trg_TaoBangLuongKhiThemNV 
+ON NhanVien
+AFTER INSERT 
+AS 
+	BEGIN 
+		INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa) 
+		SELECT MaNV, MONTH(GETDATE()), YEAR(GETDATE()), 0, 0, 0, 0 
+		FROM inserted; 
+	END;
 GO
 -- 1. Trigger chặn lương âm
 -- Bảo vệ: Không bao giờ được nhập lương < 0 vào Hợp đồng
@@ -681,7 +917,6 @@ BEGIN
         EXEC sp_ThemHopDong @MaNV = @NewMaNV, @NgayBatDau = '2023-01-01', @LoaiHD = N'Không thời hạn', @Luongcoban = 10000000;
         EXEC sp_TaoTaiKhoan @TenDangNhap = @Email, @MatKhau = '123456', @MaNV = @NewMaNV;
         
-        -- Thêm phụ cấp ngẫu nhiên
         IF @i % 2 = 0 EXEC sp_ThemPhuCap @MaNV = @NewMaNV, @LoaiPhuCap = N'Xăng xe', @SoTien = 500000;
 
         SET @i = @i + 1;
@@ -690,145 +925,72 @@ BEGIN
 END;
 GO
 
+-- ======================================================================================
 -- PHẦN 7: BẢO MẬT & PHÂN QUYỀN (Phúc)
 -- ======================================================================================
-IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'db_role_NhanSu') 
-    CREATE ROLE db_role_NhanSu;
-
-IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'db_role_KeToan') 
-    CREATE ROLE db_role_KeToan;
+USE QL_LuongNV;
 GO
---  GÁN QUYỀN (GRANT PERMISSIONS) CHO TỪNG ROLE
--- Quyền Nhân sự :
--- Chỉ được thao tác trên các bảng liên quan đến hồ sơ, hợp đồng, chấm công
--- Không được xem lương, thưởng phạt
-GRANT SELECT, INSERT, UPDATE, DELETE 
-ON NhanVien 
-TO db_role_NhanSu;
 
-GRANT SELECT, INSERT, UPDATE, DELETE 
-ON PhongBan 
-TO db_role_NhanSu;
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'db_role_NhanSu' AND type = 'R')
+BEGIN
+    CREATE ROLE db_role_NhanSu;
+    PRINT 'Role db_role_NhanSu created.';
+END
 
-GRANT SELECT, INSERT, UPDATE, DELETE 
-ON ChucVu 
-TO db_role_NhanSu;
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'db_role_KeToan' AND type = 'R')
+BEGIN
+    CREATE ROLE db_role_KeToan;
+    PRINT 'Role db_role_KeToan created.';
+END
+GO
 
-GRANT SELECT, INSERT, UPDATE, DELETE 
-ON HopDong 
-TO db_role_NhanSu;
-
-GRANT SELECT, INSERT, UPDATE, DELETE 
-ON BangChamCong 
-TO db_role_NhanSu;
-
+-- HR
+GRANT SELECT, INSERT, UPDATE, DELETE ON NhanVien TO db_role_NhanSu;
+GRANT SELECT, INSERT, UPDATE, DELETE ON PhongBan TO db_role_NhanSu;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ChucVu TO db_role_NhanSu;
+GRANT SELECT, INSERT, UPDATE, DELETE ON HopDong TO db_role_NhanSu;
+GRANT SELECT, INSERT, UPDATE, DELETE ON BangChamCong TO db_role_NhanSu;
 GRANT SELECT ON TaiKhoan TO db_role_NhanSu; 
 GRANT SELECT ON Roles TO db_role_NhanSu;
 
-GRANT EXECUTE 
-ON sp_AddNhanVien 
-TO db_role_NhanSu;
+GRANT EXECUTE ON sp_AddNhanVien TO db_role_NhanSu;
+GRANT EXECUTE ON sp_ThemHopDong TO db_role_NhanSu;
+GRANT EXECUTE ON sp_QuanLyPhongBan TO db_role_NhanSu;
+GRANT EXECUTE ON sp_QuanLyChucVu TO db_role_NhanSu;
+GRANT EXECUTE ON sp_DanhSachHopDongNV TO db_role_NhanSu;
+GRANT EXECUTE ON sp_TaoTaiKhoan TO db_role_NhanSu;      
+GRANT EXECUTE ON fn_DemNhanVienTrongPhong TO db_role_NhanSu;
+GRANT EXECUTE ON fn_LayMaNhanVienTheoEmail TO db_role_NhanSu;
+GRANT EXECUTE ON fn_KiemTraNhanVienTonTai TO db_role_NhanSu;
+GRANT EXECUTE ON fn_LayQuyenTaiKhoan TO db_role_NhanSu;
+GRANT EXECUTE ON fn_HopDongConHieuLuc TO db_role_NhanSu;
+GRANT EXECUTE ON fn_SoLuongHopDongHetHan TO db_role_NhanSu;
+GRANT EXECUTE ON fn_TinhThamNien TO db_role_NhanSu;
+GRANT EXECUTE ON fn_KiemTraChuyenCan TO db_role_NhanSu;
+GRANT EXECUTE ON fn_TinhTongNgayCong TO db_role_NhanSu;
+GRANT EXECUTE ON fn_TinhTyLeDiLam TO db_role_NhanSu;
+GRANT EXECUTE ON sp_CapNhatTrangThaiNV TO db_role_NhanSu; 
+GRANT EXECUTE ON sp_XoaChamCongTheoThang TO db_role_NhanSu;
+GRANT EXECUTE ON sp_CapNhatGioTangCa TO db_role_NhanSu;
 
-GRANT EXECUTE 
-ON sp_ThemHopDong 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON sp_QuanLyPhongBan 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON sp_QuanLyChucVu 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON sp_DanhSachHopDongNV 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON sp_TaoTaiKhoan 
-TO db_role_NhanSu;     
-
-GRANT EXECUTE 
-ON fn_DemNhanVienTrongPhong 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON fn_LayMaNhanVienTheoEmail 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON fn_KiemTraNhanVienTonTai 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON fn_LayQuyenTaiKhoan
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON fn_HopDongConHieuLuc 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON fn_SoLuongHopDongHetHan 
-TO db_role_NhanSu;
-
-GRANT EXECUTE
-ON fn_TinhThamNien 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON fn_KiemTraChuyenCan 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON fn_TinhTongNgayCong 
-TO db_role_NhanSu;
-
-GRANT EXECUTE
-ON fn_TinhTyLeDiLam
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON sp_CapNhatTrangThaiNV 
-TO db_role_NhanSu; 
-
-GRANT EXECUTE 
-ON sp_XoaChamCongTheoThang 
-TO db_role_NhanSu;
-
-GRANT EXECUTE 
-ON sp_CapNhatGioTangCa 
-TO db_role_NhanSu;
-
--- Quyền Kế toán
--- Được thao tác trên bảng Lương, Phụ cấp, Thưởng phạt
--- Chỉ được XEM hồ sơ nhân viên (không được sửa/xóa nhân viên)
-
--- Quyền trên Bảng (Table)
+-- KẾ TOÁN 
 GRANT SELECT, INSERT, UPDATE, DELETE ON BangLuong TO db_role_KeToan;
 GRANT SELECT, INSERT, UPDATE, DELETE ON PhuCap TO db_role_KeToan;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ThuongPhat TO db_role_KeToan;
 GRANT SELECT, INSERT, UPDATE, DELETE ON LuongCoBan TO db_role_KeToan;
-
--- Chỉ được XEM (Read-only) các bảng thông tin chung
 GRANT SELECT ON NhanVien TO db_role_KeToan;
 GRANT SELECT ON HopDong TO db_role_KeToan;
-GRANT SELECT ON BangChamCong TO db_role_KeToan; -- Kế toán cần xem công để tính lương
-GRANT SELECT ON PhongBan TO db_role_KeToan;
-GRANT SELECT ON ChucVu TO db_role_KeToan;
+GRANT SELECT ON BangChamCong TO db_role_KeToan; 
 
--- Quyền thực thi Thủ tục (Stored Procedures)
 GRANT EXECUTE ON sp_TinhBangLuong_Thang TO db_role_KeToan;
 GRANT EXECUTE ON sp_ThemPhuCap TO db_role_KeToan;
 GRANT EXECUTE ON sp_QuanLyLuongCoBan TO db_role_KeToan;
 GRANT EXECUTE ON sp_TongPhuCapTheoLoai TO db_role_KeToan;
-GRANT EXECUTE ON sp_ThemThuongPhat_AndCapNhatBangLuong TO db_role_KeToan;
+GRANT EXECUTE ON sp_ThemThuongPhat_AndCapNhatBangLuong TO db_role_KeToan; 
 GRANT EXECUTE ON sp_ThongKeLuongTheoThang TO db_role_KeToan;
 GRANT EXECUTE ON sp_XuatBaoCaoLuong TO db_role_KeToan;
 GRANT EXECUTE ON sp_TangLuongHangLoat TO db_role_KeToan;
 
--- Quyền thực thi Hàm (Functions)
 GRANT EXECUTE ON fn_TongPhuCap_NV TO db_role_KeToan;
 GRANT EXECUTE ON fn_TongThuongPhat_NV_LichSu TO db_role_KeToan;
 GRANT EXECUTE ON fn_TongPhuCapLoai TO db_role_KeToan;
@@ -839,39 +1001,38 @@ GRANT EXECUTE ON fn_TinhLuongThucNhan_Tam TO db_role_KeToan;
 GRANT EXECUTE ON fn_TongThuongPhat_NV_Thang TO db_role_KeToan;
 GRANT EXECUTE ON fn_DuBaoChiPhiLuong_PhongBan TO db_role_KeToan;
 GRANT EXECUTE ON fn_TinhThueTNCN_UocTinh TO db_role_KeToan;
-
 GO
 
 USE master;
 GO
 
--- Xóa Login cũ nếu tồn tại để tạo lại cho sạch
 IF EXISTS (SELECT * FROM sys.server_principals WHERE name = N'NhanSuLogin') 
     DROP LOGIN NhanSuLogin;
 IF EXISTS (SELECT * FROM sys.server_principals WHERE name = N'KeToanLogin') 
     DROP LOGIN KeToanLogin;
 
--- Tạo Login mới (Password nên phức tạp hơn trong thực tế)
 CREATE LOGIN NhanSuLogin WITH PASSWORD = N'NhanSu@123', DEFAULT_DATABASE = QL_LuongNV, CHECK_POLICY = OFF;
 CREATE LOGIN KeToanLogin WITH PASSWORD = N'KeToan@123', DEFAULT_DATABASE = QL_LuongNV, CHECK_POLICY = OFF;
 GO
 
--- 4. TẠO DATABASE USER (Ánh xạ Login vào Database cụ thể)
+USE QL_LuongNV;
+GO
 
--- Xóa User cũ nếu tồn tại
 IF EXISTS (SELECT * FROM sys.database_principals WHERE name = N'NhanSuUser') 
     DROP USER NhanSuUser;
 IF EXISTS (SELECT * FROM sys.database_principals WHERE name = N'KeToanUser') 
     DROP USER KeToanUser;
 
--- Tạo User mới từ Login
 CREATE USER NhanSuUser FOR LOGIN NhanSuLogin;
 CREATE USER KeToanUser FOR LOGIN KeToanLogin;
 
--- 5. THÊM USER VÀO ROLE TƯƠNG ỨNG
 ALTER ROLE db_role_NhanSu ADD MEMBER NhanSuUser;
 ALTER ROLE db_role_KeToan ADD MEMBER KeToanUser;
 GO
+
+
+
+
 -- ===================================================
 -- Backup -- (Trường)
 -- ===================================================
@@ -936,99 +1097,93 @@ WITH RECOVERY;
 -- WITH RECOVERY, STOPAT = '2025-12-05 16:00:00'; (Giả sử ngày T6 là 05/12)
 GO
 
--- +++++++++++++++++++++++++++ Tạo dữ liệu ảo( Test) ++++++++++++++++++++ ----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- +++++++++++++++++++++++++++ Tạo dữ liệu ảo( Test _ Phúc) ++++++++++++++++++++ ----
 SELECT * FROM TaiKhoan
 SELECT * FROM PhongBan
 SELECT * FROM ChucVu
 SELECT * FROM Roles
--- 1. Cập nhật Lương hiện tại từ Hợp đồng mới nhất (ưu tiên)
-UPDATE NhanVien
-SET LuongHienTai = (
-    SELECT TOP 1 LuongCoBan
-    FROM HopDong
-    WHERE HopDong.MaNV = NhanVien.MaNV
-    ORDER BY NgayBatDau DESC
-);
 
--- 2. Nếu không có hợp đồng, lấy lương cơ bản theo Chức vụ
-UPDATE NhanVien
-SET LuongHienTai = (
-    SELECT TOP 1 MucLuong
-    FROM LuongCoBan
-    WHERE LuongCoBan.MaCV = NhanVien.MaCV
-)
-WHERE LuongHienTai IS NULL OR LuongHienTai = 0;
-
-
-
-UPDATE NhanVien
-SET MaPB = (ABS(CHECKSUM(NEWID())) % 6) + 1, -- Random PB từ 1-6
-    MaCV = (ABS(CHECKSUM(NEWID())) % 8) + 1  -- Random CV từ 1-8
-WHERE MaPB IS NULL OR MaCV IS NULL;
-
--- 2. CẬP NHẬT LƯƠNG HIỆN TẠI (Đồng bộ lại)
-UPDATE NhanVien
-SET LuongHienTai = (
-    SELECT TOP 1 MucLuong 
-    FROM LuongCoBan 
-    WHERE LuongCoBan.MaCV = NhanVien.MaCV
-)
-WHERE LuongHienTai IS NULL OR LuongHienTai = 0;
-
--- 3. INSERT DỮ LIỆU PHỤ CẤP MẪU (Cho 50 nhân viên đầu tiên)
-DELETE FROM PhuCap; -- Xóa cũ làm lại cho sạch
-
-DECLARE @i INT = 1;
-WHILE @i <= 50
-BEGIN
-    -- Phụ cấp Xăng xe
-    INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien) 
-    VALUES (@i, N'Xăng xe', 500000);
-    
-    -- Phụ cấp Ăn trưa (Random ai cũng có)
-    INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien) 
-    VALUES (@i, N'Ăn trưa', 730000);
-
-    -- Phụ cấp Trách nhiệm (Chỉ dành cho CV 1,2,3 - Sếp)
-    IF EXISTS (SELECT 1 FROM NhanVien WHERE MaNV = @i AND MaCV IN (1, 2, 3))
-    BEGIN
-        INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien) 
-        VALUES (@i, N'Trách nhiệm', 2000000);
-    END
-
-    SET @i = @i + 1;
-END
+USE QL_LuongNV;
 GO
 
+SET NOCOUNT ON; -- Tắt thông báo dòng để chạy nhanh hơn
 
-SELECT 
-    NV.MaNV, 
-    NV.HoTen, 
-    NV.LuongHienTai AS [Lương Trong DB ], 
-    NV.MaCV AS [ID Chức Vụ],
-    CV.TenCV AS [Tên Chức Vụ (Nếu NULL là lỗi)],
-    NV.MaPB AS [ID Phòng Ban],
-    PB.TenPB AS [Tên Phòng Ban (Nếu NULL là lỗi)]
-FROM NhanVien NV
-LEFT JOIN ChucVu CV ON NV.MaCV = CV.MaCV
-LEFT JOIN PhongBan PB ON NV.MaPB = PB.MaPB
+PRINT N'>>> BẮT ĐẦU QUÁ TRÌNH TÁI TẠO DỮ LIỆU "1 NĂM HOẠT ĐỘNG"...';
 
+-- ======================================================================================
+-- BƯỚC 1: CHUẨN HÓA DỮ LIỆU CƠ BẢN (Dựa trên code của bạn)
+-- ======================================================================================
+PRINT N'>>> [1/4] Cập nhật thông tin nhân viên cơ bản...';
+
+-- 1. Gán ngẫu nhiên Phòng Ban & Chức Vụ cho ai đang thiếu
+UPDATE NhanVien
+SET MaPB = (ABS(CHECKSUM(NEWID())) % 6) + 1, 
+    MaCV = (ABS(CHECKSUM(NEWID())) % 5) + 1  -- Random CV từ 1-5 (Nhân viên -> Kế toán trưởng)
+WHERE MaPB IS NULL OR MaCV IS NULL;
+
+-- 2. Đảm bảo có đủ các vị trí quan trọng (Để phân quyền)
+-- Set 1 người làm Admin (Giám đốc)
+UPDATE TOP(1) NhanVien SET MaCV = 3, MaPB = 1 WHERE MaNV = 1; 
+-- Set 1 người làm Kế toán
+UPDATE TOP(1) NhanVien SET MaCV = 5, MaPB = 2 WHERE MaNV = 2; 
+-- Set 1 người làm Nhân sự
+UPDATE TOP(1) NhanVien SET MaCV = 2, MaPB = 1 WHERE MaNV = 3; 
+
+-- 3. Cập nhật Lương hiện tại (Logic của bạn - Rất chuẩn)
+-- Ưu tiên Hợp đồng -> Chức vụ -> Mặc định
+UPDATE NhanVien
+SET LuongHienTai = (
+    SELECT TOP 1 LuongCoBan FROM HopDong WHERE HopDong.MaNV = NhanVien.MaNV ORDER BY NgayBatDau DESC
+);
+
+UPDATE NhanVien
+SET LuongHienTai = (
+    SELECT TOP 1 MucLuong FROM LuongCoBan WHERE LuongCoBan.MaCV = NhanVien.MaCV
+)
+WHERE LuongHienTai IS NULL OR LuongHienTai = 0;
+
+-- 4. Reset và Tạo lại Phụ cấp (Sinh động hơn)
+DELETE FROM PhuCap;
+INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien)
+SELECT MaNV, N'Xăng xe', 500000 FROM NhanVien; -- Ai cũng có xăng xe
+
+INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien)
+SELECT TOP 50 PERCENT MaNV, N'Ăn trưa', 730000 FROM NhanVien ORDER BY NEWID(); -- 50% có ăn trưa
+
+INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien)
+SELECT MaNV, N'Trách nhiệm', 2000000 FROM NhanVien WHERE MaCV IN (2, 3, 5); -- Chỉ sếp có trách nhiệm
+
+-- ======================================================================================
+-- BƯỚC 2: TẠO TÀI KHOẢN ĐĂNG NHẬP (Logic của bạn + Fix lỗi)
+-- ======================================================================================
+PRINT N'>>> [2/4] Đồng bộ tài khoản đăng nhập...';
 
 DELETE FROM TaiKhoan;
 
--- 2. Tạo lại tài khoản từ danh sách nhân viên hiện có
--- Logic: Username = Email (bỏ phần @...)
--- Ví dụ: Email = 'nguyenvanan@company.vn' -> User = 'nguyenvanan'
 INSERT INTO TaiKhoan (TenDangNhap, MatKhau, MaNV, Quyen, MaRole)
 SELECT 
-    LEFT(Email, CHARINDEX('@', Email) - 1), -- Username lấy từ Email
-    '123456', -- Mật khẩu mặc định
+    LEFT(Email, CHARINDEX('@', Email) - 1), -- User là phần trước @
+    '123456', 
     MaNV,
     CASE 
-        WHEN MaCV = 3 THEN 'Admin'  -- Giám đốc là Admin
-        WHEN MaPB = 2 THEN 'KeToan' -- Phòng Kế toán là KeToan
-        WHEN MaPB = 1 THEN 'NhanSu' -- Phòng Nhân sự là NhanSu
-        ELSE 'User'                 -- Còn lại là User
+        WHEN MaCV = 3 THEN 'Admin'   -- Giám đốc -> Admin
+        WHEN MaPB = 2 THEN 'KeToan'  -- Phòng Kế toán -> Kế toán
+        WHEN MaPB = 1 THEN 'NhanSu'  -- Phòng Nhân sự -> Nhân sự
+        ELSE 'User'                  -- Còn lại -> User
     END,
     CASE 
         WHEN MaCV = 3 THEN 1
@@ -1038,3 +1193,92 @@ SELECT
     END
 FROM NhanVien
 WHERE Email IS NOT NULL AND Email <> '';
+
+-- ======================================================================================
+-- BƯỚC 3: CỖ MÁY THỜI GIAN (Sinh dữ liệu 12 tháng qua)
+-- ======================================================================================
+PRINT N'>>> [3/4] Đang tua ngược thời gian để sinh dữ liệu 12 tháng qua...';
+
+-- Xóa sạch dữ liệu chấm công và lương cũ để tránh trùng
+DELETE FROM ThuongPhat;
+DELETE FROM BangLuong;
+DELETE FROM BangChamCong;
+
+-- Khai báo biến thời gian
+DECLARE @StartYear INT = YEAR(DATEADD(YEAR, -1, GETDATE())); -- Năm ngoái
+DECLARE @StartMonth INT = MONTH(DATEADD(YEAR, -1, GETDATE())); -- Tháng này năm ngoái
+DECLARE @EndMonth INT = MONTH(GETDATE());
+DECLARE @EndYear INT = YEAR(GETDATE());
+
+-- Biến chạy
+DECLARE @CurrMonth INT = @StartMonth;
+DECLARE @CurrYear INT = @StartYear;
+
+-- VÒNG LẶP QUA TỪNG THÁNG (Từ quá khứ -> Hiện tại)
+WHILE (@CurrYear < @EndYear) OR (@CurrYear = @EndYear AND @CurrMonth <= @EndMonth)
+BEGIN
+    PRINT N'   --> Đang xử lý dữ liệu Tháng ' + CAST(@CurrMonth AS NVARCHAR) + '/' + CAST(@CurrYear AS NVARCHAR);
+
+    -- A. SINH CHẤM CÔNG (Giả lập 24 ngày công/tháng)
+    -- Để chạy nhanh, ta insert theo lô (Batch Insert) thay vì từng dòng
+    -- Logic: Mỗi nhân viên làm việc từ ngày 1 -> 24 của tháng
+    DECLARE @Day INT = 1;
+    WHILE @Day <= 24
+    BEGIN
+        DECLARE @WorkDate DATE = DATEFROMPARTS(@CurrYear, @CurrMonth, @Day);
+        
+        -- Chỉ insert ngày trong tuần (Bỏ qua T7, CN nếu muốn, ở đây làm đơn giản là insert hết)
+        INSERT INTO BangChamCong (MaNV, Ngay, NgayCong, GioTangCa)
+        SELECT 
+            MaNV, 
+            @WorkDate, 
+            1.0, -- Đủ công
+            CASE 
+                WHEN (ABS(CHECKSUM(NEWID())) % 10) < 2 THEN 2.0 -- 20% cơ hội tăng ca 2 tiếng
+                ELSE 0 
+            END
+        FROM NhanVien;
+
+        SET @Day = @Day + 1;
+    END
+
+    -- B. SINH THƯỞNG PHẠT (Ngẫu nhiên vài người/tháng)
+    INSERT INTO ThuongPhat (MaNV, Thangg, Namm, Loai, SoTien, LyDo)
+    SELECT TOP 5 MaNV, @CurrMonth, @CurrYear, N'Thưởng', 500000, N'Thưởng KPI tháng ' + CAST(@CurrMonth AS NVARCHAR)
+    FROM NhanVien ORDER BY NEWID();
+
+    INSERT INTO ThuongPhat (MaNV, Thangg, Namm, Loai, SoTien, LyDo)
+    SELECT TOP 2 MaNV, @CurrMonth, @CurrYear, N'Phạt', 200000, N'Đi muộn tháng ' + CAST(@CurrMonth AS NVARCHAR)
+    FROM NhanVien ORDER BY NEWID();
+
+    -- C. TÍNH LƯƠNG THÁNG ĐÓ (QUAN TRỌNG NHẤT)
+    -- Gọi lại SP tính lương mà bạn đã có để chốt sổ tháng đó
+    EXEC sp_TinhBangLuong_Thang @Thang_BangLuong = @CurrMonth, @Nam_BangLuong = @CurrYear;
+
+    -- Tăng thời gian
+    SET @CurrMonth = @CurrMonth + 1;
+    IF @CurrMonth > 12 
+    BEGIN
+        SET @CurrMonth = 1;
+        SET @CurrYear = @CurrYear + 1;
+    END
+END
+
+-- ======================================================================================
+-- BƯỚC 4: KIỂM TRA KẾT QUẢ
+-- ======================================================================================
+PRINT N'>>> [4/4] Hoàn tất! Kiểm tra dữ liệu...';
+
+PRINT N'=== THỐNG KÊ DỮ LIỆU ===';
+DECLARE @CountCC INT = (SELECT COUNT(*) FROM BangChamCong);
+DECLARE @CountLuong INT = (SELECT COUNT(*) FROM BangLuong);
+PRINT N'- Tổng bản ghi chấm công: ' + CAST(@CountCC AS NVARCHAR) + N' (Khoảng 70-80k dòng)';
+PRINT N'- Tổng phiếu lương đã tạo: ' + CAST(@CountLuong AS NVARCHAR) + N' (Mỗi NV có ~12 phiếu)';
+
+PRINT N'=== GỢI Ý TÀI KHOẢN ĐĂNG NHẬP ===';
+SELECT TOP 3 TenDangNhap, '123456' as MatKhau, Quyen, 'Dùng để test Dashboard Admin' as GhiChu 
+FROM TaiKhoan WHERE Quyen = 'Admin';
+
+SELECT TOP 3 TenDangNhap, '123456' as MatKhau, Quyen, 'Dùng để test Portal Nhân viên' as GhiChu 
+FROM TaiKhoan WHERE Quyen = 'User';
+GO
