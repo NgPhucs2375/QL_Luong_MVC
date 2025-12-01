@@ -239,9 +239,13 @@
 
 @section Scripts {
     <script>
+        // Tắt popup cảnh báo DataTables
+        $.fn.dataTable.ext.errMode = 'none';
+        
         // Đoạn này kích hoạt tính năng sort/search cho bảng
         $(document).ready(function () {
             $('#tableBaoCao').DataTable({
+                "destroy": true,
                 "language": {
                     "lengthMenu": "Hiển thị _MENU_ dòng",
                     "zeroRecords": "Không tìm thấy dữ liệu",

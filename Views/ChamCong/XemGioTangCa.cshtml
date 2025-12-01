@@ -69,7 +69,7 @@
                             // DROPDOWN FOR ADMIN/HR
                             <div class="form-group col-md-5">
                                 <label class="font-weight-bold text-gray-700 small">Nhân viên:</label>
-                                @Html.DropDownList("maNV", (SelectList)ViewBag.DanhSachNhanVien, "-- Chọn nhân viên --", new { @class = "form-control custom-select" })
+                                @Html.DropDownList("maNV", (IEnumerable<SelectListItem>)ViewBag.DanhSachNhanVien, "-- Chọn nhân viên --", new { @class = "form-control custom-select" })
                             </div>
                         }
 
