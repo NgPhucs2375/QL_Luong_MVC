@@ -41,7 +41,7 @@
                     @* 1. Thông tin Nhân viên (Read-only) *@
                     <div class="form-group">
                         <label class="small font-weight-bold text-gray-700">Nhân viên <span class="text-muted">(Không thể sửa)</span></label>
-                        @Html.DropDownList("IDNhanVien_ChamCong", (SelectList)ViewBag.DanhSachNhanVien, new { @class = "form-control bg-gray-200", disabled = "disabled" })
+                        @Html.DropDownList("IDNhanVien_ChamCong", (IEnumerable<SelectListItem>)ViewBag.DanhSachNhanVien, new { @class = "form-control bg-gray-200", disabled = "disabled" })
                         @Html.Hidden("IDNhanVien_ChamCong", Model.IDNhanVien_ChamCong)
                     </div>
 

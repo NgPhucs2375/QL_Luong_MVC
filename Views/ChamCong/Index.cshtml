@@ -179,10 +179,14 @@
 
 @section Scripts {
     <script>
+        // Tắt popup cảnh báo DataTables
+        $.fn.dataTable.ext.errMode = 'none';
+        
         // DataTables (Nếu có)
         $(document).ready(function() {
             if($.fn.DataTable) {
                  $('#tableChamCong').DataTable({
+                     "destroy": true,
                      "language": { "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Vietnamese.json" },
                      "pageLength": 10
                  });

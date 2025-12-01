@@ -47,7 +47,12 @@ namespace QL_Luong_MVC.Controllers
             {
                 // Lấy danh sách nhân viên để hiển thị trong dropdown
                 var danhSachNhanVien = nhanVienDAO.GetAll();
-                ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien");
+                // Tạo SelectList với định dạng "Tên NV #MãNV"
+                ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                {
+                    Value = nv.IDNhanVien.ToString(),
+                    Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}"
+                }).ToList();
 
                 // Set ngày mặc định là hôm nay
                 ViewBag.NgayMacDinh = DateTime.Now.ToString("yyyy-MM-dd");
@@ -72,7 +77,11 @@ namespace QL_Luong_MVC.Controllers
                 {
                     // Reload danh sách nhân viên nếu validation fail
                     var danhSachNhanVien = nhanVienDAO.GetAll();
-                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien");
+                    ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                    {
+                        Value = nv.IDNhanVien.ToString(),
+                        Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}"
+                    }).ToList();
                     return View(model);
                 }
 
@@ -81,7 +90,11 @@ namespace QL_Luong_MVC.Controllers
                 {
                     ModelState.AddModelError("DayCong_ChamCong", "Ngày công phải từ 0 đến 1");
                     var danhSachNhanVien = nhanVienDAO.GetAll();
-                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien");
+                    ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                    {
+                        Value = nv.IDNhanVien.ToString(),
+                        Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}"
+                    }).ToList();
                     return View(model);
                 }
 
@@ -90,7 +103,11 @@ namespace QL_Luong_MVC.Controllers
                 {
                     ModelState.AddModelError("GioTangCa", "Giờ tăng ca không được âm");
                     var danhSachNhanVien = nhanVienDAO.GetAll();
-                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien");
+                    ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                    {
+                        Value = nv.IDNhanVien.ToString(),
+                        Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}"
+                    }).ToList();
                     return View(model);
                 }
 
@@ -108,7 +125,11 @@ namespace QL_Luong_MVC.Controllers
                     // Hiển thị lỗi từ Trigger (UC7: chấm công trùng ngày)
                     ViewBag.ErrorMessage = result.Message;
                     var danhSachNhanVien = nhanVienDAO.GetAll();
-                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien");
+                    ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                    {
+                        Value = nv.IDNhanVien.ToString(),
+                        Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}"
+                    }).ToList();
                     return View(model);
                 }
             }
@@ -116,7 +137,11 @@ namespace QL_Luong_MVC.Controllers
             {
                 ViewBag.ErrorMessage = "Lỗi hệ thống: " + ex.Message;
                 var danhSachNhanVien = nhanVienDAO.GetAll();
-                ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien");
+                ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                {
+                    Value = nv.IDNhanVien.ToString(),
+                    Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}"
+                }).ToList();
                 return View(model);
             }
         }
@@ -138,7 +163,12 @@ namespace QL_Luong_MVC.Controllers
 
                 // Lấy danh sách nhân viên (nhưng không cho phép đổi nhân viên)
                 var danhSachNhanVien = nhanVienDAO.GetAll();
-                ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien", chamCong.IDNhanVien_ChamCong);
+                ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                {
+                    Value = nv.IDNhanVien.ToString(),
+                    Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}",
+                    Selected = nv.IDNhanVien == chamCong.IDNhanVien_ChamCong
+                }).ToList();
 
                 return View(chamCong);
             }
@@ -158,7 +188,12 @@ namespace QL_Luong_MVC.Controllers
                 if (!ModelState.IsValid)
                 {
                     var danhSachNhanVien = nhanVienDAO.GetAll();
-                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien", model.IDNhanVien_ChamCong);
+                    ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                    {
+                        Value = nv.IDNhanVien.ToString(),
+                        Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}",
+                        Selected = nv.IDNhanVien == model.IDNhanVien_ChamCong
+                    }).ToList();
                     return View(model);
                 }
 
@@ -167,7 +202,12 @@ namespace QL_Luong_MVC.Controllers
                 {
                     ModelState.AddModelError("DayCong_ChamCong", "Ngày công phải từ 0 đến 1");
                     var danhSachNhanVien = nhanVienDAO.GetAll();
-                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien", model.IDNhanVien_ChamCong);
+                    ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                    {
+                        Value = nv.IDNhanVien.ToString(),
+                        Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}",
+                        Selected = nv.IDNhanVien == model.IDNhanVien_ChamCong
+                    }).ToList();
                     return View(model);
                 }
 
@@ -175,7 +215,12 @@ namespace QL_Luong_MVC.Controllers
                 {
                     ModelState.AddModelError("GioTangCa", "Giờ tăng ca không được âm");
                     var danhSachNhanVien = nhanVienDAO.GetAll();
-                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien", model.IDNhanVien_ChamCong);
+                    ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                    {
+                        Value = nv.IDNhanVien.ToString(),
+                        Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}",
+                        Selected = nv.IDNhanVien == model.IDNhanVien_ChamCong
+                    }).ToList();
                     return View(model);
                 }
 
@@ -191,7 +236,12 @@ namespace QL_Luong_MVC.Controllers
                 {
                     ViewBag.ErrorMessage = result.Message;
                     var danhSachNhanVien = nhanVienDAO.GetAll();
-                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien", model.IDNhanVien_ChamCong);
+                    ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                    {
+                        Value = nv.IDNhanVien.ToString(),
+                        Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}",
+                        Selected = nv.IDNhanVien == model.IDNhanVien_ChamCong
+                    }).ToList();
                     return View(model);
                 }
             }
@@ -199,7 +249,12 @@ namespace QL_Luong_MVC.Controllers
             {
                 ViewBag.ErrorMessage = "Lỗi hệ thống: " + ex.Message;
                 var danhSachNhanVien = nhanVienDAO.GetAll();
-                ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien", model.IDNhanVien_ChamCong);
+                ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                {
+                    Value = nv.IDNhanVien.ToString(),
+                    Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}",
+                    Selected = nv.IDNhanVien == model.IDNhanVien_ChamCong
+                }).ToList();
                 return View(model);
             }
         }
@@ -247,14 +302,26 @@ namespace QL_Luong_MVC.Controllers
 
                     // Chỉ tạo list có 1 người (là chính mình) để Dropdown không hiện người khác
                     var me = nhanVienDAO.GetById(currentUserID);
-                    var listMe = new List<NhanVien> { me };
-                    ViewBag.DanhSachNhanVien = new SelectList(listMe, "IDNhanVien", "FullNameNhanVien", currentUserID);
+                    ViewBag.DanhSachNhanVien = new List<SelectListItem>
+                    {
+                        new SelectListItem
+                        {
+                            Value = me.IDNhanVien.ToString(),
+                            Text = $"{me.FullNameNhanVien} #{me.IDNhanVien}",
+                            Selected = true
+                        }
+                    };
                 }
                 else
                 {
                     // Nếu là Admin/HR -> Được xem tất cả (Code cũ)
                     var danhSachNhanVien = nhanVienDAO.GetAll();
-                    ViewBag.DanhSachNhanVien = new SelectList(danhSachNhanVien, "IDNhanVien", "FullNameNhanVien", maNV);
+                    ViewBag.DanhSachNhanVien = danhSachNhanVien.Select(nv => new SelectListItem
+                    {
+                        Value = nv.IDNhanVien.ToString(),
+                        Text = $"{nv.FullNameNhanVien} #{nv.IDNhanVien}",
+                        Selected = maNV.HasValue && nv.IDNhanVien == maNV.Value
+                    }).ToList();
                 }
 
                 // Lấy danh sách nhân viên để chọn
