@@ -8,7 +8,6 @@ namespace QL_Luong_MVC.DAO
 {
     public class TaiKhoanDAO : BaseDAO
     {
-        // Kiểm tra đăng nhập
         public LoginResult CheckLogin(string username, string password)
         {
             using (SqlConnection conn = GetConnection())
@@ -19,10 +18,13 @@ namespace QL_Luong_MVC.DAO
                     if (username.ToLower() == "admin" && password == "123456")
                         return new LoginResult { Success = true, Role = "Admin", MaNV = 0 };
 
+                    // MÃ HÓA MẬT KHẨU NHẬP VÀO TRƯỚC KHI SO SÁNH
+                    string passwordHash = SecurityHelper.HashPassword(password);
+
                     string query = "SELECT * FROM TaiKhoan WHERE TenDangNhap=@user AND MatKhau=@pass";
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@user", username);
-                    cmd.Parameters.AddWithValue("@pass", password); // Nên hash password ở đây nếu có
+                    cmd.Parameters.AddWithValue("@pass", passwordHash); // So sánh Hash với Hash trong DB
 
                     conn.Open();
                     SqlDataReader dr = cmd.ExecuteReader();
@@ -49,14 +51,13 @@ namespace QL_Luong_MVC.DAO
         {
             using (SqlConnection conn = GetConnection())
             {
-                // Sử dụng Procedure sp_TaoTaiKhoan
                 SqlCommand cmd = new SqlCommand("sp_TaoTaiKhoan", conn);
+                string passwordHash = SecurityHelper.HashPassword(password);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@TenDangNhap", username);
-                cmd.Parameters.AddWithValue("@MatKhau", password);
+                cmd.Parameters.AddWithValue("@MatKhau", passwordHash);
                 cmd.Parameters.AddWithValue("@MaNV", maNV);
                 cmd.Parameters.AddWithValue("@Quyen", "User");
-                // Default Role ID 4 = NhanVien
                 cmd.Parameters.AddWithValue("@MaRole", 4);
 
                 try
@@ -129,19 +130,13 @@ namespace QL_Luong_MVC.DAO
             {
                 try
                 {
-                    // BƯỚC 1: KIỂM TRA MẬT KHẨU CŨ CÓ ĐÚNG KHÔNG (Sử dụng CheckLogin logic)
-                    // Lưu ý: KHÔNG nên hash mật khẩu mới trong DAO, nên hash trong Controller nếu có logic hash.
                     var checkOldPass = CheckLogin(username, oldPassword);
+                    if (!checkOldPass.Success) return (false, "Mật khẩu cũ không đúng.");
+                    string newPassHash = SecurityHelper.HashPassword(newPassword);
 
-                    if (!checkOldPass.Success)
-                    {
-                        return (false, "❌ Mật khẩu cũ không đúng.");
-                    }
-
-                    // BƯỚC 2: CẬP NHẬT MẬT KHẨU MỚI
                     string query = "UPDATE TaiKhoan SET MatKhau = @NewPass WHERE TenDangNhap = @User";
                     SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@NewPass", newPassword);
+                    cmd.Parameters.AddWithValue("@NewPass", newPassHash);
                     cmd.Parameters.AddWithValue("@User", username);
 
                     conn.Open();

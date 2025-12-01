@@ -1,0 +1,44 @@
+﻿
+@{ ViewBag.Title = "Công cụ Quản trị Nâng cao"; Layout = "~/Views/Shared/_LayoutAdmin.cshtml"; }
+
+<h1 class="h3 mb-4 text-gray-800">Công cụ hệ thống (Advanced Tools)</h1>
+
+@if (TempData["Success"] != null)
+{<div class="alert alert-success">@TempData["Success"]</div>}
+@if (TempData["Error"] != null)
+{<div class="alert alert-danger">@TempData["Error"]</div>}
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <h5 class="font-weight-bold text-success mb-3"><i class="fas fa-chart-line"></i> Tăng lương định kỳ</h5>
+                <p>Áp dụng tăng % lương cơ bản cho toàn bộ nhân viên đang làm việc.</p>
+                @using (Html.BeginForm("TangLuong", "CongCu", FormMethod.Post))
+                {
+                    <div class="input-group mb-3">
+                        <input type="number" name="phanTram" class="form-control" placeholder="Nhập % (VD: 5)" required min="1" max="100">
+                        <div class="input-group-append">
+                            <button class="btn btn-success" type="button" onclick="if(confirm('Chắc chắn tăng lương?')) this.form.submit();">Thực thi</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <h5 class="font-weight-bold text-primary mb-3"><i class="fas fa-database"></i> Sao lưu Dữ liệu</h5>
+                <p>Tạo bản backup `.bak` tại thư mục lưu trữ của Server.</p>
+                @using (Html.BeginForm("BackupDB", "CongCu", FormMethod.Post))
+                {
+                    <button class="btn btn-primary btn-block" type="submit">
+                        <i class="fas fa-download fa-sm text-white-50"></i> Backup Ngay Lập Tức
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -138,94 +138,110 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // --- CẤU HÌNH DỮ LIỆU AN TOÀN (FIX LỖI DẤU PHẨY) ---
+        // Sử dụng Json.Encode để C# tự động chuyển số thành định dạng chuẩn (ví dụ: 1000.5 thay vì 1000,5)
+        var salaryLabels = @Html.Raw(Json.Encode(ViewBag.SalaryHistoryLabels));
+        var salaryValues = @Html.Raw(Json.Encode(ViewBag.SalaryHistoryValues));
 
-<script>
-    // 1. Biểu đồ Lương (Bar Chart)
-    // Dữ liệu giả lập (Cần lấy thật từ Controller nếu muốn chính xác 100%)
-    var salaryData = @Html.Raw(Json.Encode(ViewBag.SalaryHistoryValues ?? new List<decimal> { 10000000, 10500000, 10200000, 11000000, 10800000, 11500000 }));
-    var salaryLabels = @Html.Raw(Json.Encode(ViewBag.SalaryHistoryLabels ?? new List<string> { "T6", "T7", "T8", "T9", "T10", "T11" }));
+        var luongCB = @Html.Raw(Json.Encode(ViewBag.PieLuongCB ?? 0));
+        var phuCap = @Html.Raw(Json.Encode(ViewBag.PiePhuCap ?? 0));
+        var tangCa = @Html.Raw(Json.Encode(ViewBag.PieTangCa ?? 0));
 
-    var ctxBar = document.getElementById("salaryHistoryChart");
-    var myBarChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: salaryLabels,
-            datasets: [{
-                label: "Thực nhận",
-                backgroundColor: "@primaryGreenDark",
-                hoverBackgroundColor: "@secondaryGreenLight",
-                borderColor: "@primaryGreenDark",
-                data: salaryData,
-                barPercentage: 0.5,
-            }],
-        },
-        options: {
-            maintainAspectRatio: false,
-            layout: { padding: { left: 10, right: 25, top: 25, bottom: 0 } },
-            scales: {
-                xAxes: [{ gridLines: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 6 } }],
-                yAxes: [{ ticks: { maxTicksLimit: 5, padding: 10, callback: function(value) { return value.toLocaleString('vi-VN') + ' đ'; } }, gridLines: { color: "rgb(234, 236, 244)", zeroLineColor: "rgb(234, 236, 244)", drawBorder: false, borderDash: [2], zeroLineBorderDash: [2] } }],
-            },
-            legend: { display: false },
-            tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                borderColor: '#dddfeb',
-                borderWidth: 1,
-                xPadding: 15,
-                yPadding: 15,
-                displayColors: false,
-                callbacks: {
-                    label: function(tooltipItem, chart) {
-                        return 'Thực nhận: ' + tooltipItem.yLabel.toLocaleString('vi-VN') + ' đ';
+        console.log("Dữ liệu biểu đồ:", { luongCB, phuCap, tangCa, salaryValues }); // Bật F12 để xem log này
+
+        // --- 1. BIỂU ĐỒ CỘT: LỊCH SỬ LƯƠNG ---
+        var ctxBar = document.getElementById("salaryHistoryChart");
+        if (ctxBar) {
+            // Nếu không có dữ liệu lịch sử, tạo mảng 0 để tránh lỗi
+            if (!salaryValues || salaryValues.length === 0) {
+                salaryLabels = ["T7", "T8", "T9", "T10", "T11", "T12"];
+                salaryValues = [0, 0, 0, 0, 0, 0];
+            }
+
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: salaryLabels,
+                    datasets: [{
+                        label: "Thực nhận",
+                        backgroundColor: "rgb(77, 102, 72)",
+                        hoverBackgroundColor: "rgb(130, 140, 110)",
+                        data: salaryValues,
+                        barPercentage: 0.5,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return value.toLocaleString('vi-VN') + ' đ'; }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString('vi-VN') + ' đ';
+                                }
+                            }
+                        }
                     }
                 }
+            });
+        }
+
+        // --- 2. BIỂU ĐỒ TRÒN: CƠ CẤU THU NHẬP ---
+        var ctxPie = document.getElementById("incomeStructureChart");
+        if (ctxPie) {
+            // Kiểm tra nếu tổng bằng 0 thì hiển thị thông báo thay vì vẽ
+            if (luongCB + phuCap + tangCa === 0) {
+                // Vẽ một biểu đồ rỗng màu xám để báo hiệu
+                new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ["Chưa có dữ liệu"],
+                        datasets: [{ data: [1], backgroundColor: ["#e3e6f0"] }]
+                    },
+                    options: { cutout: '70%', plugins: { tooltip: { enabled: false } } }
+                });
+            } else {
+                new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ["Lương CB", "Phụ cấp", "Tăng ca (Ước tính)"],
+                        datasets: [{
+                            data: [luongCB, phuCap, tangCa],
+                            backgroundColor: ['#1cc88a', '#36b9cc', '#f6c23e'],
+                            hoverOffset: 4,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        cutout: '70%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        var val = context.parsed;
+                                        return context.label + ': ' + val.toLocaleString('vi-VN') + ' đ';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
             }
         }
-    });
-
-    // 2. Biểu đồ Tròn (Cơ cấu thu nhập tháng này)
-    // Dữ liệu giả lập lấy từ Viewbag
-    var luongCB = @(ViewBag.NhanVien?.LuongHienTai ?? 0);
-    var phuCap = @(ViewBag.TongPhuCap ?? 0); // Cần truyền từ Controller
-    var tangCa = @(ViewBag.TienTangCa ?? 0);  // Cần truyền từ Controller
-
-    // Nếu chưa có dữ liệu thật, dùng số mẫu để hiện hình cho đẹp
-    if(luongCB == 0) { luongCB = 10000000; phuCap = 2000000; tangCa = 1500000; }
-
-    var ctxPie = document.getElementById("incomeStructureChart");
-    var myPieChart = new Chart(ctxPie, {
-        type: 'doughnut',
-        data: {
-            labels: ["Lương CB", "Phụ cấp", "Tăng ca"],
-            datasets: [{
-                data: [luongCB, phuCap, tangCa],
-                backgroundColor: ['#1cc88a', '#36b9cc', '#f6c23e'], // Xanh lá, Xanh dương, Vàng
-                hoverBackgroundColor: ['#17a673', '#2c9faf', '#dda20a'],
-                hoverBorderColor: "rgba(234, 236, 244, 1)",
-            }],
-        },
-        options: {
-            maintainAspectRatio: false,
-            tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                borderColor: '#dddfeb',
-                borderWidth: 1,
-                xPadding: 15,
-                yPadding: 15,
-                displayColors: false,
-                caretPadding: 10,
-                callbacks: {
-                    label: function(tooltipItem, data) {
-                        var label = data.labels[tooltipItem.index];
-                        var value = data.datasets[0].data[tooltipItem.index];
-                        return label + ': ' + value.toLocaleString('vi-VN') + ' đ';
-                    }
-                }
-            },
-            legend: { display: false },
-            cutoutPercentage: 75,
-        },
-    });
-</script>
+    </script>
+}

@@ -1,0 +1,110 @@
+﻿
+@model List<QL_Luong_MVC.ViewModel.TongKetThiDuaVM>
+@{
+    ViewBag.Title = "Tổng kết thi đua năm " + ViewBag.Nam;
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid py-4 fade-in-content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="font-weight-bold text-dark" style="font-family: 'Playfair Display', serif; color: #722F37 !important;">
+            <i class="fas fa-award mr-2 text-warning"></i> Tổng Kết & Thưởng Tết @ViewBag.Nam
+        </h2>
+        <form class="form-inline">
+            <label class="mr-2 font-weight-bold">Chọn năm:</label>
+            <input type="number" name="nam" value="@ViewBag.Nam" class="form-control mr-2" style="width: 100px;" />
+            <button type="submit" class="btn btn-primary shadow-sm"><i class="fas fa-sync-alt"></i> Xem</button>
+        </form>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tổng quỹ thưởng dự kiến</div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">@string.Format("{0:N0}", ViewBag.TongTienThuong) ₫</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-money-check-alt fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Hành động</div>
+                        <div class="h6 mb-0 text-gray-800">Duyệt và lưu thưởng vào hệ thống</div>
+                    </div>
+                    <form action="@Url.Action("XacNhanThuongTet")" method="post">
+                        <input type="hidden" name="nam" value="@ViewBag.Nam" />
+                        <button type="submit" class="btn btn-warning text-dark font-weight-bold shadow" onclick="return confirm('Bạn có chắc muốn chốt thưởng cho năm @ViewBag.Nam không? Hành động này sẽ thêm dữ liệu vào bảng Thưởng/Phạt.');">
+                            <i class="fas fa-check-double mr-2"></i> CHỐT SỔ THƯỞNG
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-white border-bottom-0">
+            <h6 class="m-0 font-weight-bold text-primary">Bảng xếp hạng thi đua</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Mã NV</th>
+                            <th>Họ Tên</th>
+                            <th class="text-right">Lương Hiện Tại</th>
+                            <th class="text-center">Số Lỗi Phạt</th>
+                            <th class="text-center">Xếp Loại</th>
+                            <th class="text-right font-weight-bold text-success">Thưởng Tết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string rowClass = "";
+                            string badgeClass = "badge-secondary";
+
+                            if (item.XepLoai.Contains("A"))
+                            {
+                                rowClass = "bg-success-light"; // Cần css custom nếu muốn màu nền
+                                badgeClass = "badge-success";
+                            }
+                            else if (item.XepLoai.Contains("B"))
+                            {
+                                badgeClass = "badge-info";
+                            }
+                            else { badgeClass = "badge-warning"; }
+
+                            <tr>
+                                <td>@item.MaNV</td>
+                                <td class="font-weight-bold">@item.HoTen</td>
+                                <td class="text-right">@item.LuongHienTai.ToString("N0")</td>
+                                <td class="text-center">
+                                    @if (item.SoLanPhat == 0)
+                                    {<i class="fas fa-check text-success"></i> }
+                                    else
+                                    { <span class="text-danger font-weight-bold">@item.SoLanPhat</span>}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge @badgeClass px-3 py-2">@item.XepLoai</span>
+                                </td>
+                                <td class="text-right font-weight-bold text-success" style="font-size: 1.1em;">
+                                    @item.ThuongTet.ToString("N0") ₫
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

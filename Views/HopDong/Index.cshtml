@@ -29,6 +29,7 @@
                             <th>Ngày Kết Thúc</th>
                             <th>Lương CB</th>
                             <th>Trạng thái</th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,6 +59,14 @@
                                     <td class="font-weight-bold text-success">@item.LuongCoBan_HopDong.ToString("N0") ₫</td>
                                     <td>
                                         <span class="badge badge-pill @badgeClass px-3 py-2">@statusText</span>
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("Edit", new { id = item.IDHopDong })" class="btn btn-sm btn-info" title="Sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", new { id = item.IDHopDong })" class="btn btn-sm btn-danger btn-delete-confirm" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             }

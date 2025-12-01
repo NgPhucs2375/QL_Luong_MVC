@@ -1,4 +1,5 @@
 ﻿using QL_Luong_MVC.Models;
+using QL_Luong_MVC.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -123,29 +124,34 @@ namespace QL_Luong_MVC.DAO
         }
 
         // --- 5. Xóa (Trả về Tuple) ---
+        // --- Thay thế hàm Delete cũ bằng hàm này ---
         public (bool Success, string Message) Delete(int id)
         {
             using (SqlConnection conn = GetConnection())
             {
-                string query = "DELETE FROM NhanVien WHERE MaNV = @MaNV";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                // Gọi Stored Procedure thay vì câu lệnh DELETE đơn thuần
+                SqlCommand cmd = new SqlCommand("sp_XoaNhanVien_ToanBo", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@MaNV", id);
 
                 try
                 {
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
-                    return rows > 0 ? (true, "Xóa thành công!") : (false, "Không tìm thấy nhân viên.");
+
+                    // ExecuteNonQuery có thể trả về -1 khi dùng SET NOCOUNT ON, nên ta giả định ko lỗi là thành công
+                    return (true, "Đã xóa hoàn toàn nhân viên và dữ liệu liên quan!");
+                }
+                catch (SqlException ex)
+                {
+                    return (false, "Lỗi SQL: " + ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    if (ex.Message.Contains("REFERENCE"))
-                        return (false, "Không thể xóa: Nhân viên này đang có dữ liệu lương/hợp đồng.");
-                    return (false, "Lỗi: " + ex.Message);
+                    return (false, "Lỗi hệ thống: " + ex.Message);
                 }
             }
         }
-
         // Helper: Map dữ liệu từ SQL Reader sang Object Model
         private NhanVien MapData(SqlDataReader reader)
         {
@@ -174,6 +180,37 @@ namespace QL_Luong_MVC.DAO
                 }
             }
             return nv;
+        }
+
+        public List<ThamNienViewModel> GetBaoCaoThamNien()
+        {
+            var list = new List<ThamNienViewModel>();
+            using (SqlConnection conn = GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_BaoCaoThamNien", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                try
+                {
+                    conn.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        list.Add(new ThamNienViewModel
+                        {
+                            MaNV = Convert.ToInt32(reader["MaNV"]),
+                            HoTen = reader["HoTen"].ToString(),
+                            TenPB = reader["TenPB"] != DBNull.Value ? reader["TenPB"].ToString() : "---",
+                            TenCV = reader["TenCV"] != DBNull.Value ? reader["TenCV"].ToString() : "---",
+                            NgayGiaNhap = reader["NgayGiaNhap"] != DBNull.Value ? Convert.ToDateTime(reader["NgayGiaNhap"]) : DateTime.Now,
+                            SoThangLamViec = Convert.ToInt32(reader["SoThangLamViec"]),
+                            CapDo = reader["CapDo"].ToString(),
+                            ThuongDeXuat = Convert.ToDecimal(reader["ThuongDeXuat"])
+                        });
+                    }
+                }
+                catch (Exception ex) { /* Log lỗi */ }
+            }
+            return list;
         }
     }
 }

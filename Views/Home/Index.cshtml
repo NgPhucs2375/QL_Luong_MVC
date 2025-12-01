@@ -1,80 +1,89 @@
 ﻿@model QL_Luong_MVC.ViewModel.DashBoardViewModel
-@using System.Web.Helpers
 @using System.Globalization
 @{
     ViewBag.Title = "Tổng quan hệ thống";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml"; // Kế thừa layout chuẩn
 
     // 1. Cấu hình định dạng Tiền tệ Việt Nam
     var vnCulture = new CultureInfo("vi-VN");
 
-    // 2. Xử lý an toàn dữ liệu (Null Check)
+    // 2. Xử lý an toàn dữ liệu (Tránh lỗi Null Reference nếu Model rỗng)
     var safeSalaryLabels = Model != null && Model.SalaryByMonthLabels != null ? Model.SalaryByMonthLabels : new List<string>();
     var safeSalaryValues = Model != null && Model.SalaryByMonthValues != null ? Model.SalaryByMonthValues : new List<decimal>();
     var safeAllowanceLabels = Model != null && Model.AllowanceLabels != null ? Model.AllowanceLabels : new List<string>();
     var safeAllowanceValues = Model != null && Model.AllowanceValues != null ? Model.AllowanceValues : new List<decimal>();
 
-    // 3. Bảng màu dùng chung cho cả HTML Legend và Chart.js (Đồng bộ màu sắc)
+    // 3. Bảng màu đồng bộ
     string[] chartColors = new string[] { "#0EA5E9", "#10B981", "#6366F1", "#F59E0B", "#F43F5E", "#8B5CF6", "#64748B" };
 }
 
 <style>
-    /* --- Dashboard Slate Styles --- */
+    /* CSS RIÊNG CHO DASHBOARD (Không ảnh hưởng Layout chính) */
     .stat-card-slate {
         border: none;
         border-radius: 16px;
         background: #fff;
-        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         position: relative;
         overflow: hidden;
+        height: 100%;
     }
 
         .stat-card-slate:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 20px rgba(15, 23, 42, 0.12);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
     .stat-icon-bg {
         position: absolute;
         right: -10px;
         bottom: -10px;
-        font-size: 6rem;
-        opacity: 0.05;
+        font-size: 5rem;
+        opacity: 0.1;
         transform: rotate(-15deg);
         z-index: 0;
     }
 
-    /* Accent Colors */
+    /* Border Left Colors */
     .border-l-blue {
         border-left: 4px solid #0EA5E9;
-    }
-
-    .text-blue-slate {
-        color: #0EA5E9;
     }
 
     .border-l-emerald {
         border-left: 4px solid #10B981;
     }
 
-    .text-emerald-slate {
-        color: #10B981;
-    }
-
     .border-l-indigo {
         border-left: 4px solid #6366F1;
-    }
-
-    .text-indigo-slate {
-        color: #6366F1;
     }
 
     .border-l-amber {
         border-left: 4px solid #F59E0B;
     }
 
+    /* Text Colors */
+    .text-blue-slate {
+        color: #0EA5E9;
+    }
+
+    .text-emerald-slate {
+        color: #10B981;
+    }
+
+    .text-indigo-slate {
+        color: #6366F1;
+    }
+
     .text-amber-slate {
         color: #F59E0B;
+    }
+
+    /* Chart Container */
+    .chart-container-slate {
+        position: relative;
+        height: 350px;
+        width: 100%;
     }
 
     /* Chip nhân viên */
@@ -87,18 +96,9 @@
         border-radius: 99px;
         font-size: 0.8rem;
         color: #475569;
-        font-weight: 600;
-        transition: all 0.2s;
-        cursor: default;
         margin-right: 6px;
         margin-bottom: 8px;
     }
-
-        .emp-chip-slate:hover {
-            background: #E0F2FE;
-            border-color: #7DD3FC;
-            color: #0369A1;
-        }
 
     .emp-avatar-slate {
         width: 24px;
@@ -112,60 +112,38 @@
         margin-right: 8px;
         font-size: 0.65rem;
     }
-
-    /* Accordion */
-    .accordion-btn-slate {
-        background: transparent;
-        border: none;
-        width: 100%;
-        text-align: left;
-        padding: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 600;
-        color: #334155;
-        border-bottom: 1px solid #F1F5F9;
-        transition: background 0.2s;
-    }
-
-        .accordion-btn-slate:hover {
-            background: #F8FAFC;
-            text-decoration: none;
-        }
-
-        .accordion-btn-slate:focus {
-            outline: none;
-            box-shadow: none;
-        }
-
-    .chart-container-slate {
-        position: relative;
-        height: 350px !important; /* Gán chiều cao cố định để không bị giãn */
-        width: 100%;
-    }
 </style>
 
 <div class="container-fluid py-4">
+    <!-- Header -->
     <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
-            <h1 class="h3 mb-0 font-weight-bold" style="color: #1E293B;">Bảng điều khiển</h1>
-            <p class="mb-0 text-muted small">Thống kê dữ liệu thực tế từ hệ thống</p>
+            <h1 class="h3 mb-0 font-weight-bold text-gray-800">Dashboard</h1>
+            <p class="mb-0 text-muted small">Tổng quan dữ liệu nhân sự & lương thưởng</p>
         </div>
-        <a href="#" class="btn btn-primary shadow-sm" style="background-color: #0EA5E9; border-color: #0EA5E9;">
-            <i class="fas fa-download fa-sm text-white-50 mr-2"></i> Xuất báo cáo
+        <a href="@Url.Action("BaoCao", "BangLuong")" class="btn btn-sm btn-primary shadow-sm" style="background-color: var(--wine-primary); border-color: var(--wine-primary);">
+            <i class="fas fa-file-invoice-dollar fa-sm text-white-50 mr-2"></i> Xem báo cáo chi tiết
         </a>
     </div>
 
-    @if (Model != null)
+    <!-- Error Check -->
+    @if (Model == null)
     {
+        <div class="alert alert-danger shadow-sm">
+            <i class="fas fa-exclamation-triangle mr-2"></i> <strong>Lỗi:</strong> Không có dữ liệu Dashboard. Vui lòng kiểm tra HomeController.
+        </div>
+    }
+    else
+    {
+        <!-- 1. Stats Cards Row -->
         <div class="row g-4 mb-4">
+            <!-- Nhân sự -->
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-slate border-l-blue h-100 py-2">
+                <div class="stat-card-slate border-l-blue">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center" style="position:relative; z-index:1;">
+                        <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-blue-slate text-uppercase mb-1">Nhân sự</div>
+                                <div class="text-xs font-weight-bold text-blue-slate text-uppercase mb-1">Tổng Nhân sự</div>
                                 <div class="h3 mb-0 font-weight-bold text-gray-800">@Model.TotalEmployees</div>
                             </div>
                         </div>
@@ -174,41 +152,44 @@
                 </div>
             </div>
 
+            <!-- Hợp đồng -->
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-slate border-l-emerald h-100 py-2">
+                <div class="stat-card-slate border-l-emerald">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center" style="position:relative; z-index:1;">
+                        <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-emerald-slate text-uppercase mb-1">Hợp đồng hiệu lực</div>
                                 <div class="h3 mb-0 font-weight-bold text-gray-800">@Model.TotalContracts</div>
                             </div>
                         </div>
-                        <i class="fas fa-file-signature stat-icon-bg text-emerald-slate"></i>
+                        <i class="fas fa-file-contract stat-icon-bg text-emerald-slate"></i>
                     </div>
                 </div>
             </div>
 
+            <!-- Chi Phụ cấp -->
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-slate border-l-indigo h-100 py-2">
+                <div class="stat-card-slate border-l-indigo">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center" style="position:relative; z-index:1;">
+                        <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-indigo-slate text-uppercase mb-1">Chi Phụ cấp</div>
-                                <div class="h4 mb-0 font-weight-bold text-gray-800">@Model.TotalAllowances.ToString("N0", vnCulture) <small class="text-muted">đ</small></div>
+                                <div class="text-xs font-weight-bold text-indigo-slate text-uppercase mb-1">Tổng Phụ cấp</div>
+                                <div class="h4 mb-0 font-weight-bold text-gray-800">@Model.TotalAllowances.ToString("N0") <small>đ</small></div>
                             </div>
                         </div>
-                        <i class="fas fa-hand-holding-usd stat-icon-bg text-indigo-slate"></i>
+                        <i class="fas fa-coins stat-icon-bg text-indigo-slate"></i>
                     </div>
                 </div>
             </div>
 
+            <!-- Quỹ lương -->
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-slate border-l-amber h-100 py-2">
+                <div class="stat-card-slate border-l-amber">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center" style="position:relative; z-index:1;">
+                        <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-amber-slate text-uppercase mb-1">Quỹ lương CB</div>
-                                <div class="h4 mb-0 font-weight-bold text-gray-800">@Model.TotalSalary.ToString("N0", vnCulture) <small class="text-muted">đ</small></div>
+                                <div class="h4 mb-0 font-weight-bold text-gray-800">@Model.TotalSalary.ToString("N0") <small>đ</small></div>
                             </div>
                         </div>
                         <i class="fas fa-wallet stat-icon-bg text-amber-slate"></i>
@@ -217,11 +198,13 @@
             </div>
         </div>
 
+        <!-- 2. Charts Row -->
         <div class="row mb-4">
+            <!-- Area Chart -->
             <div class="col-xl-8 col-lg-7">
-                <div class="card stat-card-slate mb-4 h-100">
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom-0">
-                        <h6 class="m-0 font-weight-bold" style="color: #0F172A;"><i class="fas fa-chart-area me-2 text-blue-slate"></i>Biến động lương 12 tháng</h6>
+                <div class="card shadow mb-4 h-100">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white">
+                        <h6 class="m-0 font-weight-bold text-primary">Biến động lương 12 tháng</h6>
                     </div>
                     <div class="card-body">
                         <div class="chart-container-slate">
@@ -231,13 +214,14 @@
                 </div>
             </div>
 
+            <!-- Pie Chart -->
             <div class="col-xl-4 col-lg-5">
-                <div class="card stat-card-slate mb-4 h-100">
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom-0">
-                        <h6 class="m-0 font-weight-bold" style="color: #0F172A;"><i class="fas fa-chart-pie me-2 text-indigo-slate"></i>Cơ cấu phụ cấp</h6>
+                <div class="card shadow mb-4 h-100">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white">
+                        <h6 class="m-0 font-weight-bold text-primary">Cơ cấu phụ cấp</h6>
                     </div>
                     <div class="card-body">
-                        <div class="chart-pie pt-4 pb-2" style="height: 250px;">
+                        <div class="chart-pie pt-4 pb-2" style="height: 250px; position: relative;">
                             <canvas id="myPieChart"></canvas>
                         </div>
                         <div class="mt-4 text-center small text-muted">
@@ -245,18 +229,15 @@
                             {
                                 for (int i = 0; i < safeAllowanceLabels.Count; i++)
                                 {
-                                    // Lấy màu theo vòng lặp, đảm bảo không lỗi index
                                     var color = chartColors[i % chartColors.Length];
-                                    var label = safeAllowanceLabels[i];
-
-                                    <span class="mr-3 d-inline-block">
-                                        <i class="fas fa-circle" style="color: @color;"></i> @label
+                                    <span class="mr-2">
+                                        <i class="fas fa-circle" style="color: @color;"></i> @safeAllowanceLabels[i]
                                     </span>
                                 }
                             }
                             else
                             {
-                                <span>Chưa có dữ liệu</span>
+                                <span>Chưa có dữ liệu phụ cấp</span>
                             }
                         </div>
                     </div>
@@ -264,49 +245,44 @@
             </div>
         </div>
 
+        <!-- 3. Departments Row -->
         <div class="row">
             <div class="col-12">
-                <div class="card stat-card-slate mb-4">
-                    <div class="card-header py-3 bg-white border-bottom-0">
-                        <h6 class="m-0 font-weight-bold" style="color: #0F172A;"><i class="fas fa-sitemap me-2 text-amber-slate"></i>Sơ đồ nhân sự theo phòng ban</h6>
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 bg-white">
+                        <h6 class="m-0 font-weight-bold text-primary">Nhân sự theo phòng ban</h6>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body">
                         @if (Model.Departments != null && Model.Departments.Any())
                         {
                             <div class="accordion" id="pbAccordion">
-                                @for (int i = 0; i < Model.Departments.Count; i++)
+                                @foreach (var pb in Model.Departments)
                                 {
-                                    var pb = Model.Departments[i];
-                                    var collapseId = "pb-" + pb.DepartmentId;
-
-                                    <div class="border-bottom">
-                                        <div class="card-header p-0" id="heading-@pb.DepartmentId">
+                                    <div class="card border-0 mb-2">
+                                        <div class="card-header bg-light p-2" id="heading-@pb.DepartmentId">
                                             <h2 class="mb-0">
-                                                <button class="accordion-btn-slate" type="button" data-toggle="collapse" data-target="#@collapseId" aria-expanded="true" aria-controls="@collapseId">
-                                                    <span><i class="fas fa-building text-gray-400 mr-2"></i>@pb.DepartmentName</span>
-                                                    <span class="badge badge-light text-dark border">@pb.Count nhân sự</span>
+                                                <button class="btn btn-link btn-block text-left text-dark font-weight-bold d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-@pb.DepartmentId">
+                                                    <span><i class="fas fa-building mr-2 text-gray-500"></i> @pb.DepartmentName</span>
+                                                    <span class="badge badge-primary badge-pill">@pb.Count</span>
                                                 </button>
                                             </h2>
                                         </div>
-
-                                        <div id="@collapseId" class="collapse" aria-labelledby="heading-@pb.DepartmentId" data-parent="#pbAccordion">
-                                            <div class="card-body bg-light">
+                                        <div id="collapse-@pb.DepartmentId" class="collapse" data-parent="#pbAccordion">
+                                            <div class="card-body p-3">
                                                 @if (pb.Employees.Any())
                                                 {
-                                                    <div class="d-flex flex-wrap">
-                                                        @foreach (var emp in pb.Employees)
-                                                        {
-                                                            var shortName = !string.IsNullOrEmpty(emp.Name) ? emp.Name.Substring(0, 1) : "U";
-                                                            <div class="emp-chip-slate" title="ID: @emp.Id">
-                                                                <div class="emp-avatar-slate">@shortName</div>
-                                                                <span>@emp.Name</span>
-                                                            </div>
-                                                        }
-                                                    </div>
+                                                    foreach (var emp in pb.Employees)
+                                                    {
+                                                        var shortName = !string.IsNullOrEmpty(emp.Name) ? emp.Name.Substring(0, 1) : "U";
+                                                        <div class="emp-chip-slate">
+                                                            <div class="emp-avatar-slate">@shortName</div>
+                                                            @emp.Name
+                                                        </div>
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    <div class="text-center py-2 text-muted small font-italic">Chưa có nhân viên.</div>
+                                                    <span class="text-muted small font-italic">Chưa có nhân viên</span>
                                                 }
                                             </div>
                                         </div>
@@ -314,95 +290,113 @@
                                 }
                             </div>
                         }
-                        else
-                        {
-                            <div class="text-center py-5 text-gray-500">Không có dữ liệu phòng ban.</div>
-                        }
                     </div>
                 </div>
             </div>
         </div>
     }
-    else
-    {
-        <div class="alert alert-danger m-4 text-center shadow-sm" style="border-radius: 12px;">
-            <i class="fas fa-exclamation-triangle mr-2"></i> <strong>Lỗi kết nối:</strong> Không thể tải dữ liệu Dashboard.
-        </div>
-    }
 </div>
 
 @section Scripts {
+    <!-- Sử dụng CDN mới nhất của Chart.js để đảm bảo tương thích -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
-        (function () {
-            // --- CẤU HÌNH CHUNG ---
-            Chart.defaults.font.family = 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        document.addEventListener("DOMContentLoaded", function() {
+            // Cấu hình chung cho Chart
+            Chart.defaults.font.family = 'Inter, -apple-system, sans-serif';
             Chart.defaults.color = '#64748B';
 
-            // NHẬN DỮ LIỆU TỪ SERVER
+            // Dữ liệu từ Server (Sử dụng Html.Raw để render JSON an toàn)
             var salaryLabels = @Html.Raw(Json.Encode(safeSalaryLabels));
             var salaryValues = @Html.Raw(Json.Encode(safeSalaryValues));
             var allowanceLabels = @Html.Raw(Json.Encode(safeAllowanceLabels));
             var allowanceValues = @Html.Raw(Json.Encode(safeAllowanceValues));
+            var colors = @Html.Raw(Json.Encode(chartColors));
 
-            // NHẬN BẢNG MÀU TỪ C# (Để đồng bộ với Legend HTML)
-            var sharedPalette = @Html.Raw(Json.Encode(chartColors));
-
-            // 1. AREA CHART (Lương)
-            var ctxLine = document.getElementById('myAreaChart');
-            if(ctxLine) {
-                var ctx = ctxLine.getContext('2d');
-                var gradientFill = ctx.createLinearGradient(0, 0, 0, 400);
-                gradientFill.addColorStop(0, "rgba(14, 165, 233, 0.25)");
-                gradientFill.addColorStop(1, "rgba(14, 165, 233, 0.0)");
+            // --- 1. AREA CHART (Lương) ---
+            var ctxLine = document.getElementById("myAreaChart");
+            if (ctxLine && salaryValues.length > 0) {
+                var ctx = ctxLine.getContext("2d");
+                // Tạo Gradient màu nền
+                var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, 'rgba(14, 165, 233, 0.2)'); // Xanh nhạt
+                gradient.addColorStop(1, 'rgba(14, 165, 233, 0)');
 
                 new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: salaryLabels,
                         datasets: [{
-                            label: 'Tổng lương',
+                            label: "Tổng lương",
                             data: salaryValues,
-                            backgroundColor: gradientFill,
-                            borderColor: '#0EA5E9',
+                            backgroundColor: gradient,
+                            borderColor: "#0EA5E9",
+                            pointBackgroundColor: "#0EA5E9",
+                            pointBorderColor: "#fff",
                             pointRadius: 4,
-                            pointBackgroundColor: '#0EA5E9',
-                            pointBorderColor: '#fff',
                             pointHoverRadius: 6,
-                            pointBorderWidth: 2,
-                            tension: 0.4,
-                            fill: true
+                            fill: true,
+                            tension: 0.3 // Đường cong mềm mại
                         }]
                     },
                     options: {
                         maintainAspectRatio: false,
-                        layout: { padding: { top: 10 } },
-                        scales: {
-                            x: {
-                                grid: { display: false },
-                                ticks: { maxTicksLimit: 7, color: '#94A3B8' }
-                            },
-                            y: {
-                                ticks: {
-                                    maxTicksLimit: 5, padding: 10, color: '#94A3B8',
-                                    callback: function(value) {
-                                        if(value >= 1000000000) return (value/1000000000).toFixed(1) + 'B';
-                                        if(value >= 1000000) return (value/1000000).toFixed(0) + 'M';
-                                        return value.toLocaleString('vi-VN');
-                                    }
-                                },
-                                grid: { color: "#F1F5F9", borderDash: [5, 5] }
-                            }
-                        },
+                        responsive: true,
                         plugins: {
                             legend: { display: false },
                             tooltip: {
-                                backgroundColor: "#1E293B",
-                                padding: 12,
-                                cornerRadius: 8,
                                 callbacks: {
                                     label: function(context) {
-                                        return context.dataset.label + ': ' + context.parsed.y.toLocaleString('vi-VN') + ' đ';
+                                        return context.parsed.y.toLocaleString('vi-VN') + ' đ';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#94A3B8' } },
+                            y: {
+                                ticks: {
+                                    color: '#94A3B8',
+                                    callback: function(value) {
+                                        if (value >= 1000000) return (value / 1000000).toFixed(0) + 'M';
+                                        return value.toLocaleString('vi-VN');
+                                    }
+                                },
+                                grid: { color: '#F1F5F9', borderDash: [5, 5] }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- 2. PIE CHART (Phụ cấp) ---
+            var ctxPie = document.getElementById("myPieChart");
+            if (ctxPie && allowanceValues.length > 0) {
+                new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: allowanceLabels,
+                        datasets: [{
+                            data: allowanceValues,
+                            backgroundColor: colors,
+                            hoverOffset: 4,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        cutout: '70%', // Độ rỗng giữa
+                        plugins: {
+                            legend: { display: false }, // Tắt legend mặc định để dùng HTML legend
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        var val = context.parsed;
+                                        var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        var percent = ((val / total) * 100).toFixed(1);
+                                        return context.label + ': ' + val.toLocaleString('vi-VN') + ' đ (' + percent + '%)';
                                     }
                                 }
                             }
@@ -410,41 +404,6 @@
                     }
                 });
             }
-
-            // 2. PIE CHART (Phụ cấp)
-            var ctxPie = document.getElementById('myPieChart');
-            if(ctxPie) {
-                new Chart(ctxPie.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: allowanceLabels,
-                        datasets: [{
-                            data: allowanceValues,
-                            backgroundColor: sharedPalette, // Dùng bảng màu đã đồng bộ
-                            hoverOffset: 8,
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false }, // Tắt legend mặc định của Canvas để dùng HTML Legend
-                            tooltip: {
-                                backgroundColor: "#1E293B",
-                                callbacks: {
-                                    label: function(context) {
-                                        var value = context.parsed;
-                                        var total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        var percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                        return context.label + ': ' + value.toLocaleString('vi-VN') + ' đ (' + percentage + '%)';
-                                    }
-                                }
-                            }
-                        },
-                        cutout: '75%',
-                    }
-                });
-            }
-        })();
+        });
     </script>
 }

@@ -1,0 +1,107 @@
+﻿
+@model List<QL_Luong_MVC.Models.ThuongPhat>
+@{
+    ViewBag.Title = "Danh sách Khen thưởng & Kỷ luật";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    int thang = ViewBag.Thang ?? DateTime.Now.Month;
+    int nam = ViewBag.Nam ?? DateTime.Now.Year;
+}
+
+<div class="container-fluid py-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Quản lý Thưởng & Phạt</h1>
+        <a href="@Url.Action("Create", "ThuongPhat")" class="btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50 mr-2"></i> Lập phiếu mới
+        </a>
+    </div>
+
+    <div class="card mb-4 border-left-primary shadow-sm h-100 py-2">
+        <div class="card-body">
+            <form method="get" class="form-inline">
+                <label class="mr-2 font-weight-bold text-gray-700">Xem tháng:</label>
+                <select name="thang" class="form-control mr-3 custom-select">
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i" @(i == thang ? "selected" : "")>Tháng @i</option>
+                    }
+                </select>
+                <input type="number" name="nam" value="@nam" class="form-control mr-3" style="width: 100px;" />
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Lọc dữ liệu</button>
+            </form>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách ghi nhận tháng @thang/@nam</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Mã TP</th>
+                            <th>Nhân viên</th>
+                            <th>Loại hình</th>
+                            <th>Số tiền (VNĐ)</th>
+                            <th>Lý do / Ghi chú</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">@item.IDThuongPhat</td>
+                                    <td>
+                                        <span class="font-weight-bold text-dark">NV-@item.IDNhanVien_ThuongPhat</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.Loai_ThuongPhat == "Thưởng")
+                                        {
+                                            <span class="badge badge-success px-3 py-2"><i class="fas fa-plus-circle mr-1"></i> Thưởng</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger px-3 py-2"><i class="fas fa-minus-circle mr-1"></i> Phạt</span>
+                                        }
+                                    </td>
+                                    <td class="text-right font-weight-bold @(item.Loai_ThuongPhat == "Thưởng" ? "text-success" : "text-danger")">
+                                        @string.Format("{0:N0}", item.SoTien_ThuongPhat)
+                                    </td>
+                                    <td>@item.LyDo_ThuongPhat</td>
+                                    <td class="text-center">
+                                        @using (Html.BeginForm("Delete", "ThuongPhat", new { id = item.IDThuongPhat }, FormMethod.Post, new { onsubmit = "return confirm('Bạn có chắc chắn muốn xóa không?');" }))
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">Không có dữ liệu thưởng phạt nào trong tháng này.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

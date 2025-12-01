@@ -35,7 +35,6 @@ namespace QL_Luong_MVC.DAO
             return list;
         }
 
-        // Lấy danh sách phụ cấp của riêng 1 nhân viên
         public List<PhuCap> GetByNhanVienId(int maNV)
         {
             var list = new List<PhuCap>();
@@ -56,16 +55,14 @@ namespace QL_Luong_MVC.DAO
                             IDNhanVien_PhuCap = Convert.ToInt32(reader["MaNV"]),
                             Loai_PhuCap = reader["LoaiPhuCap"].ToString(),
                             SoTien_PhuCap = Convert.ToDecimal(reader["SoTien"]),
-                            // GhiChu có thể chưa có trong model PhuCap của bạn, nếu có thì thêm vào
                         });
                     }
                 }
-                catch { }
+                catch(Exception ex) { System.Diagnostics.Debug.WriteLine("Lỗi DAO: " + ex.Message); }
             }
             return list;
         }
 
-        // Tính tổng tiền phụ cấp (Dùng Function SQL fn_TongPhuCap_NV)
         public decimal GetTotalByNhanVienId(int maNV)
         {
             using (SqlConnection conn = GetConnection())
@@ -98,6 +95,107 @@ namespace QL_Luong_MVC.DAO
                     conn.Open();
                     cmd.ExecuteNonQuery();
                     return (true, "Thêm phụ cấp thành công!");
+                }
+                catch (Exception ex) { return (false, "Lỗi: " + ex.Message); }
+            }
+        }
+
+        public decimal GetTongTienPhuCap_TuFunction(string loaiPC = null)
+        {
+            decimal ketQua = 0;
+            using (SqlConnection conn = GetConnection())
+            {
+                string query = "SELECT dbo.fn_TongPhuCapLoai(@LoaiPC)";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                if (string.IsNullOrEmpty(loaiPC))
+                    cmd.Parameters.AddWithValue("@LoaiPC", DBNull.Value);
+                else
+                    cmd.Parameters.AddWithValue("@LoaiPC", loaiPC);
+
+                try
+                {
+                    conn.Open();
+                    var result = cmd.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        ketQua = Convert.ToDecimal(result);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Lỗi gọi fn_TongPhuCapLoai: " + ex.Message);
+                }
+            }
+            return ketQua;
+        }
+
+        // --- BỔ SUNG VÀO PhuCapDAO.cs ---
+
+        // 1. Lấy 1 phụ cấp theo ID (để hiển thị lên form sửa)
+        public PhuCap GetById(int id)
+        {
+            using (SqlConnection conn = GetConnection())
+            {
+                string query = "SELECT * FROM PhuCap WHERE MaPC = @MaPC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@MaPC", id);
+                try
+                {
+                    conn.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        return new PhuCap()
+                        {
+                            IDPhuCap = Convert.ToInt32(reader["MaPC"]),
+                            IDNhanVien_PhuCap = Convert.ToInt32(reader["MaNV"]),
+                            Loai_PhuCap = reader["LoaiPhuCap"].ToString(),
+                            SoTien_PhuCap = Convert.ToDecimal(reader["SoTien"])
+                        };
+                    }
+                }
+                catch { }
+            }
+            return null;
+        }
+
+        // 2. Cập nhật phụ cấp
+        public (bool Success, string Message) Update(PhuCap pc)
+        {
+            using (SqlConnection conn = GetConnection())
+            {
+                string query = "UPDATE PhuCap SET LoaiPhuCap = @Loai, SoTien = @Tien WHERE MaPC = @MaPC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@MaPC", pc.IDPhuCap);
+                cmd.Parameters.AddWithValue("@Loai", pc.Loai_PhuCap);
+                cmd.Parameters.AddWithValue("@Tien", pc.SoTien_PhuCap);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    return (true, "Cập nhật thành công!");
+                }
+                catch (Exception ex) { return (false, "Lỗi: " + ex.Message); }
+            }
+        }
+
+        // 3. Xóa phụ cấp
+        public (bool Success, string Message) Delete(int id)
+        {
+            using (SqlConnection conn = GetConnection())
+            {
+                string query = "DELETE FROM PhuCap WHERE MaPC = @MaPC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@MaPC", id);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    return (true, "Đã xóa khoản phụ cấp!");
                 }
                 catch (Exception ex) { return (false, "Lỗi: " + ex.Message); }
             }

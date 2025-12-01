@@ -1,12 +1,12 @@
 using QL_Luong_MVC.DAO;
 using System;
+using System.Linq;
 using System.Web.Mvc;
 
 namespace QL_Luong_MVC.Controllers
 {
     public class BangLuongController : Controller
     {
-        // Khởi tạo DAO để truy cập database
         private readonly BangLuongDAO bangLuongDAO = new BangLuongDAO();
 
         [CustomAuthorize(Roles = "Admin,KeToan")]
@@ -14,14 +14,11 @@ namespace QL_Luong_MVC.Controllers
         {
             try
             {
-                // Nếu không truyền tháng/năm, lấy tháng/năm hiện tại
                 int thangHienTai = thang ?? DateTime.Now.Month;
                 int namHienTai = nam ?? DateTime.Now.Year;
 
-                // Lấy danh sách bảng lương theo tháng/năm
                 var danhSach = bangLuongDAO.GetByThang(thangHienTai, namHienTai);
 
-                // Truyền tháng/năm sang View
                 ViewBag.Thang = thangHienTai;
                 ViewBag.Nam = namHienTai;
 
@@ -158,17 +155,99 @@ namespace QL_Luong_MVC.Controllers
         }
 
 
+        [CustomAuthorize(Roles = "Admin,KeToan")]
         public ActionResult ExportExcel(int? thang, int? nam)
         {
             try
             {
-                TempData["InfoMessage"] = "Chức năng Export Excel đang được phát triển";
-                return RedirectToAction("BaoCao", new { thang = thang, nam = nam });
+                int t = thang ?? DateTime.Now.Month;
+                int n = nam ?? DateTime.Now.Year;
+
+                // 1. Lấy dữ liệu báo cáo
+                var data = bangLuongDAO.GetBaoCaoLuongThang(t, n);
+
+                if (data == null || data.Count == 0)
+                {
+                    TempData["ErrorMessage"] = $"Không có dữ liệu lương tháng {t}/{n} để xuất file.";
+                    return RedirectToAction("BaoCao", new { thang = t, nam = n });
+                }
+
+                // 2. Xây dựng nội dung file CSV (Dùng StringBuilder)
+                var sb = new System.Text.StringBuilder();
+
+                // -- Header cột --
+                sb.AppendLine("Mã NV,Họ Tên,Phòng Ban,Chức Vụ,Lương Cơ Bản,Phụ Cấp,Thưởng/Phạt,Giờ Tăng Ca,Thành Tiền TC,THỰC LĨNH");
+
+                // -- Dữ liệu dòng --
+                foreach (var item in data)
+                {
+                    // Định dạng số tiền bỏ dấu phẩy để tránh lỗi CSV
+                    var luongCB = item.LuongCoBan_BaoCao.ToString("0");
+                    var phuCap = item.TongPhuCap_BaoCao.ToString("0");
+                    var thuongPhat = item.TongThuongPhat_BaoCao.ToString("0");
+                    var tangCaTien = item.TienTangCa_BaoCao.ToString("0");
+                    var thucLinh = item.LuongThucNhan_BaoCao.ToString("0");
+
+                    // Nối chuỗi, lưu ý bọc tên có dấu phẩy trong ngoặc kép nếu cần
+                    sb.AppendLine($"{item.MaNhanVien_BaoCao},{item.HoTenNhanVien_BaoCao},{item.TenPhongBan_BaoCao},{item.TenChucVu_BaoCao},{luongCB},{phuCap},{thuongPhat},{item.TongGioTangCa_BaoCao},{tangCaTien},{thucLinh}");
+                }
+
+                // -- Dòng tổng cộng --
+                decimal tongThucLinh = data.Sum(x => x.LuongThucNhan_BaoCao);
+                sb.AppendLine($",,,,,,,,,TỔNG CỘNG: {tongThucLinh:0}");
+
+                // 3. Trả về file (Quan trọng: Dùng Encoding.UTF8 và Preamble để Excel hiển thị tiếng Việt đúng)
+                var fileName = $"BangLuong_Thang{t}_{n}.csv";
+                var encoding = System.Text.Encoding.UTF8;
+                var bytes = encoding.GetPreamble().Concat(encoding.GetBytes(sb.ToString())).ToArray();
+
+                return File(bytes, "text/csv", fileName);
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Lỗi khi export: " + ex.Message;
+                TempData["ErrorMessage"] = "Lỗi xuất file: " + ex.Message;
                 return RedirectToAction("BaoCao", new { thang = thang, nam = nam });
+            }
+        }
+        // POST: Thực hiện chốt thưởng
+        [HttpPost]
+        [CustomAuthorize(Roles = "Admin,KeToan")]
+        public ActionResult XacNhanThuongTet(int nam)
+        {
+            var result = bangLuongDAO.ChotThuongTet(nam);
+            if (result.Success)
+                TempData["SuccessMessage"] = result.Message;
+            else
+                TempData["ErrorMessage"] = result.Message;
+
+            return RedirectToAction("TongKetNam", new { nam = nam });
+        }
+        [CustomAuthorize(Roles = "Admin,KeToan")]
+        public ActionResult TongKetNam(int? nam)
+        {
+            try
+            {
+                // Mặc định lấy năm hiện tại nếu không chọn
+                int namChon = nam ?? DateTime.Now.Year;
+                ViewBag.Nam = namChon;
+
+                // Gọi DAO lấy danh sách thi đua (Hàm này đã có trong BangLuongDAO)
+                var list = bangLuongDAO.GetTongKetNam(namChon);
+
+                // Tính tổng tiền thưởng để hiển thị lên thẻ KPI ở View
+                decimal tongThuong = 0;
+                if (list != null && list.Count > 0)
+                {
+                    tongThuong = list.Sum(x => x.ThuongTet);
+                }
+                ViewBag.TongTienThuong = tongThuong;
+
+                return View(list);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Lỗi khi tải dữ liệu tổng kết: " + ex.Message;
+                return View(new System.Collections.Generic.List<QL_Luong_MVC.ViewModel.TongKetThiDuaVM>());
             }
         }
     }

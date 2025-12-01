@@ -44,8 +44,9 @@ namespace QL_Luong_MVC.Controllers
             if (nhanVien == null)
             {
                 ViewBag.NhanVien = null;
-                return View();
+                //return View();
             }
+            var listChiTiet = pcDao.GetByNhanVienId(idNV);
 
             ViewBag.NhanVien = nhanVien;
             ViewBag.Tong = pcDao.GetTotalByNhanVienId(idNV);
@@ -54,7 +55,51 @@ namespace QL_Luong_MVC.Controllers
             var phongBan = pbDao.GetById(nhanVien.IDPB_NhanVien);
             ViewBag.PhongBanName = phongBan?.NamePhongBan ?? "—";
 
-            return View();
+            return View(listChiTiet);
+        }
+        // --- BỔ SUNG VÀO PhuCapController.cs ---
+
+        [HttpGet]
+        public ActionResult Edit(int id)
+        {
+            var pc = pcDao.GetById(id);
+            if (pc == null) return HttpNotFound();
+
+            // Lấy tên nhân viên để hiển thị cho rõ
+            var nv = nvDao.GetById(pc.IDNhanVien_PhuCap);
+            ViewBag.TenNhanVien = nv?.FullNameNhanVien ?? "Không xác định";
+
+            return View(pc);
+        }
+
+        [HttpPost]
+        public ActionResult Edit(PhuCap pc)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = pcDao.Update(pc);
+                if (result.Success)
+                {
+                    TempData["SuccessMessage"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                ViewBag.ThongBao = result.Message;
+            }
+            // Nếu lỗi, load lại tên nhân viên
+            var nv = nvDao.GetById(pc.IDNhanVien_PhuCap);
+            ViewBag.TenNhanVien = nv?.FullNameNhanVien;
+            return View(pc);
+        }
+
+        public ActionResult Delete(int id)
+        {
+            var result = pcDao.Delete(id);
+            if (result.Success)
+                TempData["SuccessMessage"] = result.Message;
+            else
+                TempData["Error"] = result.Message;
+
+            return RedirectToAction("Index");
         }
     }
 }

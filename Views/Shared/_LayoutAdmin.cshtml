@@ -122,6 +122,8 @@
                         <a class="collapse-item" href="@Url.Action("ThemNV", "NhanVien")">Thêm nhân viên mới</a>
                         <div class="collapse-divider"></div>
                         <h6 class="collapse-header">Pháp lý:</h6>
+                        <a class="collapse-item" href="@Url.Action("BaoCaoThamNien", "NhanVien")">Thống kê Thâm niên</a>
+
                         <a class="collapse-item" href="@Url.Action("Index", "HopDong")">Hợp đồng lao động</a>
                     </div>
                 </div>
@@ -153,6 +155,7 @@
                         <a class="collapse-item" href="@Url.Action("BaoCao", "BangLuong")">Báo cáo & Phiếu lương</a>
                         <div class="collapse-divider"></div>
                         <h6 class="collapse-header">Cấu hình:</h6>
+                        <a class="collapse-item" href="@Url.Action("TongKetNam", "BangLuong")">Thưởng Tết & Thi đua</a>
                         <a class="collapse-item" href="@Url.Action("Index", "LuongCoban")">Thang bảng lương</a>
                         <a class="collapse-item" href="@Url.Action("Index", "PhuCap")">Định mức phụ cấp</a>
                     </div>
@@ -178,7 +181,36 @@
             <li class="text-center d-none d-md-inline mt-4">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </li>
-        </ul>        <div id="content-wrapper" class="d-flex flex-column">
+            <li class="sidebar-divider">
+
+            <li class="sidebar-heading">
+                Quản trị Nâng cao
+            </li>
+
+            <li class="nav-item @IsActive("ThuongPhat", "Index")">
+                <a class="nav-link" href="@Url.Action("Index", "ThuongPhat")">
+                    <i class="fas fa-fw fa-gavel"></i>
+                    <span>Khen thưởng & Kỷ luật</span>
+                </a>
+            </li>
+
+            <li class="nav-item @IsActive("CongCu", "Index")">
+                <a class="nav-link" href="@Url.Action("Index", "CongCu")">
+                    <i class="fas fa-fw fa-tools"></i>
+                    <span>Công cụ Admin</span>
+                </a>
+            </li>
+
+            <li class="nav-item @IsActive("Log", "Index")">
+                <a class="nav-link" href="@Url.Action("Index", "Log")">
+                    <i class="fas fa-fw fa-history"></i>
+                    <span>Nhật ký hoạt động</span>
+                </a>
+            </li>
+
+            <li class="sidebar-divider d-none d-md-block">
+        </ul>     
+        <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
 
                 <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top glass-nav">

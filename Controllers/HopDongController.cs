@@ -49,5 +49,51 @@ namespace QL_Luong_MVC.Controllers
 
             return View(listHD);
         }
+        // --- BỔ SUNG VÀO HopDongController.cs ---
+
+        [HttpGet]
+        public ActionResult Edit(int id)
+        {
+            var hd = hdDao.GetById(id);
+            if (hd == null) return HttpNotFound();
+
+            // Lấy thông tin nhân viên để hiển thị tên (Read-only)
+            var nv = nvDao.GetById(hd.IDNhanVIen_HopDong);
+            ViewBag.TenNhanVien = nv?.FullNameNhanVien ?? "Không xác định";
+
+            return View(hd);
+        }
+
+        [HttpPost]
+        public ActionResult Edit(HopDong hd)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = hdDao.Update(hd);
+                if (result.Success)
+                {
+                    TempData["SuccessMessage"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                ViewBag.ThongBao = result.Message;
+            }
+
+            // Nếu lỗi, load lại tên nhân viên
+            var nv = nvDao.GetById(hd.IDNhanVIen_HopDong);
+            ViewBag.TenNhanVien = nv?.FullNameNhanVien;
+
+            return View(hd);
+        }
+
+        public ActionResult Delete(int id)
+        {
+            var result = hdDao.Delete(id);
+            if (result.Success)
+                TempData["SuccessMessage"] = result.Message;
+            else
+                TempData["Error"] = result.Message;
+
+            return RedirectToAction("Index");
+        }
     }
 }

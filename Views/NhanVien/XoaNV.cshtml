@@ -128,6 +128,7 @@
         @using (Html.BeginForm("DeleteConfirmed", "NhanVien", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.IDNhanVien" />
 
             <div class="form-actions text-center pt-4 border-top">
 

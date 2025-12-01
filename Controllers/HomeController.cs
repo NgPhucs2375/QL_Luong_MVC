@@ -3,84 +3,108 @@ using QL_Luong_MVC.Models;
 using QL_Luong_MVC.ViewModel;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-
 
 namespace QL_Luong_MVC.Controllers
 {
     public class HomeController : Controller
     {
+        // Khởi tạo các DAO cần thiết
+        private PhuCapDAO phuCapDAO = new PhuCapDAO();
+        private BangLuongDAO bangLuongDAO = new BangLuongDAO();
+        private NhanVienDAO nhanVienDAO = new NhanVienDAO();
+        private HopDongDAO hopDongDAO = new HopDongDAO();
+        private PhongBanDAO phongBanDAO = new PhongBanDAO();
+
         public ActionResult Index()
         {
             if (Session["TenDangNhap"] == null)
                 return RedirectToAction("Login", "Login");
 
-
             string username = Session["TenDangNhap"].ToString().ToLower();
             string role = Session["Quyen"]?.ToString();
 
-            // Sửa lại dòng if check quyền trong HomeController.Index
             if (role != "Admin" && role != "NhanSu" && role != "KeToan")
             {
-                // Nếu là User thường thì đá về Dashboard của User
                 if (role == "User") return RedirectToAction("DashboardUser");
-
                 return RedirectToAction("AccessDenied", "Login");
             }
 
             ViewBag.Username = username;
-            // ✅ Tạo dữ liệu Dashboard
-            var db = new DB();
 
-            int totalNV = db.dsNhanVien.Count;
-            int totalHD = db.dsHopDong.Count;
+            // --- 1. LẤY DỮ LIỆU TỪ DAO (Thay vì dùng class DB) ---
+            var listNhanVien = nhanVienDAO.GetAll();
+            var listHopDong = hopDongDAO.GetAll();
+            var listBangLuong = bangLuongDAO.GetAll(); // Lấy toàn bộ lịch sử lương
+            var listPhuCap = phuCapDAO.GetAll();
+            var listPhongBan = phongBanDAO.GetAll();
 
-            var latestContracts = db.dsHopDong
-                .GroupBy(h => h.IDNhanVIen_HopDong)
-                .Select(g => g.OrderByDescending(x => x.DayToStart).FirstOrDefault())
-                .Where(x => x != null)
-                .ToList();
+            // --- 2. TÍNH TOÁN KPI ---
+            int totalNV = listNhanVien.Count(x => x.State_NhanVien == "Đang làm");
 
-            decimal totalSalary = latestContracts.Sum(h => h.LuongCoBan_HopDong);
-            decimal totalAllowances = db.dsPhuCap.Sum(p => p.SoTien_PhuCap);
+            // Đếm hợp đồng còn hiệu lực (Ngày kết thúc null hoặc lớn hơn hiện tại)
+            int totalHD = listHopDong.Count(x => x.DayToEnd == null || x.DayToEnd > DateTime.Now);
 
+            // Tổng lương CB hiện tại (Dựa trên nhân viên đang làm)
+            decimal totalSalary = listNhanVien
+                                    .Where(x => x.State_NhanVien == "Đang làm")
+                                    .Sum(x => x.LuongHienTai);
+
+            // Tổng phụ cấp (Dùng hàm SQL chuẩn xác)
+            decimal totalAllowances = phuCapDAO.GetTongTienPhuCap_TuFunction(null);
+
+            // --- 3. XỬ LÝ BIỂU ĐỒ LƯƠNG (Area Chart) ---
             var labels = new List<string>();
             var values = new List<decimal>();
-            var start = DateTime.Now.AddMonths(-11);
 
-            for (int i = 0; i < 12; i++)
+            // Lấy mốc thời gian hiện tại
+            var targetDate = DateTime.Now;
+
+            // Chạy vòng lặp 12 tháng ngược về quá khứ
+            for (int i = 11; i >= 0; i--)
             {
-                var month = new DateTime(start.Year, start.Month, 1).AddMonths(i);
-                string label = month.ToString("MM/yyyy");
+                var date = targetDate.AddMonths(-i);
+                string label = date.ToString("MM/yyyy");
                 labels.Add(label);
 
-                decimal sumMonth = db.dsHopDong
-                    .Where(h => h.DayToStart.Year == month.Year && h.DayToStart.Month == month.Month)
-                    .Sum(h => h.LuongCoBan_HopDong);
+                // Lọc trong listBangLuong xem tháng đó tổng thực nhận là bao nhiêu
+                decimal sumMonth = listBangLuong
+                    .Where(bl => bl.Month == date.Month && bl.Nam == date.Year)
+                    .Sum(bl => (decimal?)bl.LuongThucNhan_BangLuong) ?? 0;
+
                 values.Add(sumMonth);
             }
 
-            var allowanceGroups = db.dsPhuCap
-                .GroupBy(p => p.Loai_PhuCap ?? "Khác")
-                .Select(g => new { Loai = g.Key, Tong = g.Sum(x => x.SoTien_PhuCap) })
-                .OrderByDescending(x => x.Tong)
-                .ToList();
+            // --- 4. XỬ LÝ BIỂU ĐỒ PHỤ CẤP (Pie Chart) ---
+            var allowanceLabels = new List<string>();
+            var allowanceValues = new List<decimal>();
 
-            var allowanceLabels = allowanceGroups.Select(x => x.Loai).ToList();
-            var allowanceValues = allowanceGroups.Select(x => x.Tong).ToList();
+            if (listPhuCap != null && listPhuCap.Count > 0)
+            {
+                var allowanceGroups = listPhuCap
+                    .GroupBy(p => p.Loai_PhuCap ?? "Khác")
+                    .Select(g => new { Loai = g.Key, Tong = g.Sum(x => x.SoTien_PhuCap) })
+                    .OrderByDescending(x => x.Tong)
+                    .ToList();
 
-            var departments = db.dsPhongBan
+                foreach (var item in allowanceGroups)
+                {
+                    allowanceLabels.Add(item.Loai);
+                    allowanceValues.Add(item.Tong);
+                }
+            }
+
+            // --- 5. SƠ ĐỒ NHÂN SỰ THEO PHÒNG BAN ---
+            var departments = listPhongBan
                 .OrderBy(pb => pb.NamePhongBan)
                 .Select(pb => new DepartmentMembersVM
                 {
                     DepartmentId = pb.IDPhongBan,
                     DepartmentName = pb.NamePhongBan,
-                    Employees = db.dsNhanVien
-                        .Where(nv => nv.IDPB_NhanVien == pb.IDPhongBan)
+                    // Lọc nhân viên thuộc phòng ban này
+                    Employees = listNhanVien
+                        .Where(nv => nv.IDPB_NhanVien == pb.IDPhongBan && nv.State_NhanVien == "Đang làm")
                         .OrderBy(nv => nv.FullNameNhanVien)
                         .Select(nv => new EmployeeVM
                         {
@@ -89,6 +113,7 @@ namespace QL_Luong_MVC.Controllers
                         }).ToList()
                 }).ToList();
 
+            // Đóng gói ViewModel
             var vm = new DashBoardViewModel
             {
                 TotalEmployees = totalNV,
@@ -99,7 +124,7 @@ namespace QL_Luong_MVC.Controllers
                 SalaryByMonthValues = values,
                 AllowanceLabels = allowanceLabels,
                 AllowanceValues = allowanceValues,
-                Departments = departments
+                Departments = departments,
             };
 
             return View(vm);
@@ -108,79 +133,82 @@ namespace QL_Luong_MVC.Controllers
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
-
             return View();
         }
 
-
+        // Action DashboardUser và CheckIn giữ nguyên như cũ (Copy lại từ code của bạn nếu cần)
         public ActionResult DashboardUser()
         {
             if (Session["MaNV"] == null) return RedirectToAction("Login", "Login");
             int idNhanVien = Convert.ToInt32(Session["MaNV"]);
 
+            // Thời gian hiện tại
             int thang = DateTime.Now.Month;
             int nam = DateTime.Now.Year;
 
-            var bangCong = new BangChamCongDAO().GetByNhanVien(idNhanVien)
-                            .Where(x => x.Day_ChamCong.Month == thang && x.Day_ChamCong.Year == nam).ToList();
+            // 1. LẤY DỮ LIỆU CHẤM CÔNG (Real-time)
+            // Dùng DAO để lấy dữ liệu chấm công tháng này
+            var listCongThang = new BangChamCongDAO().GetByThang(thang, nam)
+                                                     .Where(x => x.IDNhanVien_ChamCong == idNhanVien).ToList();
 
-            ViewBag.SoNgayCong = bangCong.Sum(x => x.DayCong_ChamCong);
-            ViewBag.GioTangCa = bangCong.Sum(x => x.GioTangCa);
+            ViewBag.SoNgayCong = listCongThang.Sum(x => x.DayCong_ChamCong);
 
-            ViewBag.IsCheckedIn = bangCong.Any(x => x.Day_ChamCong.Date == DateTime.Now.Date);
+            // Tính tổng giờ tăng ca thực tế từ bảng chấm công (thay vì bảng lương chưa tính)
+            decimal tongGioTangCa = listCongThang.Sum(x => x.GioTangCa);
+            ViewBag.GioTangCa = tongGioTangCa;
 
-            var congGanDay = new BangChamCongDAO()
+            // Kiểm tra hôm nay đã check-in chưa
+            ViewBag.IsCheckedIn = listCongThang.Any(x => x.Day_ChamCong.Date == DateTime.Now.Date);
+
+            // Lấy 10 hoạt động gần nhất (cho bảng bên phải)
+            ViewBag.RecentActivities = new BangChamCongDAO()
                 .GetByNhanVien(idNhanVien)
                 .OrderByDescending(x => x.Day_ChamCong)
                 .Take(10)
                 .ToList();
-            ViewBag.RecentActivities = congGanDay;
 
-            var db = new DB();
+            // 2. LẤY THÔNG TIN CÁ NHÂN & HỢP ĐỒNG (Dùng DAO, bỏ class DB cũ)
+            var nhanVien = nhanVienDAO.GetById(idNhanVien);
+            var hopDong = hopDongDAO.GetListByNhanVien(idNhanVien).FirstOrDefault();
 
-            var nhanVien = db.dsNhanVien.FirstOrDefault(x => x.IDNhanVien == idNhanVien);
-            
-            var hopDong = db.dsHopDong
-                            .Where(x => x.IDNhanVIen_HopDong == idNhanVien)
-                            .OrderByDescending(x => x.DayToStart)
-                            .FirstOrDefault();
-
-            var luongGanNhat = new BangLuongDAO()
-                                 .GetByNhanVien(idNhanVien)
-                                 .FirstOrDefault();
+            // Lấy lương tháng gần nhất đã chốt (để hiển thị tham khảo)
+            var luongGanNhat = bangLuongDAO.GetByNhanVien(idNhanVien).FirstOrDefault();
 
             ViewBag.NhanVien = nhanVien;
             ViewBag.HopDong = hopDong;
             ViewBag.LuongGanNhat = luongGanNhat;
 
-            var listLuongHistory = new BangLuongDAO().GetByNhanVien(idNhanVien)
-    .OrderByDescending(x => x.Nam).ThenByDescending(x => x.Month)
-    .Take(6)
-    .OrderBy(x => x.Month) // Sắp xếp lại theo tháng tăng dần để vẽ biểu đồ
-    .ToList();
+            // 3. DỮ LIỆU BIỂU ĐỒ CỘT (Lịch sử lương 6 tháng)
+            var listLuongHistory = bangLuongDAO.GetByNhanVien(idNhanVien)
+                    .OrderByDescending(x => x.Nam).ThenByDescending(x => x.Month)
+                    .Take(6)
+                    .OrderBy(x => x.Month)
+                    .ToList();
 
-            var salaryLabels = listLuongHistory.Select(x => "T" + x.Month).ToList();
-            var salaryValues = listLuongHistory.Select(x => x.LuongThucNhan_BangLuong).ToList();
+            ViewBag.SalaryHistoryLabels = listLuongHistory.Select(x => "T" + x.Month).ToList();
+            ViewBag.SalaryHistoryValues = listLuongHistory.Select(x => x.LuongThucNhan_BangLuong).ToList();
 
-            ViewBag.SalaryHistoryLabels = salaryLabels;
-            ViewBag.SalaryHistoryValues = salaryValues;
+            // 4. DỮ LIỆU BIỂU ĐỒ TRÒN (Cơ cấu thu nhập ƯỚC TÍNH tháng này)
+            // A. Lương cứng (Lấy từ NV hoặc HĐ)
+            decimal luongHienTai = nhanVien != null ? nhanVien.LuongHienTai : 0;
 
-            // 2. Lấy dữ liệu phụ cấp (cho biểu đồ tròn)
-            var phuCapDao = new PhuCapDAO();
-            decimal tongPhuCap = phuCapDao.GetByNhanVienId(idNhanVien).Sum(x => x.SoTien_PhuCap);
-            ViewBag.TongPhuCap = tongPhuCap;
+            // B. Phụ cấp (Lấy tổng các khoản phụ cấp hiện có)
+            decimal tongPhuCap = phuCapDAO.GetTotalByNhanVienId(idNhanVien);
 
-            // 3. Lấy tiền tăng ca tháng này (cho biểu đồ tròn)
-            // Giả sử bạn đã có hàm tính tiền tăng ca hoặc lấy từ BangLuong tháng hiện tại
-            var luongThangNay = listLuongHistory.FirstOrDefault(x => x.Month == DateTime.Now.Month && x.Nam == DateTime.Now.Year);
-            ViewBag.TienTangCa = luongThangNay != null ? (luongThangNay.TongGioTangCa * 50000) : 0;
+            // C. Tăng ca ước tính (Giờ tăng ca thực tế * 50.000)
+            decimal tienTangCaUocTinh = tongGioTangCa * 50000;
+
+            // Truyền sang View để vẽ biểu đồ
+            ViewBag.PieLuongCB = luongHienTai;
+            ViewBag.PiePhuCap = tongPhuCap;
+            ViewBag.PieTangCa = tienTangCaUocTinh;
+            ViewBag.TongPhuCap = tongPhuCap; // Hiển thị số ở thẻ KPI
 
             return View();
         }
@@ -191,38 +219,20 @@ namespace QL_Luong_MVC.Controllers
         {
             if (Session["MaNV"] == null) return RedirectToAction("Login", "Login");
             int maNV = Convert.ToInt32(Session["MaNV"]);
-
             BangChamCongDAO dao = new BangChamCongDAO();
 
             var listCong = dao.GetByNhanVien(maNV);
-            bool daChamCong = listCong.Any(x => x.Day_ChamCong.Date == DateTime.Now.Date);
-
-            if (daChamCong)
+            if (listCong.Any(x => x.Day_ChamCong.Date == DateTime.Now.Date))
             {
                 TempData["Message"] = "Hôm nay bạn đã chấm công rồi!";
                 TempData["Type"] = "warning";
                 return RedirectToAction("DashboardUser");
             }
 
-            BangChamCong bcc = new BangChamCong
-            {
-                IDNhanVien_ChamCong = maNV,
-                Day_ChamCong = DateTime.Now,
-                DayCong_ChamCong = 1,
-                GioTangCa = 0
-            };
+            var result = dao.Insert(new BangChamCong { IDNhanVien_ChamCong = maNV, Day_ChamCong = DateTime.Now, DayCong_ChamCong = 1, GioTangCa = 0 });
 
-            var insertResult = dao.Insert(bcc);
-            if (insertResult.Success)
-            {
-                TempData["Message"] = insertResult.Message ?? "Chấm công thành công!";
-                TempData["Type"] = "success";
-            }
-            else
-            {
-                TempData["Message"] = insertResult.Message ?? "Có lỗi xảy ra, vui lòng thử lại!";
-                TempData["Type"] = "danger";
-            }
+            TempData["Message"] = result.Success ? "Chấm công thành công!" : "Lỗi: " + result.Message;
+            TempData["Type"] = result.Success ? "success" : "danger";
 
             return RedirectToAction("DashboardUser");
         }

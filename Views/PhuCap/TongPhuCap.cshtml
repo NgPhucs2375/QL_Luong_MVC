@@ -2,13 +2,12 @@
 @{
     ViewBag.Title = "Chi tiết phụ cấp nhân viên";
     // Ép kiểu Model thành List<PhuCap> để dùng trong View
-    var dsPhuCap = Model as List<QL_Luong_MVC.Models.PhuCap>;
-
+    var dsPhuCap = Model != null ? Model.ToList() : new List<QL_Luong_MVC.Models.PhuCap>();
     // Lấy thông tin tóm tắt từ ViewBag
     var nv = ViewBag.NhanVien as QL_Luong_MVC.Models.NhanVien;
 
     // Lấy tổng và tên Phòng ban từ ViewBag
-    decimal tongPhuCap = (decimal)ViewBag.Tong;
+    decimal tongPhuCap = ViewBag.Tong != null ? (decimal)ViewBag.Tong : 0;
     string phongBanName = ViewBag.PhongBanName?.ToString() ?? "Chưa xác định";
 
     // ======================================================================

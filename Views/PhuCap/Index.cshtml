@@ -245,8 +245,8 @@
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
                                     <div class="dropdown-header">Thao tác:</div>
-                                    <a class="dropdown-item" href="#">Sửa mức tiền</a>
-                                    <a class="dropdown-item text-danger" href="#">Xóa khoản này</a>
+                                    <a class="dropdown-item"href=@Url.Action("Edit", new { id = item.IDPhuCap })>Sửa mức tiền</a>
+                                    <a class="dropdown-item text-danger" href=@Url.Action("Delete", new { id = item.IDPhuCap })>Xóa khoản này</a>
                                 </div>
                             </div>
                         </div>

@@ -9,8 +9,8 @@ namespace QL_Luong_MVC.Controllers
     {
 
         DB db = new DB();
-        private readonly string strcon = "Data Source = LapCuaTwsn; database = QL_LuongNV; User ID = sa;Password = 134679";
-        //private readonly string strcon = "Data Source = MSI; database = QL_LuongNV; User ID = sa;Password = 123456";
+        //private readonly string strcon = "Data Source = LapCuaTwsn; database = QL_LuongNV; User ID = sa;Password = 134679";
+        private readonly string strcon = "Data Source = MSI; database = QL_LuongNV; User ID = sa;Password = 123456";
         //private readonly string strcon = "Data Source=admindA;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;";
 
         private TaiKhoanDAO tkDao = new TaiKhoanDAO();
@@ -31,12 +31,15 @@ namespace QL_Luong_MVC.Controllers
             return View(list);
         }
 
-        public ActionResult CapQuyen(string user)
+        public ActionResult CapQuyen(string user,string role)
         {
-            if (tkDao.UpdateRole(user, "Admin"))
-                TempData["ThongBao"] = $"Đã cấp quyền Admin cho {user}.";
+            if (string.IsNullOrEmpty(role)) role = "Admin"; // Mặc định nếu null
+
+            // 3. Gọi DAO với tham số role động (Thay vì chữ "Admin" cứng như trước)
+            if (tkDao.UpdateRole(user, role))
+                TempData["ThongBao"] = $"Đã cập nhật quyền {role} cho tài khoản {user}.";
             else
-                TempData["ThongBao"] = "Lỗi khi cấp quyền.";
+                TempData["ThongBao"] = "Lỗi hệ thống khi cập nhật quyền.";
 
             return RedirectToAction("QuanLyTaiKhoan");
         }

@@ -274,7 +274,8 @@ namespace QL_Luong_MVC.DAO
                 LuongCoBan_BangLuong = reader["LuongCoBan"] != DBNull.Value ? Convert.ToDecimal(reader["LuongCoBan"]) : 0,
                 TongPhuCap = reader["TongPhuCap"] != DBNull.Value ? Convert.ToDecimal(reader["TongPhuCap"]) : 0,
                 TongThuongPhat = reader["TongThuongPhat"] != DBNull.Value ? Convert.ToDecimal(reader["TongThuongPhat"]) : 0,
-                TongGioTangCa = reader["TongGioTangCa"] != DBNull.Value ? Convert.ToDecimal(reader["TongGioTangCa"]) : 0
+                TongGioTangCa = reader["TongGioTangCa"] != DBNull.Value ? Convert.ToDecimal(reader["TongGioTangCa"]) : 0,
+                LuongThucNhan_BangLuong = reader["LuongThucNhan"] != DBNull.Value ? Convert.ToDecimal(reader["LuongThucNhan"]) : 0
             };
         }
 
@@ -303,6 +304,53 @@ namespace QL_Luong_MVC.DAO
                 TongGioTangCa_BaoCao = reader["TongGioTangCa"] != DBNull.Value ? Convert.ToDecimal(reader["TongGioTangCa"]) : 0,
                 LuongThucNhan_BaoCao = reader["LuongThucNhan"] != DBNull.Value ? Convert.ToDecimal(reader["LuongThucNhan"]) : 0
             };
+        }
+        public List<TongKetThiDuaVM> GetTongKetNam(int nam)
+        {
+            var list = new List<TongKetThiDuaVM>();
+            using (SqlConnection conn = GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_Cursor_XepLoaiThiDua_View", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Nam", nam);
+                try
+                {
+                    conn.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        list.Add(new TongKetThiDuaVM
+                        {
+                            MaNV = Convert.ToInt32(reader["MaNV"]),
+                            HoTen = reader["HoTen"].ToString(),
+                            LuongHienTai = Convert.ToDecimal(reader["LuongHienTai"]),
+                            SoLanPhat = Convert.ToInt32(reader["SoLanPhat"]),
+                            XepLoai = reader["XepLoai"].ToString(),
+                            ThuongTet = Convert.ToDecimal(reader["ThuongTet"])
+                        });
+                    }
+                }
+                catch { }
+            }
+            return list;
+        }
+
+        // 2. Chốt thưởng (Insert vào DB)
+        public (bool Success, string Message) ChotThuongTet(int nam)
+        {
+            using (SqlConnection conn = GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_Cursor_ChotThuongTet", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Nam", nam);
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    return (true, "Đã chốt thưởng và cập nhật vào hệ thống thành công!");
+                }
+                catch (SqlException ex) { return (false, "Lỗi: " + ex.Message); }
+            }
         }
     }
 }

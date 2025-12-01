@@ -30,7 +30,7 @@ namespace QL_Luong_MVC.Controllers
             {
 
                 string sql = "Insert into LuongCoban (MaCV, MucLuong) VALUES(@MaCV, @MucLuong)" ;
-                using (SqlConnection con = new SqlConnection("Data Source=admindA;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;"))
+                using (SqlConnection con = new SqlConnection("Data Source=MSI;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;"))
                 {
                     con.Open();
                     SqlCommand cmd = new SqlCommand(sql, con);
@@ -61,7 +61,7 @@ namespace QL_Luong_MVC.Controllers
             {
 
                 string sql = "UPDATE LuongCoBan SET MaCV=@MaCV, MucLuong=@MucLuong WHERE MaLCB=@MaLCB";
-                using (SqlConnection con = new SqlConnection("Data Source=admindA;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;"))
+                using (SqlConnection con = new SqlConnection("Data Source=MSI;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;"))
                 {
                     con.Open();
                     SqlCommand cmd = new SqlCommand(sql, con);
@@ -80,7 +80,7 @@ namespace QL_Luong_MVC.Controllers
         public ActionResult Delete(int id)
         {
             string sql = "DELETE FROM LuongCoban WHERE MaLCB = @MaLCB";
-            using (SqlConnection con = new SqlConnection("Data Source=admindA;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;"))
+            using (SqlConnection con = new SqlConnection("Data Source=MSI;Initial Catalog=QL_LuongNV;Integrated Security=True;TrustServerCertificate=True;"))
             {
                 con.Open();
                 SqlCommand cmd = new SqlCommand(sql, con);

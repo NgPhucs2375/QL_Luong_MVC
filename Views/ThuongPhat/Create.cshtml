@@ -1,0 +1,50 @@
+﻿
+@model QL_Luong_MVC.Models.ThuongPhat
+@{ ViewBag.Title = "Lập phiếu Thưởng/Phạt"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow border-left-warning">
+            <div class="card-header bg-white">
+                <h5 class="text-primary font-weight-bold">Thêm mới Khen thưởng / Kỷ luật</h5>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm())
+                {
+                    <div class="form-group">
+                        <label class="font-weight-bold">Nhân viên áp dụng</label>
+                        @Html.DropDownListFor(m => m.IDNhanVien_ThuongPhat, (IEnumerable<SelectListItem>)ViewBag.DSNhanVien, new { @class = "form-control" })
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label class="font-weight-bold">Loại hình</label>
+                            <select name="Loai_ThuongPhat" class="form-control">
+                                <option value="Thưởng" class="text-success font-weight-bold">➕ Thưởng</option>
+                                <option value="Phạt" class="text-danger font-weight-bold">➖ Phạt</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="font-weight-bold">Số tiền (VNĐ)</label>
+                            @Html.TextBoxFor(m => m.SoTien_ThuongPhat, new { @class = "form-control", type = "number", required = "required" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Tháng lương áp dụng</label>
+                            @Html.TextBoxFor(m => m.Thangg, new { @class = "form-control", type = "number", min = "1", max = "12" })
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Năm</label>
+                            @Html.TextBoxFor(m => m.Namm, new { @class = "form-control", type = "number" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Lý do / Ghi chú</label>
+                        @Html.TextAreaFor(m => m.LyDo_ThuongPhat, new { @class = "form-control", rows = "3" })
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-block font-weight-bold">Xác nhận & Cập nhật Lương</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

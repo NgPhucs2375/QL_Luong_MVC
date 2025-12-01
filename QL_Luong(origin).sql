@@ -167,32 +167,54 @@ GO
 -- ======================================================================================
 
 -- [PHÚC] Tính tổng phụ cấp
-CREATE FUNCTION fn_TongPhuCap_NV(@MaNV int) RETURNS decimal(18,2) AS  
+CREATE FUNCTION fn_TongPhuCap_NV(@MaNV int) 
+RETURNS decimal(18,2)
+AS  
 BEGIN
-    DECLARE @Tong decimal(18,2); SELECT @Tong = Sum(SoTien) FROM PhuCap WHERE MaNV = @MaNV; RETURN ISNULL(@Tong,0);
+    DECLARE @Tong decimal(18,2);
+	SELECT @Tong = Sum(SoTien) 
+	FROM PhuCap
+	WHERE MaNV = @MaNV; 
+	RETURN ISNULL(@Tong,0);
 END;
 GO
 
 -- [PHÚC] Tính tổng thưởng phạt lịch sử
-CREATE FUNCTION fn_TongThuongPhat_NV_LichSu(@MaNV INT) RETURNS DECIMAL(18,2) AS
+CREATE FUNCTION fn_TongThuongPhat_NV_LichSu(@MaNV INT) 
+RETURNS DECIMAL(18,2) 
+AS
 BEGIN
     DECLARE @Tong DECIMAL(18,2);
-    SELECT @Tong = SUM(CASE WHEN Loai = N'Thưởng' THEN SoTien WHEN Loai = N'Phạt' THEN -SoTien END)
+    SELECT @Tong = SUM(
+		CASE 
+			WHEN Loai = N'Thưởng' 
+		THEN SoTien 
+			WHEN Loai = N'Phạt' 
+		THEN -SoTien 
+		END)
     FROM ThuongPhat WHERE MaNV = @MaNV;
     RETURN ISNULL(@Tong,0);
 END;
 GO
 
 -- [PHÚC] Kiểm tra hợp đồng active
-CREATE FUNCTION fn_HopDongConHieuLuc(@MaNV int) RETURNS bit AS
+CREATE FUNCTION fn_HopDongConHieuLuc(@MaNV int) 
+RETURNS bit
+AS
 BEGIN 
-    IF EXISTS(SELECT 1 FROM HopDong WHERE MaNV = @MaNV AND (NgayKetThuc IS NULL OR NgayKetThuc > GETDATE())) RETURN 1; 
+    IF EXISTS(
+		SELECT 1
+		FROM HopDong 
+		WHERE MaNV = @MaNV AND (NgayKetThuc IS NULL OR NgayKetThuc > GETDATE())) 
+		RETURN 1; 
     RETURN 0; 
 END;
 GO
 
 -- [PHÚC] Thống kê HĐ hết hạn
-CREATE FUNCTION fn_SoLuongHopDongHetHan() RETURNS INT AS
+CREATE FUNCTION fn_SoLuongHopDongHetHan()
+RETURNS INT
+AS
 BEGIN 
     RETURN (SELECT COUNT(*) FROM HopDong WHERE NgayKetThuc IS NOT NULL AND NgayKetThuc < GETDATE()); 
 END;
@@ -204,7 +226,10 @@ CREATE FUNCTION fn_TinhThamNien(@MaNV INT) RETURNS INT AS
 BEGIN
     DECLARE @NgayVaoLam DATE;
     -- Lấy ngày bắt đầu của hợp đồng đầu tiên
-    SELECT TOP 1 @NgayVaoLam = NgayBatDau FROM HopDong WHERE MaNV = @MaNV ORDER BY NgayBatDau ASC;
+    SELECT TOP 1 @NgayVaoLam = NgayBatDau 
+	FROM HopDong 
+	WHERE MaNV = @MaNV 
+	ORDER BY NgayBatDau ASC;
     
     IF @NgayVaoLam IS NULL RETURN 0;
     
@@ -219,57 +244,11 @@ BEGIN
 END;
 GO
 
--- [PHÚC] Hàm dự báo chi phí lương phòng ban
--- Dùng để: Giám đốc xem dự trù ngân sách
-CREATE FUNCTION fn_DuBaoChiPhiLuong_PhongBan(@MaPB INT) RETURNS DECIMAL(18,2) AS
-BEGIN
-    DECLARE @Tong DECIMAL(18,2);
-    -- Tổng lương hiện tại + Tổng phụ cấp của tất cả nhân viên trong phòng
-    SELECT @Tong = SUM(nv.LuongHienTai + ISNULL(dbo.fn_TongPhuCap_NV(nv.MaNV), 0))
-    FROM NhanVien nv 
-    WHERE nv.MaPB = @MaPB AND nv.TrangThai = N'Đang làm';
-    
-    RETURN ISNULL(@Tong, 0);
-END;
-GO
 
--- [PHÚC] Hàm kiểm tra nhân viên có đi làm đầy đủ không (True/False)
--- Dùng để: Xét thưởng chuyên cần (Nếu >= 22 công chuẩn thì True)
-CREATE FUNCTION fn_KiemTraChuyenCan(@MaNV INT, @Thang INT, @Nam INT) RETURNS BIT AS
-BEGIN
-    DECLARE @TongCong DECIMAL(4,2);
-    SELECT @TongCong = SUM(NgayCong) FROM BangChamCong 
-    WHERE MaNV = @MaNV AND MONTH(Ngay) = @Thang AND YEAR(Ngay) = @Nam;
-    
-    IF ISNULL(@TongCong, 0) >= 22 RETURN 1; -- Đạt
-    RETURN 0; -- Không đạt
-END;
-GO
 
--- [PHÚC] Hàm lấy tên người quản lý (Trưởng phòng) của nhân viên
--- Dùng để: Hiển thị trong profile "Báo cáo cho: Ông Nguyễn Văn A"
-CREATE FUNCTION fn_LayTruongPhongCuaNV(@MaNV INT) RETURNS NVARCHAR(40) AS
-BEGIN
-    DECLARE @MaPB INT;
-    SELECT @MaPB = MaPB FROM NhanVien WHERE MaNV = @MaNV;
-    
-    DECLARE @TenTP NVARCHAR(40);
-    -- Tìm người có chức vụ Trưởng phòng (Giả sử MaCV = 2 là Trưởng phòng)
-    SELECT TOP 1 @TenTP = HoTen FROM NhanVien WHERE MaPB = @MaPB AND MaCV = 2;
-    
-    RETURN ISNULL(@TenTP, N'Chưa có quản lý');
-END;
-GO
 
--- [PHÚC] Hàm tính thuế TNCN ước tính (Đơn giản)
--- Dùng để: Hiển thị mức thuế phải đóng dự kiến trên phiếu lương
-CREATE FUNCTION fn_TinhThueTNCN_UocTinh(@ThuNhapChiuThue DECIMAL(18,2)) RETURNS DECIMAL(18,2) AS
-BEGIN
-    -- Mức giảm trừ bản thân 11tr. Giả sử công thức đơn giản 10% cho phần vượt
-    IF @ThuNhapChiuThue <= 11000000 RETURN 0;
-    RETURN (@ThuNhapChiuThue - 11000000) * 0.1;
-END;
-GO
+
+
 -- ======================================================================================
 
 -- [TRƯỜNG] Các hàm tiện ích
@@ -405,6 +384,35 @@ AS
 	INSERT INTO NhanVien(HoTen, NgaySinh, GioiTinh, DiaChi, DienThoai, Email, MaPB, MaCV) VALUES (@HoTen, @NgaySinh, @GioiTinh, @DiaChi, @DienThoai, @Email, @MaPB, @MaCV); END;
 GO
 
+CREATE OR ALTER PROCEDURE sp_BaoCaoThamNien
+AS
+BEGIN
+    SELECT 
+        nv.MaNV,
+        nv.HoTen,
+        pb.TenPB,
+        cv.TenCV,
+        (SELECT MIN(NgayBatDau) FROM HopDong WHERE MaNV = nv.MaNV) AS NgayGiaNhap,
+        
+        dbo.fn_TinhThamNien(nv.MaNV) AS SoThangLamViec,
+        
+        CASE 
+            WHEN dbo.fn_TinhThamNien(nv.MaNV) < 12 THEN N'Newbie (Dưới 1 năm)'
+            WHEN dbo.fn_TinhThamNien(nv.MaNV) BETWEEN 12 AND 35 THEN N'Junior (1-3 năm)'
+            WHEN dbo.fn_TinhThamNien(nv.MaNV) BETWEEN 36 AND 60 THEN N'Senior (3-5 năm)'
+            ELSE N'Loyal (Trên 5 năm)'
+        END AS CapDo,
+
+        (dbo.fn_TinhThamNien(nv.MaNV) / 12) * 500000 AS ThuongDeXuat
+
+    FROM NhanVien nv
+    LEFT JOIN PhongBan pb ON nv.MaPB = pb.MaPB
+    LEFT JOIN ChucVu cv ON nv.MaCV = cv.MaCV
+    WHERE nv.TrangThai = N'Đang làm'
+    ORDER BY dbo.fn_TinhThamNien(nv.MaNV) DESC; 
+END;
+GO
+
 CREATE PROCEDURE sp_ThemHopDong @MaNV int, @NgayBatDau date, @NgayKetThuc date = null, @LoaiHD nvarchar(50), @Luongcoban decimal(18,2), @Ghichu nvarchar(200) = null 
 AS 
 	BEGIN 
@@ -493,34 +501,7 @@ BEGIN
     END CATCH
 END;
 GO
--- [PHÚC] Quy trình Thuyên chuyển nhân sự (Điều chuyển)
--- Dùng khi: Chuyển nhân viên sang phòng ban mới, lưu lại lịch sử (nếu có bảng log chi tiết)
-CREATE PROCEDURE sp_DieuChuyenNhanSu @MaNV INT, @MaPBMoi INT, @MaCVMoi INT AS
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM NhanVien WHERE MaNV = @MaNV)
-    BEGIN
-        RAISERROR(N'Nhân viên không tồn tại', 16, 1); RETURN;
-    END
 
-    UPDATE NhanVien 
-    SET MaPB = @MaPBMoi, MaCV = @MaCVMoi
-    WHERE MaNV = @MaNV;
-    
-    PRINT N'Đã điều chuyển nhân sự thành công.';
-END;
-GO
--- [PHÚC]Quy trình Khóa sổ chấm công (Chốt sổ)
--- Dùng khi: Kế toán chốt công cuối tháng, không cho sửa nữa (Giả lập bằng cờ)
-CREATE PROCEDURE sp_KhoaSoChamCong @Thang INT, @Nam INT AS
-BEGIN
-    -- Trong thực tế sẽ có cột [IsLocked] trong bảng BangLuong
-    -- Ở đây ta demo việc kiểm tra dữ liệu
-    DECLARE @Count INT;
-    SELECT @Count = COUNT(*) FROM BangChamCong WHERE MONTH(Ngay) = @Thang AND YEAR(Ngay) = @Nam;
-    
-    PRINT N'Đã chốt ' + CAST(@Count AS NVARCHAR) + N' bản ghi công. Vui lòng tiến hành tính lương.';
-END;
-GO
 -- [PHÚC] Quy trình Thưởng thâm niên tự động
 -- Dùng để: Tự động thêm tiền thưởng vào bảng ThuongPhat cho NV làm > 5 năm
 CREATE PROCEDURE sp_ThuongThamNienTuDong AS
@@ -528,19 +509,45 @@ BEGIN
     INSERT INTO ThuongPhat(MaNV, Loai, SoTien, LyDo, Thangg, Namm)
     SELECT MaNV, N'Thưởng', 1000000, N'Thưởng thâm niên > 5 năm', MONTH(GETDATE()), YEAR(GETDATE())
     FROM NhanVien
-    WHERE dbo.fn_TinhThamNien(MaNV) >= 60; -- 60 tháng = 5 năm
+    WHERE dbo.fn_TinhThamNien(MaNV) >= 60; 
     
     PRINT N'Đã cộng thưởng thâm niên.';
 END;
 GO
--- [PHÚC]Quy trình Reset mật khẩu nhân viên (Về 123456)
--- Dùng cho Admin khi nhân viên quên mật khẩu
-CREATE PROCEDURE sp_ResetMatKhau @MaNV INT AS
+
+CREATE OR ALTER PROCEDURE sp_XoaNhanVien_ToanBo
+    @MaNV INT
+AS
 BEGIN
-    UPDATE TaiKhoan
-    SET MatKhau = '123456' -- Nên mã hóa MD5/SHA trong thực tế
-    WHERE MaNV = @MaNV;
-    PRINT N'Đã reset mật khẩu về mặc định.';
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+            -- 1. Xóa Tài khoản đăng nhập (Nếu có)
+            DELETE FROM TaiKhoan WHERE MaNV = @MaNV;
+            
+            -- 2. Xóa dữ liệu Lương & Chấm công
+            DELETE FROM BangLuong WHERE MaNV = @MaNV;
+            DELETE FROM BangChamCong WHERE MaNV = @MaNV;
+            
+            -- 3. Xóa Phụ cấp & Thưởng phạt
+            DELETE FROM PhuCap WHERE MaNV = @MaNV;
+            DELETE FROM ThuongPhat WHERE MaNV = @MaNV;
+            
+            -- 4. Xóa Hợp đồng
+            DELETE FROM HopDong WHERE MaNV = @MaNV;
+            
+            -- 5. Xóa các log liên quan (nếu cần thiết, tùy bảng log của bạn)
+            
+            -- 6. Cuối cùng mới được xóa Nhân viên
+            DELETE FROM NhanVien WHERE MaNV = @MaNV;
+            
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        -- Ném lỗi ra để C# bắt được
+        THROW;
+    END CATCH
 END;
 GO
 -- ======================================================================================
@@ -720,17 +727,8 @@ AS
 	END;
 GO
 
-CREATE TRIGGER trg_TaoBangLuongKhiThemNV 
-ON NhanVien
-AFTER INSERT 
-AS 
-	BEGIN 
-		INSERT INTO BangLuong(MaNV, Thang, Nam, LuongCoBan, TongPhuCap, TongThuongPhat, TongGioTangCa) 
-		SELECT MaNV, MONTH(GETDATE()), YEAR(GETDATE()), 0, 0, 0, 0 
-		FROM inserted; 
-	END;
-GO
--- 1. Trigger chặn lương âm
+
+--  Trigger chặn lương âm
 -- Bảo vệ: Không bao giờ được nhập lương < 0 vào Hợp đồng
 CREATE TRIGGER trg_CheckLuongHopDong ON HopDong AFTER INSERT, UPDATE AS
 BEGIN
@@ -742,9 +740,12 @@ BEGIN
 END;
 GO
 
--- 2. Trigger bảo vệ tài khoản Admin
+--  Trigger bảo vệ tài khoản Admin
 -- Bảo vệ: Không cho phép xóa tài khoản có quyền Admin
-CREATE TRIGGER trg_BaoVeAdmin ON TaiKhoan FOR DELETE AS
+CREATE TRIGGER trg_BaoVeAdmin 
+ON TaiKhoan 
+FOR DELETE 
+AS
 BEGIN
     IF EXISTS (SELECT 1 FROM deleted WHERE Quyen = 'Admin')
     BEGIN
@@ -754,9 +755,12 @@ BEGIN
 END;
 GO
 
--- 3. Trigger kiểm tra tuổi lao động
+--  Trigger kiểm tra tuổi lao động
 -- Bảo vệ: Nhân viên phải đủ 18 tuổi
-CREATE TRIGGER trg_CheckTuoiLaoDong ON NhanVien AFTER INSERT, UPDATE AS
+CREATE TRIGGER trg_CheckTuoiLaoDong 
+ON NhanVien 
+AFTER INSERT, UPDATE 
+AS
 BEGIN
     IF EXISTS (SELECT 1 FROM inserted WHERE DATEDIFF(YEAR, NgaySinh, GETDATE()) < 18)
     BEGIN
@@ -766,22 +770,13 @@ BEGIN
 END;
 GO
 
--- 4. Trigger tự động cập nhật ngày kết thúc hợp đồng cũ
--- Logic: Khi thêm HĐ mới, HĐ cũ tự động set ngày kết thúc = ngày bắt đầu HĐ mới - 1
-CREATE TRIGGER trg_AutoCloseOldContract ON HopDong AFTER INSERT AS
-BEGIN
-    DECLARE @MaNV INT, @NewStart DATE, @NewID INT;
-    SELECT @MaNV = MaNV, @NewStart = NgayBatDau, @NewID = MaHD FROM inserted;
 
-    UPDATE HopDong
-    SET NgayKetThuc = DATEADD(DAY, -1, @NewStart)
-    WHERE MaNV = @MaNV AND MaHD != @NewID AND NgayKetThuc IS NULL;
-END;
-GO
-
--- 5. Trigger chặn xóa phòng ban nếu còn nhân viên
+-- Trigger chặn xóa phòng ban nếu còn nhân viên
 -- Bảo vệ: Ràng buộc toàn vẹn dữ liệu
-CREATE TRIGGER trg_ChanXoaPhongBanCoNguoi ON PhongBan INSTEAD OF DELETE AS
+CREATE TRIGGER trg_ChanXoaPhongBanCoNguoi 
+ON PhongBan 
+INSTEAD OF DELETE 
+AS
 BEGIN
     IF EXISTS (SELECT 1 FROM NhanVien WHERE MaPB IN (SELECT MaPB FROM deleted))
     BEGIN
@@ -829,65 +824,111 @@ END;
 GO
 -- ==================================================================================
 -- CURSOR (Con Trỏ ) (Phúc)
--- 1. Cursor gửi thông báo lương (Giả lập in ra màn hình)
--- Duyệt qua từng nhân viên để "Gửi mail"
-CREATE PROCEDURE sp_Cursor_GuiThongBaoLuong @Thang INT, @Nam INT AS
-BEGIN
-    DECLARE @HoTen NVARCHAR(40), @Email NVARCHAR(60), @ThucLanh DECIMAL(18,2);
-    
-    DECLARE cur_Luong CURSOR FOR 
-    SELECT nv.HoTen, nv.Email, bl.LuongThucNhan 
-    FROM BangLuong bl JOIN NhanVien nv ON bl.MaNV = nv.MaNV 
-    WHERE bl.Thang = @Thang AND bl.Nam = @Nam;
-
-    OPEN cur_Luong;
-    FETCH NEXT FROM cur_Luong INTO @HoTen, @Email, @ThucLanh;
-
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        -- Giả lập gửi mail
-        PRINT N'Sending mail to: ' + @Email + N' | Xin chào ' + @HoTen + N', lương tháng này của bạn là: ' + FORMAT(@ThucLanh, 'N0') + N' VNĐ';
-        
-        FETCH NEXT FROM cur_Luong INTO @HoTen, @Email, @ThucLanh;
-    END
-
-    CLOSE cur_Luong;
-    DEALLOCATE cur_Luong;
-END;
-GO
-
 -- 2. Cursor tính thưởng KPI cuối năm
 -- Logic: Duyệt từng nhân viên, đếm số lần đi muộn (Phạt) trong năm để xếp loại
-CREATE PROCEDURE sp_Cursor_XepLoaiThiDua @Nam INT AS
+CREATE OR ALTER PROCEDURE sp_Cursor_XepLoaiThiDua_View
+    @Nam INT
+AS
 BEGIN
-    DECLARE @MaNV INT, @HoTen NVARCHAR(40), @SoLanPhat INT;
+    -- Tạo bảng tạm để chứa kết quả
+    DECLARE @KetQua TABLE (
+        MaNV INT,
+        HoTen NVARCHAR(40),
+        LuongHienTai DECIMAL(18,2),
+        SoLanPhat INT,
+        XepLoai NVARCHAR(50),
+        ThuongTet DECIMAL(18,2)
+    );
+
+    DECLARE @MaNV INT, @HoTen NVARCHAR(40), @Luong DECIMAL(18,2), @SoLanPhat INT;
     
-    DECLARE cur_ThiDua CURSOR FOR SELECT MaNV, HoTen FROM NhanVien;
+    DECLARE cur_ThiDua CURSOR FOR 
+    SELECT MaNV, HoTen, LuongHienTai FROM NhanVien WHERE TrangThai = N'Đang làm';
     
     OPEN cur_ThiDua;
-    FETCH NEXT FROM cur_ThiDua INTO @MaNV, @HoTen;
+    FETCH NEXT FROM cur_ThiDua INTO @MaNV, @HoTen, @Luong;
     
     WHILE @@FETCH_STATUS = 0
     BEGIN
-        -- Đếm số lần bị phạt trong năm
         SELECT @SoLanPhat = COUNT(*) FROM ThuongPhat WHERE MaNV = @MaNV AND Namm = @Nam AND Loai = N'Phạt';
         
-        IF @SoLanPhat = 0 
-            PRINT N'Nhân viên ' + @HoTen + N': Xuất sắc (Thưởng 2 tháng lương)';
-        ELSE IF @SoLanPhat < 3 
-            PRINT N'Nhân viên ' + @HoTen + N': Khá (Thưởng 1 tháng lương)';
-        ELSE 
-            PRINT N'Nhân viên ' + @HoTen + N': Trung bình (Không thưởng)';
+        DECLARE @XepLoai NVARCHAR(50);
+        DECLARE @TienThuong DECIMAL(18,2);
 
-        FETCH NEXT FROM cur_ThiDua INTO @MaNV, @HoTen;
+        IF @SoLanPhat = 0 
+        BEGIN
+            SET @XepLoai = N'Xuất sắc (A)';
+            SET @TienThuong = @Luong * 2.0; -- Thưởng 2 tháng lương
+        END
+        ELSE IF @SoLanPhat < 3 
+        BEGIN
+            SET @XepLoai = N'Khá (B)';
+            SET @TienThuong = @Luong * 1.0; -- Thưởng 1 tháng lương
+        END
+        ELSE 
+        BEGIN
+            SET @XepLoai = N'Trung bình (C)';
+            SET @TienThuong = 0; -- Không thưởng
+        END
+
+        INSERT INTO @KetQua VALUES (@MaNV, @HoTen, @Luong, @SoLanPhat, @XepLoai, @TienThuong);
+
+        FETCH NEXT FROM cur_ThiDua INTO @MaNV, @HoTen, @Luong;
     END
     
     CLOSE cur_ThiDua;
     DEALLOCATE cur_ThiDua;
+
+    SELECT * FROM @KetQua ORDER BY ThuongTet DESC;
 END;
 GO
 
--- PHẦN 6: SINH DỮ LIỆU TỰ ĐỘNG (An toàn, có Try/Catch) (Phúc)
+-- 2. PROC CHỐT THƯỞNG: Lưu thật vào bảng ThuongPhat
+CREATE OR ALTER PROCEDURE sp_Cursor_ChotThuongTet
+    @Nam INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 FROM ThuongPhat WHERE Namm = @Nam AND LyDo LIKE N'Thưởng Tết%')
+    BEGIN
+        RAISERROR(N'Năm này đã chốt thưởng Tết rồi! Vui lòng kiểm tra lại.', 16, 1);
+        RETURN;
+    END
+
+    DECLARE @MaNV INT, @Luong DECIMAL(18,2), @SoLanPhat INT;
+    DECLARE cur_ChotThuong CURSOR FOR SELECT MaNV, LuongHienTai FROM NhanVien WHERE TrangThai = N'Đang làm';
+
+    OPEN cur_ChotThuong;
+    FETCH NEXT FROM cur_ChotThuong INTO @MaNV, @Luong;
+
+    BEGIN TRAN;
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        SELECT @SoLanPhat = COUNT(*) FROM ThuongPhat WHERE MaNV = @MaNV AND Namm = @Nam AND Loai = N'Phạt';
+        
+        DECLARE @TienThuong DECIMAL(18,2) = 0;
+        DECLARE @XepLoai NVARCHAR(20) = '';
+
+        IF @SoLanPhat = 0 SET @TienThuong = @Luong * 2.0; 
+        ELSE IF @SoLanPhat < 3 SET @TienThuong = @Luong * 1.0;
+        
+        IF @TienThuong > 0
+        BEGIN
+            INSERT INTO ThuongPhat (MaNV, Thangg, Namm, Loai, SoTien, LyDo)
+            VALUES (@MaNV, 12, @Nam, N'Thưởng', @TienThuong, N'Thưởng Tết ' + CAST(@Nam AS NVARCHAR));
+        END
+
+        FETCH NEXT FROM cur_ChotThuong INTO @MaNV, @Luong;
+    END
+    COMMIT TRAN;
+
+    CLOSE cur_ChotThuong;
+    DEALLOCATE cur_ChotThuong;
+    
+    PRINT N'Đã chốt thưởng thành công!';
+END;
+GO
+--(Phúc)
 -- ======================================================================================
 DECLARE @i INT = 1;
 DECLARE @TargetCount INT = 300; -- Số lượng nhân viên
@@ -999,8 +1040,6 @@ GRANT EXECUTE ON fn_TongGioTangCa_Thang TO db_role_KeToan;
 GRANT EXECUTE ON fn_LayLuongCoBan_NV TO db_role_KeToan;
 GRANT EXECUTE ON fn_TinhLuongThucNhan_Tam TO db_role_KeToan;
 GRANT EXECUTE ON fn_TongThuongPhat_NV_Thang TO db_role_KeToan;
-GRANT EXECUTE ON fn_DuBaoChiPhiLuong_PhongBan TO db_role_KeToan;
-GRANT EXECUTE ON fn_TinhThueTNCN_UocTinh TO db_role_KeToan;
 GO
 
 USE master;
@@ -1097,6 +1136,69 @@ WITH RECOVERY;
 -- WITH RECOVERY, STOPAT = '2025-12-05 16:00:00'; (Giả sử ngày T6 là 05/12)
 GO
 
+-- BƯỚC 1: Phục hồi file backup FULL gần nhất
+-- Sử dụng WITH NORECOVERY để database ở trạng thái chờ (Restoring),
+-- chưa cho phép truy vấn để có thể nạp tiếp các bản backup sau.
+RESTORE DATABASE QLTV
+FROM DISK = 'C:\QLTV_FULL.bak'
+WITH NORECOVERY;
+
+-- BƯỚC 2: Phục hồi bản DIFFERENTIAl backup gần nhất
+-- Sử dụng WITH RECOVERY (mặc định) để báo hiệu quá trình phục hồi hoàn tất,
+-- database chuyển sang trạng thái Online và sẵn sàng hoạt động.
+RESTORE DATABASE QLTV
+FROM DISK = 'C:\QLTV_DIFF.bak'
+WITH RECOVERY;
+
+USE master;
+GO
+
+-- =============================================================
+-- BƯỚC 1: Backup "The tail of the log" (Backup phần đuôi Log)
+-- =============================================================
+-- Bước quan trọng nhất để cứu dữ liệu từ 12h trưa T6 đến 16h chiều T6.
+-- NO_TRUNCATE đảm bảo backup được ngay cả khi database bị hỏng file data.
+BACKUP LOG QLTV
+TO DISK = 'C:\QLTV_LOG_TAIL.trn'
+WITH NO_TRUNCATE, INIT;
+GO
+
+-- =============================================================
+-- BƯỚC 2: Phục hồi bản FULL BACKUP (23h tối Thứ 4)
+-- =============================================================
+RESTORE DATABASE QLTV
+FROM DISK = 'C:\QLTV_FULL.bak'
+WITH NORECOVERY; -- Database ở trạng thái Restoring
+
+-- =============================================================
+-- BƯỚC 3: Phục hồi bản DIFFERENTIAL BACKUP (23h tối Thứ 5)
+-- =============================================================
+RESTORE DATABASE QLTV
+FROM DISK = 'C:\QLTV_DIFF.bak'
+WITH NORECOVERY; -- Vẫn giữ trạng thái Restoring
+
+-- =============================================================
+-- BƯỚC 4: Phục hồi bản LOG BACKUP (12h trưa Thứ 6)
+-- =============================================================
+RESTORE LOG QLTV
+FROM DISK = 'C:\QLTV_LOG.trn'
+WITH NORECOVERY; -- Vẫn giữ trạng thái Restoring
+
+-- =============================================================
+-- BƯỚC 5: Phục hồi bản LOG BACKUP CÁI ĐUÔI (Vừa tạo ở Bước 1)
+-- =============================================================
+-- Đây là bước cuối cùng, dùng WITH RECOVERY để database Online.
+-- Nếu muốn dừng đúng 16h, dùng thêm STOPAT (tùy chọn).
+
+RESTORE LOG QLTV
+FROM DISK = 'C:\QLTV_LOG_TAIL.trn'
+WITH RECOVERY; 
+-- Hoặc nếu muốn chính xác tuyệt đối thời gian:
+-- WITH RECOVERY, STOPAT = '2025-12-05 16:00:00'; (Giả sử ngày T6 là 05/12)
+5 hours ago
+
+Phuc: Done DB
+GO
 
 
 
@@ -1121,13 +1223,6 @@ USE QL_LuongNV;
 GO
 
 SET NOCOUNT ON; -- Tắt thông báo dòng để chạy nhanh hơn
-
-PRINT N'>>> BẮT ĐẦU QUÁ TRÌNH TÁI TẠO DỮ LIỆU "1 NĂM HOẠT ĐỘNG"...';
-
--- ======================================================================================
--- BƯỚC 1: CHUẨN HÓA DỮ LIỆU CƠ BẢN (Dựa trên code của bạn)
--- ======================================================================================
-PRINT N'>>> [1/4] Cập nhật thông tin nhân viên cơ bản...';
 
 -- 1. Gán ngẫu nhiên Phòng Ban & Chức Vụ cho ai đang thiếu
 UPDATE NhanVien
@@ -1167,10 +1262,7 @@ SELECT TOP 50 PERCENT MaNV, N'Ăn trưa', 730000 FROM NhanVien ORDER BY NEWID();
 INSERT INTO PhuCap (MaNV, LoaiPhuCap, SoTien)
 SELECT MaNV, N'Trách nhiệm', 2000000 FROM NhanVien WHERE MaCV IN (2, 3, 5); -- Chỉ sếp có trách nhiệm
 
--- ======================================================================================
--- BƯỚC 2: TẠO TÀI KHOẢN ĐĂNG NHẬP (Logic của bạn + Fix lỗi)
--- ======================================================================================
-PRINT N'>>> [2/4] Đồng bộ tài khoản đăng nhập...';
+
 
 DELETE FROM TaiKhoan;
 
@@ -1194,10 +1286,7 @@ SELECT
 FROM NhanVien
 WHERE Email IS NOT NULL AND Email <> '';
 
--- ======================================================================================
--- BƯỚC 3: CỖ MÁY THỜI GIAN (Sinh dữ liệu 12 tháng qua)
--- ======================================================================================
-PRINT N'>>> [3/4] Đang tua ngược thời gian để sinh dữ liệu 12 tháng qua...';
+
 
 -- Xóa sạch dữ liệu chấm công và lương cũ để tránh trùng
 DELETE FROM ThuongPhat;
@@ -1264,12 +1353,6 @@ BEGIN
     END
 END
 
--- ======================================================================================
--- BƯỚC 4: KIỂM TRA KẾT QUẢ
--- ======================================================================================
-PRINT N'>>> [4/4] Hoàn tất! Kiểm tra dữ liệu...';
-
-PRINT N'=== THỐNG KÊ DỮ LIỆU ===';
 DECLARE @CountCC INT = (SELECT COUNT(*) FROM BangChamCong);
 DECLARE @CountLuong INT = (SELECT COUNT(*) FROM BangLuong);
 PRINT N'- Tổng bản ghi chấm công: ' + CAST(@CountCC AS NVARCHAR) + N' (Khoảng 70-80k dòng)';
@@ -1282,3 +1365,23 @@ FROM TaiKhoan WHERE Quyen = 'Admin';
 SELECT TOP 3 TenDangNhap, '123456' as MatKhau, Quyen, 'Dùng để test Portal Nhân viên' as GhiChu 
 FROM TaiKhoan WHERE Quyen = 'User';
 GO
+
+-- 1. ADMIN (Quản trị viên)
+SELECT TOP 3 TenDangNhap, N'123456' AS MatKhau, Quyen, N'Toàn quyền hệ thống' AS GhiChu 
+FROM TaiKhoan WHERE Quyen = 'Admin';
+
+-- 2. NHÂN SỰ (HR)
+SELECT TOP 3 TenDangNhap, N'123456' AS MatKhau, Quyen, N'Quản lý hồ sơ, Hợp đồng, Chấm công' AS GhiChu 
+FROM TaiKhoan WHERE Quyen = 'NhanSu';
+
+-- 3. KẾ TOÁN (Accountant)
+SELECT TOP 3 TenDangNhap, N'123456' AS MatKhau, Quyen, N'Tính lương, Thưởng phạt, Báo cáo' AS GhiChu 
+FROM TaiKhoan WHERE Quyen = 'KeToan';
+
+-- 4. USER (Nhân viên bình thường)
+SELECT TOP 3 TenDangNhap, N'123456' AS MatKhau, Quyen, N'Chỉ xem cá nhân & Check-in' AS GhiChu 
+FROM TaiKhoan WHERE Quyen = 'User';
+
+
+UPDATE TaiKhoan 
+SET MatKhau = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';

@@ -307,6 +307,18 @@ namespace QL_Luong_MVC.Controllers
             return View(nhanviens);
         }
 
+        [CustomAuthorize(Roles = "Admin,NhanSu,KeToan")] // Chỉ quản lý được xem
+        public ActionResult BaoCaoThamNien()
+        {
+            var list = nvDao.GetBaoCaoThamNien();
+
+            // Thống kê sơ bộ cho View
+            ViewBag.TongNhanSu = list.Count;
+            ViewBag.SoNguoiTren5Nam = list.Count(x => x.SoThangLamViec >= 60);
+
+            return View(list);
+        }
+
         // ==================================================================================
         // HELPER METHODS
         // ==================================================================================

@@ -329,23 +329,29 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\BangLuongController.cs" />
     <Compile Include="Controllers\ChamCongController.cs" />
+    <Compile Include="Controllers\CongCuController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HopDongController.cs" />
+    <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\LuongCoBanController.cs" />
     <Compile Include="Controllers\NhanVienController.cs" />
     <Compile Include="Controllers\PhuCapController.cs" />
+    <Compile Include="Controllers\ThuongPhatController.cs" />
     <Compile Include="CustomAuthorizeAttribute.cs" />
     <Compile Include="DAO\BangChamCongDAO.cs" />
     <Compile Include="DAO\BangLuongDAO.cs" />
     <Compile Include="DAO\BaseDAO.cs" />
     <Compile Include="DAO\ChucVuDAO.cs" />
+    <Compile Include="DAO\CongCuDAO.cs" />
     <Compile Include="DAO\HopDongDAO.cs" />
+    <Compile Include="DAO\LogDAO.cs" />
     <Compile Include="DAO\LuongCoBanDAO.cs" />
     <Compile Include="DAO\NhanVienDAO.cs" />
     <Compile Include="DAO\PhongBanDAO.cs" />
     <Compile Include="DAO\PhuCapDAO.cs" />
     <Compile Include="DAO\TaiKhoanDAO.cs" />
+    <Compile Include="DAO\ThuongPhatDAO.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -364,8 +370,12 @@
     <Compile Include="Models\TaiKhoan.cs" />
     <Compile Include="Models\ThuongPhat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SecurityHelper.cs" />
     <Compile Include="ViewModel\BaoCaoLuongViewModel.cs" />
     <Compile Include="ViewModel\DashBoardViewModel.cs" />
+    <Compile Include="ViewModel\LogViewModel.cs" />
+    <Compile Include="ViewModel\ThamNienViewModel.cs" />
+    <Compile Include="ViewModel\TongKetThiDuaVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-grid.css" />
@@ -2312,6 +2322,14 @@
     <Content Include="Views\BangLuong\ChiTietNhanVien.cshtml" />
     <Content Include="Views\Login\ChangePassword.cshtml" />
     <Content Include="Views\HopDong\XemHopDongCaNhan.cshtml" />
+    <Content Include="Views\NhanVien\BaoCaoThamNien.cshtml" />
+    <Content Include="Views\BangLuong\TongKetNam.cshtml" />
+    <Content Include="Views\ThuongPhat\Create.cshtml" />
+    <Content Include="Views\CongCu\Index.cshtml" />
+    <Content Include="Views\Log\Index.cshtml" />
+    <Content Include="Views\PhuCap\Edit.cshtml" />
+    <Content Include="Views\HopDong\Edit.cshtml" />
+    <Content Include="Views\ThuongPhat\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
